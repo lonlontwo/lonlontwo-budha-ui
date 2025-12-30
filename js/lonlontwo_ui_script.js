@@ -4,350 +4,348 @@
 // 所有 UI 功能和事件處理
 
 $(document).ready(function () {
-            // ===================================== */
-            // == 防護功能 JavaScript == */
-            // ===================================== */
+    // ===================================== */
+    // == 防護功能 JavaScript == */
+    // ===================================== */
 
-            // 1. 防右鍵
-            $(document).on('contextmenu', function (e) {
-                e.preventDefault();
-            });
+    // 1. 防右鍵 (Auto Deploy Trigger)
+    $(document).on('contextmenu', function (e) {
+        e.preventDefault();
+    });
 
-            // 2. 防 F12 和其他開發者工具快捷鍵
-            $(document).on('keydown', function (e) {
-                if (e.key === 'F12' || e.keyCode === 123) { e.preventDefault(); }
-                if (e.ctrlKey && e.shiftKey && (e.key === 'I' || e.keyCode === 73)) { e.preventDefault(); }
-                if (e.ctrlKey && e.shiftKey && (e.key === 'J' || e.keyCode === 74)) { e.preventDefault(); }
-                if (e.ctrlKey && e.shiftKey && (e.key === 'C' || e.keyCode === 67)) { e.preventDefault(); }
-                if (e.ctrlKey && (e.key === 'U' || e.keyCode === 85)) { e.preventDefault(); }
-            });
+    // 2. 防 F12 和其他開發者工具快捷鍵
+    $(document).on('keydown', function (e) {
+        if (e.key === 'F12' || e.keyCode === 123) { e.preventDefault(); }
+        if (e.ctrlKey && e.shiftKey && (e.key === 'I' || e.keyCode === 73)) { e.preventDefault(); }
+        if (e.ctrlKey && e.shiftKey && (e.key === 'J' || e.keyCode === 74)) { e.preventDefault(); }
+        if (e.ctrlKey && e.shiftKey && (e.key === 'C' || e.keyCode === 67)) { e.preventDefault(); }
+        if (e.ctrlKey && (e.key === 'U' || e.keyCode === 85)) { e.preventDefault(); }
+    });
 
-            // 3. 防複製 (Ctrl+C, 右鍵複製)
-            $(document).on('copy', function (e) {
-                e.preventDefault();
-            });
+    // 3. 防複製 (Ctrl+C, 右鍵複製)
+    $(document).on('copy', function (e) {
+        e.preventDefault();
+    });
 
-            // 4. 防選取文字 (滑鼠拖曳選取) - 透過CSS user-select:none; 和 JS onselectstart
-            $(document).on('selectstart', function (e) {
-                // 允許輸入框和文本區域選取
-                if ($(e.target).is('input, textarea')) {
-                    return true;
-                }
-                e.preventDefault();
-            });
+    // 4. 防選取文字 (滑鼠拖曳選取) - 透過CSS user-select:none; 和 JS onselectstart
+    $(document).on('selectstart', function (e) {
+        // 允許輸入框和文本區域選取
+        if ($(e.target).is('input, textarea')) {
+            return true;
+        }
+        e.preventDefault();
+    });
 
-            // ===================================== */
-            // == 頁面內容數據與邏輯 == */
-            // ===================================== */
-            const commonButtonData = [
+    // ===================================== */
+    // == 頁面內容數據與邏輯 == */
+    // ===================================== */
+    const commonButtonData = [
 
-                { name: "chatgpt", imageUrl: "https://i.ibb.co/6Jv2qS2p/chatgpt.jpg", linkUrl: "https://chat.openai.com/chat" },
-                { name: "claude", imageUrl: "https://i.ibb.co/P2hQFNQ/claude.jpg", linkUrl: "https://claude.ai/chat/" },
-                { name: "gemini", imageUrl: "https://i.ibb.co/vQp5dmG/Gemini.jpg", linkUrl: "https://ai.google.dev/" },
-                { name: "deep research", imageUrl: "https://i.ibb.co/W4SdYkSm/Deep-Research.jpg", linkUrl: "https://gemini.google.com/app" },
-                { name: "google opal", imageUrl: "https://i.ibb.co/Ngd14DXf/Opal.jpg", linkUrl: "https://opal.google/?mode=canvas" },
-                { name: "enterprise", imageUrl: "https://i.ibb.co/4gSSg97P/Gemini-Enterprise.jpg", linkUrl: "https://cloud.google.com/gemini-enterprise?hl=zh_cn" },
-                { name: "notebook lm", imageUrl: "https://i.ibb.co/JjDjPvqZ/notebook-LM.jpg", linkUrl: "https://notebooklm.google.com/" },
-                { name: "antigravity", imageUrl: "https://i.ibb.co/7xm4TBQj/antigravity-1.jpg", linkUrl: "https://lonlontwo2022.neocities.org/control/antigravity" },
-                { name: "xgrok", imageUrl: "https://i.ibb.co/SD7DPfnh/xgrok.jpg", linkUrl: "https://x.com/i/grok" },
-                { name: "grok imagine", imageUrl: "https://i.ibb.co/Kp2NLt0N/grok-imagine.jpg", linkUrl: "https://grok.com/imagine" },
-                { name: "deepseek", imageUrl: "https://thumbs2.imgbox.com/87/77/1nutdiE8_t.jpg", linkUrl: "https://chat.deepseek.com/" },
-                { name: "perplexity", imageUrl: "https://i.ibb.co/Kch7rNLn/perplexity.jpg", linkUrl: "https://www.perplexity.ai/" },
-                { name: "nvidia", imageUrl: "https://i.ibb.co/5XNsrWKs/nvidia-1.jpg", linkUrl: "https://build.nvidia.com/explore/discover" },
-                { name: "manus", imageUrl: "https://i.ibb.co/GvfJVcw6/Manus.jpg", linkUrl: "https://manus.im/" },
-                { name: "skywork ai", imageUrl: "https://i.ibb.co/d0Xmmgp4/skywork.jpg", linkUrl: "https://skywork.ai/" },
-                { name: "mgx", imageUrl: "https://i.ibb.co/ynPbg78Q/mgx.jpg", linkUrl: "https://mgx.dev/" },
-                { name: "ponder", imageUrl: "https://i.ibb.co/JWQPxwd7/ponder-1.jpg", linkUrl: "https://ponder.ing/zh_hant/" },
-                { name: "glm", imageUrl: "https://i.ibb.co/gMHXZ5kL/Z-ai.jpg", linkUrl: "https://chat.z.ai/" },
-                { name: "qwen image", imageUrl: "https://i.ibb.co/HL2030nH/resized-image-2.jpg", linkUrl: "https://chat.qwen.ai/" },
-                { name: "wan", imageUrl: "https://thumbs2.imgbox.com/cb/b0/ZTdUPbFM_t.jpg", linkUrl: "https://create.wan.video/explore" },
-                { name: "doubao", imageUrl: "https://i.ibb.co/B2GZ0dMx/doubao.jpg", linkUrl: "https://www.doubao.com/chat/" },
-                { name: "qingyan", imageUrl: "https://i.ibb.co/zTk2S93v/qingyan.jpg", linkUrl: "https://chatglm.cn/" },
-                { name: "roboneo", imageUrl: "https://i.ibb.co/RT3MQ90f/resized-image-1.jpg", linkUrl: "https://www.roboneo.com/home" },
-                { name: "lmarena", imageUrl: "https://i.ibb.co/Mkddh98R/lmarena.jpg", linkUrl: "https://lmarena.ai/" },
-                { name: "lovart", imageUrl: "https://i.ibb.co/TBYbtSg6/lovart.jpg", linkUrl: "https://www.lovart.ai/home" },
-                { name: "flux 2.0", imageUrl: "https://i.ibb.co/kV3tsP5J/flux2.jpg", linkUrl: "https://bfl.ai/" },
-                { name: "genspark ai", imageUrl: "https://i.ibb.co/W4X5pNHn/genspark.jpg", linkUrl: "https://www.genspark.ai/" },
-                { name: "yupp ai", imageUrl: "https://i.ibb.co/Jw84rPwx/yupp-ai.jpg", linkUrl: "https://yupp.ai/" },
-                { name: "kiira", imageUrl: "https://i.ibb.co/fd4J9tQV/kiira-1.jpg", linkUrl: "https://www.kiira.ai/chat" },
-                { name: "dphn", imageUrl: "https://i.ibb.co/N26HnYtp/dphn-1.jpg", linkUrl: "https://chat.dphn.ai/" },
-                { name: "reve", imageUrl: "https://i.ibb.co/ZRtyHq76/reve-logo.jpg", linkUrl: "https://preview.reve.art/" },
-                { name: "youmind", imageUrl: "https://i.ibb.co/ycrh7hbL/youmind.jpg", linkUrl: "https://youmind.com/" },
-                { name: "whisk", imageUrl: "https://i.ibb.co/HDZLH5Qf/whisk.jpg", linkUrl: "https://labs.google/fx/zh/tools/whisk" },
-                { name: "neocities", imageUrl: "https://i.ibb.co/StQpZjJ/neocities.jpg", linkUrl: "https://neocities.org/" },
-                { name: "button ui", imageUrl: "https://i.ibb.co/mcNtQTJ/button-ui.jpg", linkUrl: "https://lonlontwo2022.neocities.org/control/buttonui" },
-                { name: "rectangle snip", imageUrl: "https://i.ibb.co/fGrmvWGM/rectangle-snip-tool.jpg", linkUrl: "https://lonlontwo2022.neocities.org/control/rectangle_snip_tool" },
-                { name: "imgbb", imageUrl: "https://i.ibb.co/bz5ydnn/imgbb.jpg", linkUrl: "https://zh-tw.imgbb.com/" },
-                { name: "liveweave", imageUrl: "https://i.ibb.co/RgNV27C/liveweave.jpg", linkUrl: "https://liveweave.com/" },
-                { name: "adguard", imageUrl: "https://i.ibb.co/6PtL6pg/AdGuard.jpg", linkUrl: "https://adguard.com/zh_tw/adguard-temp-mail/overview.html" },
-                { name: "hotmail", imageUrl: "https://i.ibb.co/jb7XNPw/hotmail.jpg", linkUrl: "https://www.microsoft.com/zh-tw/microsoft-365/outlook/email-and-calendar-software-microsoft-outlook?deeplink=%2fowa%2f%3frealm%3dhotmail.com&sdf=0" },
-                { name: "infinicloud", imageUrl: "https://i.ibb.co/pffJtNH/infini-cloud.jpg", linkUrl: "https://lonlontwo2022.neocities.org/control/infinicloud" },
-                { name: "fdm", imageUrl: "https://i.ibb.co/nMHSkZQS/Free-Download-Manager.jpg", linkUrl: "https://lonlontwo2022.neocities.org/control/downvedio_box" },
-                { name: "codeformer", imageUrl: "https://i.ibb.co/jZT4NCz/codeformer.jpg", linkUrl: "https://lonlontwo2022.neocities.org/control/codeformer" },
-                { name: "canva", imageUrl: "https://i.ibb.co/mqzXKNQ/canva.jpg", linkUrl: "https://lonlontwo2022.neocities.org/control/canva" },
-                { name: "photopea", imageUrl: "https://i.ibb.co/GM7LcpL/photopea.jpg", linkUrl: "https://www.photopea.com/" },
-                { name: "vectorpea", imageUrl: "https://i.ibb.co/xGVbTPX/vectorpea.jpg", linkUrl: "https://www.vectorpea.com/" },
-                { name: "figma", imageUrl: "https://i.ibb.co/cCsd8WL/Figma.jpg", linkUrl: "https://www.figma.com/" },
-                { name: "squoosh", imageUrl: "https://i.ibb.co/KXb7MVK/squoosh.jpg", linkUrl: "https://squoosh.app/" },
-                { name: "movie compression", imageUrl: "https://i.ibb.co/CMC2gDG/Movie-Compression.jpg", linkUrl: "https://tools.rotato.app/compress" },
-                { name: "mp4 to mp3", imageUrl: "https://i.ibb.co/f8BTN2c/mp4-to-mp3.jpg", linkUrl: "https://cloudconvert.com/mp4-to-mp3" },
-                { name: "diffchecker", imageUrl: "https://i.ibb.co/N7FygyG/diffchecker.jpg", linkUrl: "https://www.diffchecker.com/zh-Hant/image-compare/" },
-                { name: "vectorizer", imageUrl: "https://i.ibb.co/0V2KXyVv/vectorizer.jpg", linkUrl: "https://vectorizer.com/zh/" },
-                { name: "beart", imageUrl: "https://i.ibb.co/4g3YrhgR/beart.jpg", linkUrl: "https://beart.ai/zh/face-swap/" },
-                { name: "aienhancer", imageUrl: "https://i.ibb.co/5WbWNPGF/aienhancer-1.jpg", linkUrl: "https://aienhancer.ai/" },
-                { name: "magiceraser", imageUrl: "https://i.ibb.co/pr0tbj5D/magicstudio.jpg", linkUrl: "https://magicstudio.com/magiceraser/" },
-                { name: "watermark", imageUrl: "https://i.ibb.co/7z7BpFS/watermark.jpg", linkUrl: "https://huggingface.co/spaces/Sanster/Lama-Cleaner-lama" },
-                { name: "ai text remover", imageUrl: "https://i.ibb.co/fV4p56x0/AI-Text-Remover.jpg", linkUrl: "https://huggingface.co/spaces/aiqcamp/REMOVAL-TEXT-IMAGE" },
-                { name: "insmind", imageUrl: "https://i.ibb.co/PdXZWmB/insmind.jpg", linkUrl: "https://www.insmind.com/" },
-                { name: "line", imageUrl: "https://i.ibb.co/r0nDKqx/line.jpg", linkUrl: "https://lonlontwo2022.neocities.org/control/line" },
-                { name: "quickmark", imageUrl: "https://i.ibb.co/K0gCyPK/QR.jpg", linkUrl: "https://www.qrcode-monkey.com/" },
-                { name: "deepsider", imageUrl: "https://i.ibb.co/JWtJVLjP/Deep-Sider.jpg", linkUrl: "https://chromewebstore.google.com/detail/deepsiderai-sidebar-deeps/dfbnddndcmilnhdfmmaolepiaefacnpo?utm_source=item-share-cb" },
-                { name: "astar vpn", imageUrl: "https://i.ibb.co/XqJyYnt/Astar-VPN.jpg", linkUrl: "https://chromewebstore.google.com/detail/astar-vpn-free-and-fast-v/jajilbjjinjmgcibalaakngmkilboobh" },
-                { name: "md5", imageUrl: "https://i.ibb.co/n60gqXx/MD5.jpg", linkUrl: "https://coding.tools/tw/md5" },
-                { name: "comfy ui", imageUrl: "https://i.ibb.co/7wKdZsj/comfy.jpg", linkUrl: "https://www.comfy.org/download" },
-
-
+        { name: "chatgpt", imageUrl: "https://i.ibb.co/6Jv2qS2p/chatgpt.jpg", linkUrl: "https://chat.openai.com/chat" },
+        { name: "claude", imageUrl: "https://i.ibb.co/P2hQFNQ/claude.jpg", linkUrl: "https://claude.ai/chat/" },
+        { name: "gemini", imageUrl: "https://i.ibb.co/vQp5dmG/Gemini.jpg", linkUrl: "https://ai.google.dev/" },
+        { name: "deep research", imageUrl: "https://i.ibb.co/W4SdYkSm/Deep-Research.jpg", linkUrl: "https://gemini.google.com/app" },
+        { name: "google opal", imageUrl: "https://i.ibb.co/Ngd14DXf/Opal.jpg", linkUrl: "https://opal.google/?mode=canvas" },
+        { name: "enterprise", imageUrl: "https://i.ibb.co/4gSSg97P/Gemini-Enterprise.jpg", linkUrl: "https://cloud.google.com/gemini-enterprise?hl=zh_cn" },
+        { name: "notebook lm", imageUrl: "https://i.ibb.co/JjDjPvqZ/notebook-LM.jpg", linkUrl: "https://notebooklm.google.com/" },
+        { name: "antigravity", imageUrl: "https://i.ibb.co/7xm4TBQj/antigravity-1.jpg", linkUrl: "https://lonlontwo2022.neocities.org/control/antigravity" },
+        { name: "xgrok", imageUrl: "https://i.ibb.co/SD7DPfnh/xgrok.jpg", linkUrl: "https://x.com/i/grok" },
+        { name: "grok imagine", imageUrl: "https://i.ibb.co/Kp2NLt0N/grok-imagine.jpg", linkUrl: "https://grok.com/imagine" },
+        { name: "deepseek", imageUrl: "https://thumbs2.imgbox.com/87/77/1nutdiE8_t.jpg", linkUrl: "https://chat.deepseek.com/" },
+        { name: "perplexity", imageUrl: "https://i.ibb.co/Kch7rNLn/perplexity.jpg", linkUrl: "https://www.perplexity.ai/" },
+        { name: "nvidia", imageUrl: "https://i.ibb.co/5XNsrWKs/nvidia-1.jpg", linkUrl: "https://build.nvidia.com/explore/discover" },
+        { name: "manus", imageUrl: "https://i.ibb.co/GvfJVcw6/Manus.jpg", linkUrl: "https://manus.im/" },
+        { name: "skywork ai", imageUrl: "https://i.ibb.co/d0Xmmgp4/skywork.jpg", linkUrl: "https://skywork.ai/" },
+        { name: "mgx", imageUrl: "https://i.ibb.co/ynPbg78Q/mgx.jpg", linkUrl: "https://mgx.dev/" },
+        { name: "ponder", imageUrl: "https://i.ibb.co/JWQPxwd7/ponder-1.jpg", linkUrl: "https://ponder.ing/zh_hant/" },
+        { name: "glm", imageUrl: "https://i.ibb.co/gMHXZ5kL/Z-ai.jpg", linkUrl: "https://chat.z.ai/" },
+        { name: "qwen image", imageUrl: "https://i.ibb.co/HL2030nH/resized-image-2.jpg", linkUrl: "https://chat.qwen.ai/" },
+        { name: "wan", imageUrl: "https://thumbs2.imgbox.com/cb/b0/ZTdUPbFM_t.jpg", linkUrl: "https://create.wan.video/explore" },
+        { name: "doubao", imageUrl: "https://i.ibb.co/B2GZ0dMx/doubao.jpg", linkUrl: "https://www.doubao.com/chat/" },
+        { name: "qingyan", imageUrl: "https://i.ibb.co/zTk2S93v/qingyan.jpg", linkUrl: "https://chatglm.cn/" },
+        { name: "roboneo", imageUrl: "https://i.ibb.co/RT3MQ90f/resized-image-1.jpg", linkUrl: "https://www.roboneo.com/home" },
+        { name: "lmarena", imageUrl: "https://i.ibb.co/Mkddh98R/lmarena.jpg", linkUrl: "https://lmarena.ai/" },
+        { name: "lovart", imageUrl: "https://i.ibb.co/TBYbtSg6/lovart.jpg", linkUrl: "https://www.lovart.ai/home" },
+        { name: "flux 2.0", imageUrl: "https://i.ibb.co/kV3tsP5J/flux2.jpg", linkUrl: "https://bfl.ai/" },
+        { name: "genspark ai", imageUrl: "https://i.ibb.co/W4X5pNHn/genspark.jpg", linkUrl: "https://www.genspark.ai/" },
+        { name: "yupp ai", imageUrl: "https://i.ibb.co/Jw84rPwx/yupp-ai.jpg", linkUrl: "https://yupp.ai/" },
+        { name: "kiira", imageUrl: "https://i.ibb.co/fd4J9tQV/kiira-1.jpg", linkUrl: "https://www.kiira.ai/chat" },
+        { name: "dphn", imageUrl: "https://i.ibb.co/N26HnYtp/dphn-1.jpg", linkUrl: "https://chat.dphn.ai/" },
+        { name: "reve", imageUrl: "https://i.ibb.co/ZRtyHq76/reve-logo.jpg", linkUrl: "https://preview.reve.art/" },
+        { name: "youmind", imageUrl: "https://i.ibb.co/ycrh7hbL/youmind.jpg", linkUrl: "https://youmind.com/" },
+        { name: "whisk", imageUrl: "https://i.ibb.co/HDZLH5Qf/whisk.jpg", linkUrl: "https://labs.google/fx/zh/tools/whisk" },
+        { name: "neocities", imageUrl: "https://i.ibb.co/StQpZjJ/neocities.jpg", linkUrl: "https://neocities.org/" },
+        { name: "button ui", imageUrl: "https://i.ibb.co/mcNtQTJ/button-ui.jpg", linkUrl: "https://lonlontwo2022.neocities.org/control/buttonui" },
+        { name: "rectangle snip", imageUrl: "https://i.ibb.co/fGrmvWGM/rectangle-snip-tool.jpg", linkUrl: "https://lonlontwo2022.neocities.org/control/rectangle_snip_tool" },
+        { name: "imgbb", imageUrl: "https://i.ibb.co/bz5ydnn/imgbb.jpg", linkUrl: "https://zh-tw.imgbb.com/" },
+        { name: "liveweave", imageUrl: "https://i.ibb.co/RgNV27C/liveweave.jpg", linkUrl: "https://liveweave.com/" },
+        { name: "adguard", imageUrl: "https://i.ibb.co/6PtL6pg/AdGuard.jpg", linkUrl: "https://adguard.com/zh_tw/adguard-temp-mail/overview.html" },
+        { name: "hotmail", imageUrl: "https://i.ibb.co/jb7XNPw/hotmail.jpg", linkUrl: "https://www.microsoft.com/zh-tw/microsoft-365/outlook/email-and-calendar-software-microsoft-outlook?deeplink=%2fowa%2f%3frealm%3dhotmail.com&sdf=0" },
+        { name: "infinicloud", imageUrl: "https://i.ibb.co/pffJtNH/infini-cloud.jpg", linkUrl: "https://lonlontwo2022.neocities.org/control/infinicloud" },
+        { name: "fdm", imageUrl: "https://i.ibb.co/nMHSkZQS/Free-Download-Manager.jpg", linkUrl: "https://lonlontwo2022.neocities.org/control/downvedio_box" },
+        { name: "codeformer", imageUrl: "https://i.ibb.co/jZT4NCz/codeformer.jpg", linkUrl: "https://lonlontwo2022.neocities.org/control/codeformer" },
+        { name: "canva", imageUrl: "https://i.ibb.co/mqzXKNQ/canva.jpg", linkUrl: "https://lonlontwo2022.neocities.org/control/canva" },
+        { name: "photopea", imageUrl: "https://i.ibb.co/GM7LcpL/photopea.jpg", linkUrl: "https://www.photopea.com/" },
+        { name: "vectorpea", imageUrl: "https://i.ibb.co/xGVbTPX/vectorpea.jpg", linkUrl: "https://www.vectorpea.com/" },
+        { name: "figma", imageUrl: "https://i.ibb.co/cCsd8WL/Figma.jpg", linkUrl: "https://www.figma.com/" },
+        { name: "squoosh", imageUrl: "https://i.ibb.co/KXb7MVK/squoosh.jpg", linkUrl: "https://squoosh.app/" },
+        { name: "movie compression", imageUrl: "https://i.ibb.co/CMC2gDG/Movie-Compression.jpg", linkUrl: "https://tools.rotato.app/compress" },
+        { name: "mp4 to mp3", imageUrl: "https://i.ibb.co/f8BTN2c/mp4-to-mp3.jpg", linkUrl: "https://cloudconvert.com/mp4-to-mp3" },
+        { name: "diffchecker", imageUrl: "https://i.ibb.co/N7FygyG/diffchecker.jpg", linkUrl: "https://www.diffchecker.com/zh-Hant/image-compare/" },
+        { name: "vectorizer", imageUrl: "https://i.ibb.co/0V2KXyVv/vectorizer.jpg", linkUrl: "https://vectorizer.com/zh/" },
+        { name: "beart", imageUrl: "https://i.ibb.co/4g3YrhgR/beart.jpg", linkUrl: "https://beart.ai/zh/face-swap/" },
+        { name: "aienhancer", imageUrl: "https://i.ibb.co/5WbWNPGF/aienhancer-1.jpg", linkUrl: "https://aienhancer.ai/" },
+        { name: "magiceraser", imageUrl: "https://i.ibb.co/pr0tbj5D/magicstudio.jpg", linkUrl: "https://magicstudio.com/magiceraser/" },
+        { name: "watermark", imageUrl: "https://i.ibb.co/7z7BpFS/watermark.jpg", linkUrl: "https://huggingface.co/spaces/Sanster/Lama-Cleaner-lama" },
+        { name: "ai text remover", imageUrl: "https://i.ibb.co/fV4p56x0/AI-Text-Remover.jpg", linkUrl: "https://huggingface.co/spaces/aiqcamp/REMOVAL-TEXT-IMAGE" },
+        { name: "insmind", imageUrl: "https://i.ibb.co/PdXZWmB/insmind.jpg", linkUrl: "https://www.insmind.com/" },
+        { name: "line", imageUrl: "https://i.ibb.co/r0nDKqx/line.jpg", linkUrl: "https://lonlontwo2022.neocities.org/control/line" },
+        { name: "quickmark", imageUrl: "https://i.ibb.co/K0gCyPK/QR.jpg", linkUrl: "https://www.qrcode-monkey.com/" },
+        { name: "deepsider", imageUrl: "https://i.ibb.co/JWtJVLjP/Deep-Sider.jpg", linkUrl: "https://chromewebstore.google.com/detail/deepsiderai-sidebar-deeps/dfbnddndcmilnhdfmmaolepiaefacnpo?utm_source=item-share-cb" },
+        { name: "astar vpn", imageUrl: "https://i.ibb.co/XqJyYnt/Astar-VPN.jpg", linkUrl: "https://chromewebstore.google.com/detail/astar-vpn-free-and-fast-v/jajilbjjinjmgcibalaakngmkilboobh" },
+        { name: "md5", imageUrl: "https://i.ibb.co/n60gqXx/MD5.jpg", linkUrl: "https://coding.tools/tw/md5" },
+        { name: "comfy ui", imageUrl: "https://i.ibb.co/7wKdZsj/comfy.jpg", linkUrl: "https://www.comfy.org/download" },
 
 
-            ];
-
-            const mainButtonData = [
-                { name: "multcloud", imageUrl: "https://i.ibb.co/mHy2S51/Mult-Cloud.jpg", linkUrl: "https://www.multcloud.com/tw/", description: "在一個平台傳輸和管理所有雲端硬碟檔案。" },
-                { name: "NYCU", imageUrl: "https://i.ibb.co/vjyw1GJ/NYCU.jpg", linkUrl: "https://lonlontwo2022.neocities.org/control/software_lock/nycu", description: "國立陽明交通大學修業總則。" },
-                { name: "drive to web", imageUrl: "https://i.ibb.co/Nxp4pP0/google-drive.jpg", linkUrl: "https://lonlontwo0420.neocities.org/led_indicator/DriveToWeb", description: "google 空間轉換。" },
-                { name: "artificialanalysis", imageUrl: "https://i.ibb.co/sdSZ5TtJ/20251128093515-1.jpg", linkUrl: "https://artificialanalysis.ai/", description: "世界最新AI工具趨勢競技場排行榜。" },
-                { name: "toolify ai", imageUrl: "https://i.ibb.co/sJMcGr81/toolify-ai.jpg", linkUrl: "https://www.toolify.ai/tw/", description: "掌握世界最新AI工具趨勢及更新觀測站。" },
-                { name: "alternativeto", imageUrl: "https://i.ibb.co/CJyQ0hn/alternativeto.jpg", linkUrl: "https://alternativeto.net", description: "平替方案搜尋引擎。" },
-                { name: "creati ai", imageUrl: "https://i.ibb.co/4ZxP3q1p/creatiai-logo.jpg", linkUrl: "https://creati.ai/tw/", description: "終極 AI 工具目錄。" },
-                { name: "aiyy", imageUrl: "https://i.ibb.co/xShQt1JT/aiyy-1.jpg", linkUrl: "https://aiyy.info/", description: "AI工具應用方案平台。" },
-                { name: "supabase", imageUrl: "https://i.ibb.co/Bfx9hgF/supabase.jpg", linkUrl: "https://supabase.com/", description: "Supabase 是 Firebase 的開源替代方案。" },
-                { name: "fc2", imageUrl: "https://i.ibb.co/pwpzByp/fc2.jpg", linkUrl: "http://web.fc2.com/?lang=ja", description: "日本免費網頁空間。" },
-                { name: "1mb", imageUrl: "https://i.ibb.co/1zLRjm6/1mb-co.jpg", linkUrl: "https://1mb.co/", description: "免費網頁空間。" },
-                { name: "drivehq", imageUrl: "https://i.ibb.co/VCg9Bcj/drivehq.jpg", linkUrl: "https://www.drivehq.com/", description: "drivehq 免費網頁空間。" },
-                { name: "opendrive", imageUrl: "https://i.ibb.co/nm717jg/opendrive.jpg", linkUrl: "https://www.opendrive.com/", description: "opendrive 免費網頁空間。" },
-                { name: "one drive", imageUrl: "https://i.ibb.co/Wppm6Jc/onedrive.jpg", linkUrl: "https://www.microsoft.com/zh-tw/microsoft-365/onedrive/online-cloud-storage", description: "one drive 免費網頁空間。" },
-                { name: "10 minute mail", imageUrl: "https://i.ibb.co/6B1bvhy/10-minute-mail.jpg", linkUrl: "https://10minutemail.net/?lang=zh-tw", description: "免費信箱無限郵。" },
-                { name: "gmail", imageUrl: "https://i.ibb.co/kmG226s/Gmail.jpg", linkUrl: "https://accounts.google.com/lifecycle/steps/signup/name?checkedDomains=youtube&continue=https://mail.google.com/mail&dsh=S-1757580564:1764300725664927&emr=1&flowEntry=SignUp&flowName=GlifWebSignIn&ifkv=ARESoU2BC2iFJGIvs1pFq_emd58Lvd-Qsmi39gR9tCdyKuRP_QSWbs-9PHBDp8W4E-LOa5tdoqt1&ltmpl=default&pstMsg=1&rm=false&service=mail&ss=1&TL=ANzgctSKK_zLBu7v_QbwtRFED_vp8xsG5a1ckxz4d6VAKEuEw3GTa_Vd-J3v3nwq", description: "信箱申請。" },
-                { name: "clashxhub", imageUrl: "https://i.ibb.co/1JZX87sF/clashxhub.jpg", linkUrl: "https://clashxhub.com/", description: "信箱申請外掛。" },
-                { name: "crazymailing", imageUrl: "https://thumbs2.imgbox.com/32/f0/FIuaYKcu_t.jpg", linkUrl: "https://crazymailing.com/", description: "免費信箱無限郵。" },
-                { name: "maildrop", imageUrl: "https://i.ibb.co/Kck1V1kz/maildrop.jpg", linkUrl: "https://maildrop.cc/", description: "maildrop免費信箱無限郵。" },
-                { name: "reurl", imageUrl: "https://i.ibb.co/rmvSVqr/reurl.jpg", linkUrl: "https://reurl.cc/main/tw", description: "縮短網址工具。" },
-                { name: "sync", imageUrl: "https://i.ibb.co/9y68f5j/cp-sync.jpg", linkUrl: "https://cp.sync.com/", description: "sync 免費空間。" },
-                { name: "streamable", imageUrl: "https://i.ibb.co/F05qNYr/streamable.jpg", linkUrl: "https://cp.sync.com/", description: "免費影片空間(有時間限制)。" },
-                { name: "easeUS video", imageUrl: "https://i.ibb.co/35n0661N/Ease-US-Video-Downloader.jpg", linkUrl: "https://jike.teracloud.jp/share/121190947e1bb421", description: "easeUS video 終身授權碼 : SG528-2D5KI-W5UZ3-CJQLP-12ZVM。" },
-                { name: "sendvid", imageUrl: "https://i.ibb.co/sJSWsx8/sendvid.jpg", linkUrl: "https://sendvid.com/", description: "免費影片空間(有時間限制)。" },
-                { name: "dailymotion", imageUrl: "https://i.ibb.co/HT82wBk/dailymotion.jpg", linkUrl: "https://www.dailymotion.com/tw", description: "免費影片空間平台。" },
-                { name: "freemake", imageUrl: "https://i.ibb.co/NjTMMV2/freemake.jpg", linkUrl: "https://www.freemake.com/tw/free_video_downloader/", description: "影片下載工具。" },
-                { name: "mediafire", imageUrl: "https://i.ibb.co/6nw1YyS/Media-Fire.jpg", linkUrl: "https://www.mediafire.com/", description: "免費檔案空間。" },
-                { name: "terabox", imageUrl: "https://i.ibb.co/GFmTN71/terabox.jpg", linkUrl: "https://www.dubox.com/", description: "1024GB Cloud Storage。" },
-                { name: "avoid watermark", imageUrl: "https://i.ibb.co/NkVF4Xr/avoid-watermark.jpg", linkUrl: "https://lonlontwo2022.neocities.org/control/avoid_watermark", description: "避開浮水印工具。" },
-                { name: "image naming", imageUrl: "https://i.ibb.co/QVx7Jfq/image-naming.jpg", linkUrl: "https://lonlontwo2022.neocities.org/control/image_naming", description: "圖檔批次命名工具。" },
-                { name: "image size", imageUrl: "https://i.ibb.co/0jND4PC7/image-size.jpg", linkUrl: "https://lonlontwo2022.neocities.org/image_size", description: "兔兔網圖片縮放與浮水印工具。" },
-                { name: "image segmentation", imageUrl: "https://i.ibb.co/93prF6WN/image-segmentation.jpg", linkUrl: "https://lonlontwo2022.neocities.org/control/image_segmentation", description: "兔兔網圖片分割工具。" },
-                { name: "apowersoft", imageUrl: "https://i.ibb.co/N6Yk3rsQ/apowersoft.jpg", linkUrl: "https://www.apowersoft.tw/crop-video-online", description: "框選影片選取範圍剪除黑邊工具。" },
-                { name: "video frame extractor", imageUrl: "https://i.ibb.co/Q7C88kTg/Video-Frame-Extractor.jpg", linkUrl: "https://frame-extractor.com", description: "影片分割成影格工具。" },
-                { name: "compress", imageUrl: "https://i.ibb.co/p2wVWbP/compressjpeg.jpg", linkUrl: "https://compressjpeg.com/zh/", description: "線上壓縮圖檔工具 (限20張)。" },
-                { name: "imgbox", imageUrl: "https://thumbs2.imgbox.com/9c/a6/K0e9A6cg_t.jpg", linkUrl: "https://imgbox.com/", description: "免費圖床平台。" },
-                { name: "pixabay", imageUrl: "https://i.ibb.co/XtgwDF4/pixabay.jpg", linkUrl: "https://pixabay.com", description: "免費圖片素材庫。" },
-                { name: "poppop ai", imageUrl: "https://i.ibb.co/BHX7Dwwf/poppop-ai.jpg", linkUrl: "https://poppop.ai/zh-tw/ai-vocal-remover", description: "PopPop AI是一個免費的線上多功能音頻工具平台，提供文字轉語音、音效生成、人聲與伴奏分離及歌曲翻唱等AI聲音處理功能。" },
-                { name: "csubtitle", imageUrl: "https://i.ibb.co/ym9yfL3C/c-Subtitle-1.jpg", linkUrl: "https://www.csubtitle.com/", description: "免費文字轉語音,STT（Speech-to-Text）。" },
-                { name: "ttsreader", imageUrl: "https://i.ibb.co/Z6bJ4Wgj/ttsreader-1.jpg", linkUrl: "https://ttsreader.com/", description: "免費文字轉語音,Text To Speech (TTS)。" },
-                { name: "ttsmaker", imageUrl: "https://i.ibb.co/smhP4TL/ttsmaker.jpg", linkUrl: "https://ttsmaker.com/", description: "免費文字轉語音。" },
-                { name: "f5-tts", imageUrl: "https://i.ibb.co/dBB5Bqw/F5-TTS.jpg", linkUrl: "https://huggingface.co/spaces/abidlabs/E2-F5-TTS", description: "語音克隆平台。" },
-                { name: "Seed vc", imageUrl: "https://i.ibb.co/RBzhRwg/Seed-VC.jpg", linkUrl: "https://huggingface.co/spaces/mengtoa/Seed-VC", description: "語音克隆平台。" },
-                { name: "index tts", imageUrl: "https://i.ibb.co/cSr2ryJN/IndexTTS.jpg", linkUrl: "https://jike.teracloud.jp/share/1211a17cee503c61", description: "語音克隆工具下載。" },
-                { name: "minimax", imageUrl: "https://i.ibb.co/BHtv1CJX/minimax.jpg", linkUrl: "https://www.minimax.io/audio", description: "音效生成AI。" },
-                { name: "sonauto ai", imageUrl: "https://i.ibb.co/pjZGFgss/sonauto-ai-1.jpg", linkUrl: "https://sonauto.ai/", description: "創作任何你能想像的歌曲,完全免費。" },
-                { name: "musicfu ai", imageUrl: "https://i.ibb.co/n8ZdmJJC/musicfu-ai.jpg", linkUrl: "https://tw.musicful.ai/", description: "只要輸入文字，就能用我們的 AI 歌曲生成器，輕鬆生成 BGM 音樂、饒舌或 AI 翻唱。零音樂基礎也能創作！" },
-                { name: "suno ai", imageUrl: "https://i.ibb.co/fC6tDZ4/suno.jpg", linkUrl: "https://www.suno.ai/", description: "創作任何你能想像的歌曲。" },
-                { name: "udio ai", imageUrl: "https://i.ibb.co/T0HmKG6/udio.jpg", linkUrl: "https://www.udio.com/", description: "製作你的音樂創作任何歌曲。只需想像一下。" },
-                { name: "fish audio", imageUrl: "https://i.ibb.co/1Gzvsz9/fish-audio.jpg", linkUrl: "https://fish.audio/zh-CN/", description: "最自然的 AI 語音聲音克隆、配音、應有盡有。" },
-                { name: "tempolor", imageUrl: "https://i.ibb.co/X36J59K/tempolor.jpg", linkUrl: "https://www.tempolor.com/", description: "聲音你的願景 200,000+ 首免版稅音樂觸手可及" },
-                { name: "srt", imageUrl: "https://i.ibb.co/WpMH6JK/SRT.jpg", linkUrl: "https://translatesubtitles.com/", description: "字幕srt轉換" },
-                { name: "convert", imageUrl: "https://i.ibb.co/1LbpsCR/convert.jpg", linkUrl: "https://lonlontwo2022.neocities.org/control/software_lock/convert", description: "剪映字體簡體轉繁體。" },
-                { name: "jianying", imageUrl: "https://i.ibb.co/0KMsD9t/jianying.jpg", linkUrl: "https://lonlontwo2022.neocities.org/control/jianying", description: "剪映工具集。" },
-                { name: "davinci", imageUrl: "https://i.ibb.co/QKnNRgB/DaVinci.jpg", linkUrl: "https://lonlontwo2022.neocities.org/control/software_lock/davinci_resolve", description: "專業剪輯軟體需下載。" },
-                { name: "openshot", imageUrl: "https://i.ibb.co/VYvmMyV/openshot.jpg", linkUrl: "https://www.openshot.org/", description: "OpenShot 是一款跨平台影片編輯器，支援 Linux、Mac 和 Windows。" },
-                { name: "flixier", imageUrl: "https://i.ibb.co/P817rR2/flixier.jpg", linkUrl: "https://editor.flixier.com/", description: "線上剪輯平台。" },
-                { name: "clipchamp", imageUrl: "https://i.ibb.co/nbNthnL/clipchamp.jpg", linkUrl: "https://app.clipchamp.com/login", description: "線上剪輯平台。" },
-                { name: "fastreel", imageUrl: "https://i.ibb.co/ZgZdss8/fastreel.jpg", linkUrl: "https://www.fastreel.com/zh/", description: "免費線上影片編輯器。" },
-                { name: "img2go", imageUrl: "https://i.ibb.co/pKss92P/img2go.jpg", linkUrl: "https://www.img2go.com/zh", description: "免費線上圖片編輯器。" },
-                { name: "picwish", imageUrl: "https://i.ibb.co/8PPq3J1/picwish.jpg", linkUrl: "https://lonlontwo2022.neocities.org/control/picwish", description: "佐糖工具組。" },
-                { name: "cogniwerk", imageUrl: "https://i.ibb.co/9GVrxZ6/cogniwerk.jpg", linkUrl: "https://cogniwerk.ai/", description: "生成、訓練和共享 AI 圖像和模型。" },
-                { name: "clipdrop", imageUrl: "https://i.ibb.co/TKCGNsf/clipdrop.jpg", linkUrl: "https://clipdrop.co", description: "創造令人驚嘆的視覺效果。" },
-                { name: "jav player trial", imageUrl: "https://i.ibb.co/m0Z8RWR/Jav-Player-Trial.jpg", linkUrl: "https://lonlontwo2022.neocities.org/control/software_lock/jav_player_trial", description: "解除馬賽克工具 (需下載)。" },
-                { name: "obs", imageUrl: "https://i.ibb.co/gvXp508/obsproject.jpg", linkUrl: "https://lonlontwo2022.neocities.org/control/software_lock/obsproject", description: "專業螢幕錄影 (需下載)。" },
-                { name: "imagetotext", imageUrl: "https://i.ibb.co/rKzHJLtS/imagetotext.jpg", linkUrl: "https://www.imagetotext.info/", description: "線上圖像到文字轉換器，用於從圖像中提取文字。" },
-                { name: "hitpaw video enhancer", imageUrl: "https://i.ibb.co/0ybtx54/Hit-Paw-Video-Enhancer.jpg", linkUrl: "https://lonlontwo2022.neocities.org/control/software_lock/hitpaw", description: "提高影片解析度工具 (需下載)。" },
-                { name: "easeus fixo", imageUrl: "https://i.ibb.co/N2ZNcRTm/Ease-US-Fixo.jpg", linkUrl: "https://kamo.teracloud.jp/share/1291d413ef556fa1", description: "EaseUS Fixo 免費1年版,序號 : HR9LI-2W2K2-31ANC-E7GRG-KK1NS。" },
-                { name: "ezgif", imageUrl: "https://i.ibb.co/S7TfZ05/ezgif.jpg", linkUrl: "https://ezgif.com/video-to-gif", description: "影片轉 gif 平台。" },
-                { name: "online convert", imageUrl: "https://i.ibb.co/mHfhTr8/online-convert.jpg", linkUrl: "https://image.online-convert.com/", description: "在線上將媒體檔案從一種格式轉換為另一種格式。" },
-                { name: "iloveimg", imageUrl: "https://i.ibb.co/gvLp9mK/iloveimg.jpg", linkUrl: "https://www.iloveimg.com/zh-tw", description: "可批量編輯圖片 的所有工具你的線上圖片編輯器就在這裡，而且永遠免費！。" },
-                { name: "123apps", imageUrl: "https://i.ibb.co/nLXSP5s/123apps.jpg", linkUrl: "https://123apps.com/tw/", description: "用於編輯、創建和轉換的線上工具。" },
-                { name: "tinywow", imageUrl: "https://i.ibb.co/vCqgMXrk/tinywow.jpg", linkUrl: "https://tinywow.com/", description: "線上轉換工具綜合平台。" },
-                { name: "movavi video converter", imageUrl: "https://i.ibb.co/mRhDv80/Movavi-Video-Converter.jpg", linkUrl: "https://lonlontwo2022.neocities.org/control/software_lock/movavi_video_converter", description: "影片壓縮軟體 (需下載)。" },
-                { name: "goldwave", imageUrl: "https://i.ibb.co/wQ30TtX/goldwave.jpg", linkUrl: "https://lonlontwo2022.neocities.org/control/software_lock/goldwave", description: "音檔剪輯工具 (需下載)。" },
-                { name: "spleetergui", imageUrl: "https://i.ibb.co/QnT7pJV/spleetergui.jpg", linkUrl: "https://lonlontwo2022.neocities.org/control/software_lock/spleetergui", description: "音檔分離工具 (需下載)。" },
-                { name: "stemroller", imageUrl: "https://i.ibb.co/8Y7xyPJ/stemroller.jpg", linkUrl: "https://www.stemroller.com/", description: "音效拆分工具 (需下載)。" },
-                { name: "aiarty image", imageUrl: "https://i.ibb.co/s97J0z6V/Aiarty-Image.jpg", linkUrl: "https://kamo.teracloud.jp/share/129143eaf37bf3f7", description: "本機安裝式圖片去背工具,License for Win: FCQ5U-JOVXH-5AORK-O2BBX ; License for Mac: FDD7M-SZJIF-SFLPV-EC4BV。" },
-                { name: "fliflik", imageUrl: "https://i.ibb.co/3TpqZNy/FliFlik.jpg", linkUrl: "https://fliflik.com/", description: "本機安裝式圖片處理平台 (需下載)。" },
-                { name: "remove bg", imageUrl: "https://i.ibb.co/JC7c9hy/remove.jpg", linkUrl: "https://www.remove.bg/zh", description: "線上圖片去背平台。" },
-                { name: "erase bg", imageUrl: "https://i.ibb.co/n3XJFsW/erase-bg.jpg", linkUrl: "https://www.erase.bg/zh", description: "線上圖片去背平台。" },
-                { name: "bgsub", imageUrl: "https://i.ibb.co/mJVprTb/bgsub.jpg", linkUrl: "https://bgsub.cn/", description: "使用先進的 人工智能技術 自動替換圖像的背景。" },
-                { name: "remove photos", imageUrl: "https://i.ibb.co/GfdxjhnN/remove-photos.jpg", linkUrl: "https://remove.photos/zh-tw/", description: "從裝置或應用程式中刪除選定的照片。(免帳號登入)" },
-                { name: "inpaintweb", imageUrl: "https://i.ibb.co/C8V2ZR0/cleanup-pictures.jpg", linkUrl: "https://inpaintweb.lxfater.com/", description: "圖片橡皮擦工具(會折損解析度,需透過內建增強4倍)。" },
-                { name: "quququ", imageUrl: "https://i.ibb.co/Jj0Ymqtq/quququ.jpg", linkUrl: "https://quququ.cn/remove", description: "去去去，一键涂抹，无痕去除。" },
-                { name: "unwatermark ai", imageUrl: "https://i.ibb.co/R9HSSSV/resized-image-3.jpg", linkUrl: "https://unwatermark.ai/video-watermark-remover/", description: "影片去除水印工具。" },
-                { name: "supawork ai", imageUrl: "https://i.ibb.co/0jrthpN6/supawork-ai.jpg", linkUrl: "https://supawork.ai/ai-video-watermark-remover", description: "只有影片去除水印工具是免費的。" },
-                { name: "poe", imageUrl: "https://i.ibb.co/PDKt9D3/POE.jpg", linkUrl: "https://poe.com/", description: "Poe是一個智能聊天平台，允許用戶與多種AI模型互動，獲取信息、創作內容或進行對話。" },
-                { name: "chandler", imageUrl: "https://i.ibb.co/mRxw8sK/chandler.jpg", linkUrl: "https://chandler.bet/#/overView", description: "整合 GPT‑4、Claude3、DALL‑E 等模型，支援聊天、圖像生成、資料分析、簡報與影片創作等多樣功能。" },
-                { name: "metaso ai", imageUrl: "https://i.ibb.co/QpJZJv5/metaso.jpg", linkUrl: "https://metaso.cn/", description: "秘塔AI搜索。" },
-                { name: "nami ai", imageUrl: "https://i.ibb.co/tw9PbM16/nami.jpg", linkUrl: "https://bot.n.cn/", description: "納米可以幫你搜索、答疑、提建議，還能撰寫研究報告，請把你的任务交给我吧。" },
-                { name: "cephalon cloud", imageUrl: "https://i.ibb.co/PvSQsW2Y/cephalon.jpg", linkUrl: "https://cephalon.cloud/aigc", description: "工作流應用平台 (需要大陸手機或是透過微信註冊)。" },
-                { name: "tongyi", imageUrl: "https://thumbs2.imgbox.com/cb/b0/ZTdUPbFM_t.jpg", linkUrl: "https://tongyi.aliyun.com/", description: "通義千問 (需要+886 臺灣手機登入帳號)。" },
-                { name: "qwen", imageUrl: "https://thumbs2.imgbox.com/cb/b0/ZTdUPbFM_t.jpg", linkUrl: "https://chat.qwen.ai/", description: "千問模型 (可經由 google 帳號登入模型平台)。" },
-                { name: "toolify ai", imageUrl: "https://i.ibb.co/ksjRDpys/yiyan.jpg", linkUrl: "https://yiyan.baidu.com/?utm_source=toolify.ai", description: "文心一言 (需要+886 臺灣手機登入帳號)。" },
-                { name: "bolt ai", imageUrl: "https://i.ibb.co/mJkyPCh/bolt.jpg", linkUrl: "https://bolt.new/", description: "程式語言的得力助手(但是每日只能問 5 個問題,所以問問題要先設計好)。" },
-                { name: "llamacoder ai", imageUrl: "https://i.ibb.co/3mp95mt2/llamacoder-together.jpg", linkUrl: "https://llamacoder.together.ai/", description: "AI 代碼產生器無須帳號登入。" },
-                { name: "notion", imageUrl: "https://i.ibb.co/hRYnrgPZ/notion.jpg", linkUrl: "https://www.notion.so/chat", description: "資料整理AI,有次數的限制。" },
-                { name: "felo ai", imageUrl: "https://thumbs2.imgbox.com/fa/a8/chusYLlo_t.jpg", linkUrl: "https://felo.ai/search", description: "資料整理AI。" },
-                { name: "askconcierge ai", imageUrl: "https://i.ibb.co/3PmYk3Y/askconcierge.jpg", linkUrl: "https://askconcierge.ai/", description: "與您的應用程式對話自然語言。" },
-                { name: "napkin ai", imageUrl: "https://i.ibb.co/20kJqqy9/napkin.jpg", linkUrl: "https://www.napkin.ai/", description: "Napkin 將您的文字轉換為視覺效果，以便快速有效地分享您的想法。" },
-                { name: "elicit", imageUrl: "https://i.ibb.co/V3XHmbW/elicit.jpg", linkUrl: "https://elicit.org/", description: "以超人的速度分析研究論文。" },
-                { name: "genape", imageUrl: "https://i.ibb.co/fGGFvzD/genape.jpg", linkUrl: "https://app.genape.ai/zh-TW/", description: "GenApe 中文 AI 生產力工具，寫作、繪圖、影片全包辦！。" },
-                { name: "copilot", imageUrl: "https://i.ibb.co/60BMXR1x/Copilot.jpg", linkUrl: "https://www.bing.com/?FORM=Z9FD1", description: "由微軟推出的 AI 助手，整合在 Office 等應用中，能協助撰寫、總結、分析資料並提升工作效率。" },
-                { name: "mistral", imageUrl: "https://i.ibb.co/QXR2Ysk/mistral.jpg", linkUrl: "https://mistral.ai/en", description: "一個由Mistral AI創建的AI助手。" },
-                { name: "ollama", imageUrl: "https://i.ibb.co/ZWkzb5H/ollama.jpg", linkUrl: "https://lonlontwo2022.neocities.org/control/ollama", description: "ollama 本基套件安裝。" },
-                { name: "cerebras", imageUrl: "https://i.ibb.co/RGKLFMnJ/cerebras.jpg", linkUrl: "https://www.cerebras.ai/inference", description: "專為大規模深度學習訓練與推論打造，顯著加快速度並提高能源效率 (超快速GPT回答)。" },
-                { name: "mathgpt", imageUrl: "https://i.ibb.co/Jrvvs8D/mathgpt.jpg", linkUrl: "https://mathgptpro.com/", description: "MathGPT是一個專門解答數學問題的AI助手。" },
-                { name: "gentube", imageUrl: "https://i.ibb.co/ZRBHjSJs/gentube.jpg", linkUrl: "https://www.gentube.app/", description: "GenTube 是一款完全免費、超快速的 AI 文字轉圖平台，支援無限創作與實時社群共創，讓你幾秒內產出高質感圖像並即時查看他人作品。" },
-                { name: "raphael", imageUrl: "https://i.ibb.co/HT075cMM/raphael.jpg", linkUrl: "https://raphael.app/zh", description: "Raphael 是一款完全免費、無使用限制且支援商用的 AI 圖像生成工具，讓創作者輕鬆產出高品質圖片。" },
-                { name: "pollinations ai", imageUrl: "https://i.ibb.co/bg5XFTRr/pollinations-ai.jpg", linkUrl: "https://pollinations.ai/", description: "Pollinations AI 是一個免費、開源的 AI 創作平台，讓使用者透過簡單的文字描述，即可生成圖片、音樂、3D 物件和沉浸式環境，無需註冊或 API 金鑰即可使用。" },
-                { name: "image baidu", imageUrl: "https://i.ibb.co/82DMW6C/baidu.jpg", linkUrl: "https://image.baidu.com/", description: "百度推出的 AI 繪圖平台，可根據文字描述生成多風格圖片果。" },
-                { name: "hunyuan", imageUrl: "https://i.ibb.co/SXQ7W82m/aivideo-hunyuan.jpg", linkUrl: "https://lonlontwo2022.neocities.org/control/hunyuan", description: "Hunyuan AI是一个融合先进算法和大规模计算能力的智能平台。" },
-                { name: "stable diffusion", imageUrl: "https://i.ibb.co/6193jnK/Stable-Diffusion.jpg", linkUrl: "https://lonlontwo2022.neocities.org/control/software_lock/stable_diffusion", description: "基於擴散模型的 AI 影像生成技術，透過逐步去噪還原圖像，可根據文字提示產出高品質且具創造性的圖像，廣泛應用於藝術創作與視覺設計。" },
-                { name: "midjourney", imageUrl: "https://i.ibb.co/C7XX97w/midjourney.jpg", linkUrl: "https://lonlontwo2022.neocities.org/control/software_lock/midjourney", description: "Midjourney 是一款透過 Discord 提示詞生成高質感、風格鮮明圖像的 AI 藝術平台，以其細膩的美學和強大社群共創體驗聞名。" },
-                { name: "leonardo", imageUrl: "https://i.ibb.co/DzHVn2T/leonardo-ai.jpg", linkUrl: "https://app.leonardo.ai/", description: "主打高質感圖像生成的 AI 工具，適合用於遊戲、美術與品牌視覺設計。" },
-                { name: "designer ai", imageUrl: "https://i.ibb.co/NNzqh6c/designer-ai.jpg", linkUrl: "https://designer.microsoft.com", description: "用於輔助視覺與平面設計的 AI 工具，可自動生成排版、圖片與設計提案。" },
-                { name: "bing image creator", imageUrl: "https://i.ibb.co/MnTPqqV/bing-image-creator.jpg", linkUrl: "https://www.bing.com/create", description: "微軟推出的 AI 圖像生成工具，透過文字提示即可快速生成各種風格的圖片，基於 DALL·E 模型運作。" },
-                { name: "firefly", imageUrl: "https://i.ibb.co/r3RC2SC/firefly.jpg", linkUrl: "https://firefly.adobe.com/", description: "Adobe Firefly 是一套整合於 Creative Cloud 的生成式 AI 系列工具。" },
-                { name: "ideogram", imageUrl: "https://i.ibb.co/1JY5BDm/ideogram.jpg", linkUrl: "https://ideogram.ai", description: "AI 圖像生成工具，專注於從文字描述快速創作高品質、風格多變的插畫與視覺作品。" },
-                { name: "getimg ai", imageUrl: "https://i.ibb.co/ssgQ86P/getimg-ai.jpg", linkUrl: "https://getimg.ai/home", description: "多功能 AI 圖像生成與編輯平台，支援文字生成圖片、即時編輯、風格轉換、動畫製作等，適合設計師、行銷人員及創作者使用。" },
-                { name: "palette fm", imageUrl: "https://i.ibb.co/qJN882R/palette-fm.jpg", linkUrl: "https://palette.fm/", description: "完全免費且無需註冊的 AI 圖像上色工具，專為將黑白照片轉換為高品質彩色影像而設計。" },
-                { name: "imagecolorizer", imageUrl: "https://i.ibb.co/7JZRsHzy/imagecolorizer.jpg", linkUrl: "https://imagecolorizer.com/colorize", description: "免費且無需註冊的 AI 圖像上色工具，專為將黑白照片轉換為高品質彩色影像而設計。使用者只需上傳圖片，即可在數秒鐘內獲得色彩豐富、自然真實的結果。" },
-                { name: "websim ai", imageUrl: "https://i.ibb.co/B6rPDgp/websim-ai.jpg", linkUrl: "https://websim.ai/", description: "程式碼網站與應用程式生成平台，允許用戶僅透過自然語言提示或 URL，即可快速創建互動式網頁、工具、遊戲等內容。" },
-                { name: "tldraw", imageUrl: "https://thumbs2.imgbox.com/d7/24/a7JfdfGF_t.jpg", linkUrl: "https://computer.tldraw.com/", description: "tldraw 是一款結合 AI 助手與即時協作的開源白板工具，讓你從手繪草圖快速生成可運行的 UI 或應用原型。" },
-                { name: "florafauna ai", imageUrl: "https://thumbs2.imgbox.com/df/6c/AJ1wbQl0_t.jpg", linkUrl: "https://www.florafauna.ai/", description: "智能植物夥伴，結合圖像識別、園藝建議與創意生成，讓你輕鬆識別植物、照顧綠植，並探索與植物相關的文化與藝術。" },
-                { name: "langflow", imageUrl: "https://i.ibb.co/XkLhY9kM/langflow.jpg", linkUrl: "https://www.langflow.org/", description: "開源的視覺化 AI 應用構建平台，讓你透過拖放元件快速建立多代理與 RAG 工作流程，並支援即時測試與部署。" },
-                { name: "haiper ai", imageUrl: "https://i.ibb.co/QHQ2Xr3/Haiper.jpg", linkUrl: "https://haiper.ai/", description: "Haiper AI 是一款 AI 影片生成平台，支援文字、圖片轉影片，並提供影片重繪與畫質提升功能，協助創作者快速實現創意。。" },
-                { name: "hedra ai", imageUrl: "https://i.ibb.co/5cH5tXv/hedra.jpg", linkUrl: "https://www.hedra.com/", description: "Hedra AI 是一個將靜態圖像與文字或語音轉化為生動虛擬角色影片的 AI 平台，讓創作者輕鬆打造具表情與動作的短影片。" },
-                { name: "magi", imageUrl: "https://i.ibb.co/M5kN6Ztb/magi-1.jpg", linkUrl: "https://magi.sand.ai", description: "數字人平台。" },
-                { name: "kling ai", imageUrl: "https://i.ibb.co/HTvCH7Z/klingai.jpg", linkUrl: "https://klingai.com/", description: "Kling AI 是一款能將文字快速轉換成高品質影片的生成式 AI 工具，專注於即時影片創作與視覺敘事。" },
-                { name: "dreamina", imageUrl: "https://i.ibb.co/pwtYCmq/dreamina.jpg", linkUrl: "https://dreamina.capcut.com/zh-tw/", description: "透過文字提示或圖像輸入，快速生成、編輯並高畫質擴展多種風格圖像（如動漫、寫實、插畫等）的全方位 AI 畫布平台。" },
-                { name: "pixverse ai", imageUrl: "https://i.ibb.co/Fn0Fksp/pixverse.jpg", linkUrl: "https://app.pixverse.ai/", description: "Pixverse AI 是一款能將文字或圖片一鍵生成高品質動畫影片的工具，適合快速創作視覺效果強烈的短影音內容。" },
-                { name: "hailuo ai", imageUrl: "https://i.ibb.co/QctR2dH/hailuoai.jpg", linkUrl: "https://hailuoai.video/", description: "Hailuo AI 是由中國 AI 公司 MiniMax 所推出的免費文字／圖片轉影片生成工具 (必須用google帳號開通)。" },
-                { name: "vidu", imageUrl: "https://i.ibb.co/w4JDXRP/vidu.jpg", linkUrl: "https://www.vidu.studio/", description: "Vidu AI 是一款能將文字、圖片或多張參考圖一鍵生成高品質、風格統一的動態短影片的 AI 工具，強調快速、2D 動畫與角色一致性的視覺創作體驗。" },
-                { name: "pika", imageUrl: "https://i.ibb.co/x3D85LQ/pika.jpg", linkUrl: "https://pika.art/", description: "Pika 是一款由 Pika Labs 推出的 AI 影片生成工具，能將文字或圖片提示快速轉換成 5–10 秒的高品質動態影片，並支援特效與鏡頭控制，是內容創作者與行銷人員的強大助力。" },
-                { name: "vivago ai", imageUrl: "https://i.ibb.co/QCKZ2Y3/vivago.jpg", linkUrl: "https://vivago.ai/", description: "Vivago AI 是一款功能全面的 AI 視覺創作平台，能一鍵將文字或圖片轉成高品質動畫影片與 3D 模型，並具備 Magic Brush、魔法橡皮擦、影像擴展與4K 影像／影片升級等實用工具，非常適合社群創作者和行銷人員使用。" },
-                { name: "runway", imageUrl: "https://i.ibb.co/FbmbPY55/runway.jpg", linkUrl: "https://research.runwayml.com", description: "一款集圖像與影片生成、編輯、視覺效果及音訊處理於一體的全能 AI 創作平台。" },
-                { name: "videotube ai", imageUrl: "https://i.ibb.co/cXhTfX9V/videotube-ai.jpg", linkUrl: "https://videotube.ai/", description: "專為動漫創作者打造的 AI 影片生成平台，由日本開發、與業界製作團隊合作，能根據文字或視覺提示快速生成高質感、具動畫敘事與動態鏡頭效果的專業級短片。" },
-                { name: "vheer ai", imageUrl: "https://i.ibb.co/7Nnzdtp7/vheer.jpg", linkUrl: "https://vheer.com/app/image-to-video", description: "Vheer 是一款完全免費、免登入的 AI 圖像與多媒體工具箱，支援文字轉圖、頭像、Logo、刺青設計、自動去背、圖文轉圖等多功能創作，快速生成高品質內容無水印。" },
-                { name: "magi ai", imageUrl: "https://i.ibb.co/nWs3Hjv/magi.jpg", linkUrl: "https://magi.sand.ai/", description: "MAGI 是一項開放原始碼的自動回歸式影片生成AI。" },
-                { name: "chatglm", imageUrl: "https://i.ibb.co/FkN6Qx38/chatglm-cn.jpg", linkUrl: "https://chatglm.cn/video?lang=zh", description: "chatglm.cn 是由智譜 AI 基於 GLM（生成式語言模型）架構開發的智慧對話平台，支援中英文多輪對話，能進行自然語言理解與生成，並可產生文字、圖片與影片等多種內容。" },
-                { name: "sora2", imageUrl: "https://i.ibb.co/sXTssDp/sora2.jpg", linkUrl: "https://www.mindvideo.ai/image-to-video/", description: "mindvideo ai 支援sora2免費使用，中英文多輪對話，能進行自然語言理解與生成，並可產生文字、圖片與影片等多種內容。" },
-                { name: "gaga art", imageUrl: "https://i.ibb.co/DnTKrws/gaga-art-1.jpg", linkUrl: "https://gaga.art/", description: "gaga art 支援中英文多輪對話，能進行自然語言理解與生成，並可產生文字、圖片與影片等多種內容。" },
-                { name: "google flow", imageUrl: "https://i.ibb.co/fVB9k5mX/googleflow-1.jpg", linkUrl: "https://labs.google/flow/about", description: "google flow 支援中英文多輪對話，能進行自然語言理解與生成，並可產生文字、圖片與影片等多種內容。" },
-                { name: "grok imagine", imageUrl: "https://i.ibb.co/FkyFwYZ1/grok-imagine.jpg", linkUrl: "https://grok.com/imagine", description: "grok imagine 支援中英文多輪對話及獨特瀑布流影片生成，能進行自然語言理解與生成，並可產生文字、圖片與影片等多種內容。" },
-                { name: "higgsfield", imageUrl: "https://i.ibb.co/vCk1VrNg/higgsfield.jpg", linkUrl: "https://higgsfield.ai/", description: "Higgsfield AI 是一款結合多代理 AI 系統、電影級鏡頭控制和內建視覺特效的影片創作平台，讓使用者能夠以簡單的提示，快速生成高品質的長格式影片內容。" },
-                { name: "focalml", imageUrl: "https://i.ibb.co/RvVJk19/focalml.jpg", linkUrl: "https://focalml.com/", description: "FocalML 是一款 AI 驅動的影片創作平台，通過簡單的腳本輸入，快速生成高品質的電視劇、電影或宣傳影片，適合內容創作者和行銷人員使用 (有使用限制)。" },
-                { name: "morph Studio", imageUrl: "https://i.ibb.co/Dwwvvbq/morph.jpg", linkUrl: "https://www.morphstudio.com", description: "Morph Studio 是一款集文字轉影片、圖片轉影片、影片風格轉換和增強等多功能於一身的 AI 影片創作平台，讓使用者輕鬆將創意構想到專業影片。" },
-                { name: "artbreeder", imageUrl: "https://i.ibb.co/DgYzKPK/artbreeder.jpg", linkUrl: "https://www.artbreeder.com/create", description: "Artbreeder 是一款基於 AI 的圖像創作平台，通過圖像混合和基因控制，讓用戶輕鬆創作出獨特的視覺作品，並與全球創作者共同探索無限的創意可能。" },
-                { name: "lumalabs ai", imageUrl: "https://i.ibb.co/pZR4Zws/lumalabs.jpg", linkUrl: "https://lumalabs.ai/dream-machine/creations", description: "一款能將文字提示或圖片轉換為 5–10 秒高品質、自然流暢動畫影片的工具，具備寫實動態、電影級鏡頭運鏡與精準物理模擬，非常適合創作者快速生成短影片內容。" },
-                { name: "skyreels ai", imageUrl: "https://i.ibb.co/44Sy4tV/SkyReels.jpg", linkUrl: "https://www.skyreels.ai/home", description: "SkyReels 是一款以人為中心的 AI 動畫影片生成平台，透過文字或圖片即可快速創作具表情與動作控制的電影級短片。" },
-                { name: "playground", imageUrl: "https://i.ibb.co/VSPWJnV/playground.jpg", linkUrl: "https://playground.com/", description: "結合文字提示與畫布編輯的全能式 AI 繪圖與修圖平台，用戶可輕鬆以 free-tier 生成高品質圖像並進行內容擴展或去背處理。" },
-                { name: "perchance", imageUrl: "https://i.ibb.co/s3gyg1f/perchance.jpg", linkUrl: "https://perchance.org/ai-text-to-image-generator", description: "完全免費、免登入、無使用限制 的創作工具平台，透過文字提示即可生成高品質圖像、角色設定或短篇故事，尤其適合草稿創作與趣味角色開發。" },
-                { name: "prome ai", imageUrl: "https://i.ibb.co/Qmbcnfg/promeai.jpg", linkUrl: "https://www.promeai.pro/", description: "PromeAI 是一款功能強大的多合一 AI 設計平台，能將手繪草圖、照片、文字等輸入快速轉換成專業級渲染圖像、動畫、短影片及 3D 設計成果，廣受設計師與創作者青睞。" },
-                { name: "piclumen", imageUrl: "https://i.ibb.co/6RmMsr6/piclumen.jpg", linkUrl: "https://www.piclumen.com/", description: "PicLumen AI 是一款完全免費且無使用限制的 AI 圖像生成與編輯工具。" },
-                { name: "pixnova ai", imageUrl: "https://i.ibb.co/XZkGQ2v/pixnova.jpg", linkUrl: "https://pixnova.ai/", description: "一款完全免費且免登入的全能 AI 圖像編輯平台，能一鍵生成高質感圖片、換臉、更換服裝、改髮型、升級畫質與去背，是社交創作者與設計控的萬用工具。" },
-                { name: "clipfly ai", imageUrl: "https://i.ibb.co/QFBVWsXF/clipfly-ai.jpg", linkUrl: "https://www.clipfly.ai/", description: "Clipfly AI 是一款集影像生成、影像動畫與影片編輯於一體的線上/行動AI影音平台，從文字或圖片啟動快速生成動態短片，並可套入濾鏡、音樂與轉場等多功能剪輯工具。" },
-                { name: "cgdream ai", imageUrl: "https://i.ibb.co/sVyvJmJ/cgdream.jpg", linkUrl: "https://cgdream.ai/", description: "結合 3D 模型和生成式 AI 的圖像生成平台，讓你可透過文字提示精準控制構圖、濾鏡與視角，快速創作出專業水準的 2D 視覺內容。" },
-                { name: "faceswapper ai", imageUrl: "https://i.ibb.co/d2DZ1Ks/faceswapper.jpg", linkUrl: "https://faceswapper.ai/zh-tw/", description: "FaceSwapper AI 是一款操作簡單、可免費體驗、多功能支援照片與影片換臉、服裝替換與性別變換的線上及手機應用工具。" },
-                { name: "recraft ai", imageUrl: "https://i.ibb.co/WVkQRGM/recraft.jpg", linkUrl: "https://www.recraft.ai/", description: "能透過文字提示或草圖生成高品質點陣及向量圖像（包含 SVG 和 3D 概念)。" },
-                { name: "krea ai", imageUrl: "https://i.ibb.co/bs6RB2w/krea-ai.jpg", linkUrl: "https://www.krea.ai/home", description: "全能 AI 創作平台，支援圖片及10秒短片生成、4K 影像升級、AI 自定義訓練與物件移除，讓創作者透過即時互動介面快速實現專業級的視覺內容。" },
-                { name: "style ai", imageUrl: "https://i.ibb.co/fb028yz/styleai.jpg", linkUrl: "https://styleai.art/zh", description: "Style AI 通常是指利用人工智慧工具來分析、學習並應用不同藝術風格，讓圖像、照片或設計作品實現風格轉換、複製或創意生成，如將照片變成名畫風格、風格一致性修圖或藝術作品仿製等。" },
-                { name: "dzine ai", imageUrl: "https://i.ibb.co/mrfLLNQM/dzine-ai.jpg", linkUrl: "https://www.stylar.ai/", description: "專門改變圖片風格的平台。" },
-                { name: "shakker ai", imageUrl: "https://i.ibb.co/hLLP9H4/shakker.jpg", linkUrl: "https://www.shakker.ai/home", description: "多樣風格轉換、in‑painting、LoRA 微調等功能，讓創作者無痛將構想瞬間轉化為高品質視覺作品。" },
-                { name: "alpaca", imageUrl: "https://i.ibb.co/cDcytd3/alpaca.jpg", linkUrl: "https://lonlontwo2022.neocities.org/control/software_lock/alpaca", description: "一款內建於 Photoshop 中的 AI 插件，可以透過文字提示完成圖像生成、擴充與上色等功能，整合在 Photoshop 界面中使用。" },
-                { name: "mokker ai", imageUrl: "https://i.ibb.co/fq51qVn/mokker-ai.jpg", linkUrl: "https://app.mokker.ai/", description: "Mokker AI 是一款專為電商產品設計的工具，透過 AI 即可一鍵去背並套用多款場景模板，瞬間生成專業級商品照片，節省拍攝與後製成本。" },
-                { name: "slidesgo", imageUrl: "https://i.ibb.co/LCCdSSh/slidesgo.jpg", linkUrl: "https://slidesgo.com/", description: "Slidesgo 是一個提供免費 Google Slides 和 PowerPoint 模板的網站，專為教育、商業、醫療、行銷等領域設計，並結合 AI 工具，協助用戶快速製作專業簡報。" },
-                { name: "gamma", imageUrl: "https://i.ibb.co/cxpR0Pb/gamma.jpg", linkUrl: "https://gamma.app/", description: "Gamma 是一款 AI 驅動的簡報與內容創作工具，能透過智能模板和自然語言指令，快速生成專業、互動且視覺吸引力強的簡報，幫助用戶高效呈現想法。" },
-                { name: "ahaslides", imageUrl: "https://i.ibb.co/8Dn5X8y/ahaslides.jpg", linkUrl: "https://ahaslides.com/zh-TW/", description: "AhaSlides 是一款結合 AI 和互動功能的簡報平台，能讓你透過文字提示快速生成兼具投票、測驗、雲端圖等互動元素的專業報告，在 30 秒內完成吸睛簡報。" },
-                { name: "cutout pro", imageUrl: "https://i.ibb.co/Bz56CW2/cutout-pro.jpg", linkUrl: "https://www.cutout.pro/ai-art-generation", description: "Cutout Pro 是一款集背景移除、照片增強與 AI 藝術生成於一體的全面圖像與影片編輯平台，支援批量處理。" },
-                { name: "lexica", imageUrl: "https://i.ibb.co/wCL2ZqJ/lexica-km.jpg", linkUrl: "https://lexica.art/", description: "Lexica 是一款 AI 圖像搜尋與生成平台，結合 Stable Diffusion 引擎，讓使用者可依關鍵字探索他人作品並直接產出類似風格的圖像，適合靈感蒐集與創作參考。" },
-                { name: "tensor art", imageUrl: "https://i.ibb.co/bWzpbrM/tensor-art.jpg", linkUrl: "https://tensor.art/", description: "Tensor Art 是一款提供每日免費額度、支援多種 Stable Diffusion 模型與 LoRA。" },
-                { name: "namelix", imageUrl: "https://i.ibb.co/kyPb3ry/namelix.jpg", linkUrl: "https://namelix.com/", description: "Namelix 是一款免費的 AI 商業命名平台，透過輸入關鍵字和風格設定，即時生成短小好記且具品牌感的公司／域名建議，還能檢查網域可用性並搭配簡易 Logo 設計。" },
-                { name: "stitch", imageUrl: "https://i.ibb.co/HTrvdQX7/stitch-withgoogle.jpg", linkUrl: "https://stitch.withgoogle.com/", description: "Stitch by Google 是一種 AI 驅動的低程式碼 UI 設計工具。" },
-                { name: "kittl ai", imageUrl: "https://i.ibb.co/N1SDtqr/kittl.jpg", linkUrl: "https://www.kittl.com/feature/kittl-ai", description: "結合文字提示、模板與向量設計工具於一身的智能圖形設計平台，讓使用者輕鬆生成商業級 Logo、貼圖、商品 mockup 與社群視覺素材。" },
-                { name: "inkscape", imageUrl: "https://i.ibb.co/zQxKhmb/Inkscape.jpg", linkUrl: "https://inkscape.org/zh-hant/", description: "Inkscape 是一款功能齊全的免費開源向量圖形編輯器，支援 SVG 格式與多種進階繪圖工具，能製作標誌、插畫、技術圖與圖表，且可跨平台運行。" },
-                { name: "storybook", imageUrl: "https://i.ibb.co/tGDMBXB/Gemini-storybook.jpg", linkUrl: "https://gemini.google/overview/storybook/", description: "Gemini storybook 可以生動的編輯故事書及翻頁語音腳本。" },
-                { name: "macromedia", imageUrl: "https://i.ibb.co/DPnXzHQT/flash5.jpg", linkUrl: "https://kamo.teracloud.jp/share/1291095f0da54f64", description: "Macromedia flash 5.0 sn: FLW500-03143-77238-80660 (須調整成XP相容性及用最高權限安裝)。" },
-                { name: "opentoonz", imageUrl: "https://i.ibb.co/CbP8618/Open-Toonz.jpg", linkUrl: "https://opentoonz.github.io/index.html", description: "OpenToonz 是一款由 Studio Ghibli 共用技術打造的免費開源 2D 動畫製作軟體。" },
-                { name: "darktable", imageUrl: "https://i.ibb.co/42YFwFj/Darktable.jpg", linkUrl: "https://www.darktable.org/", description: "免費開源、專門針對 RAW 圖片和大量照片處理的非破壞性攝影工作流程應用，為專業與業餘攝影師提供 Lightroom 類似功能與 GPU 加速效能。" },
-                { name: "pixlr", imageUrl: "https://i.ibb.co/gZRXjgz/pixlr.jpg", linkUrl: "https://pixlr.com/tw/suite/", description: "Pixlr 是一款雲端 AI 圖像編輯與設計平台，結合文字生成圖像、智慧去背與豐富濾鏡效果，提供類似 Photoshop 的分層編輯體驗，且從網頁到手機跨平台皆可使用。" },
-                { name: "boxy svg", imageUrl: "https://i.ibb.co/Lgd5NTy/Boxy-SVG.jpg", linkUrl: "https://boxy-svg.com/app", description: "Boxy SVG 是一款專為 web 與跨平台使用者設計的 SVG 向量圖編輯器。" },
-                { name: "vectr", imageUrl: "https://i.ibb.co/dWdWwRn/vectr.jpg", linkUrl: "https://vectr.com/", description: "免費且跨平台的 AI 驅動向量圖形編輯工具，透過直觀界面支援文字‑圖像生成、漸層填色及即時協作，非常適合快速創建徽標、介面或簡易插畫。" },
-                { name: "gravit", imageUrl: "https://i.ibb.co/7WqHgqf/gravit.jpg", linkUrl: "https://designer.gravit.io/", description: "Adobe Illustrator 的輕量替代方案。" },
-                { name: "lunacy", imageUrl: "https://i.ibb.co/6HZbVv2/lunacy.jpg", linkUrl: "https://icons8.com/lunacy", description: "Lunacy 是一款免費跨平台（Windows/macOS/Linux）且具備 AI 工具。" },
-                { name: "animated drawings", imageUrl: "https://i.ibb.co/5k3HTZB/Animated-Drawings.jpg", linkUrl: "https://sketch.metademolab.com/", description: "由 Meta 開發的免費網頁工具，透過機器學習自動為手繪圖像進行骨架識別與綁定，並套用多種預設動畫。" },
-                { name: "scribus", imageUrl: "https://i.ibb.co/h14PQJJ/scribus.jpg", linkUrl: "https://www.scribus.net/", description: "提供專業級的排版與版面設計功能，支援多頁文件製作、PDF 輸出與色彩管理，適合用來製作海報、書籍、雜誌及宣傳單張等印刷品。" },
-                { name: "openoffice", imageUrl: "https://i.ibb.co/T8PTr0c/openoffice.jpg", linkUrl: "https://www.openoffice.org/zh-tw/download/index.html", description: "OpenOffice 是一套免費開源的跨平台辦公軟體組合，Microsoft Office 的成熟替代方案。" },
-                { name: "libreoffice", imageUrl: "https://i.ibb.co/GQt2K5JG/libreoffice.jpg", linkUrl: "https://www.libreoffice.org/download/download-libreoffice/", description: "LibreOffice 是一套完全免費、開源且功能強大的辦公軟體套裝。" },
-                { name: "particleillusion", imageUrl: "https://i.ibb.co/vX5n3RT/particleillusion.jpg", linkUrl: "https://lonlontwo2022.neocities.org/control/software_lock/particleillusion", description: "內建上千種預設發射器、支援硬體加速、3D 粒子與動態模擬，即插即用，適合快速創作煙霧、火花、爆炸等視覺效果。" },
-                { name: "AR.js", imageUrl: "https://i.ibb.co/q5w6BDq/as-js.jpg", linkUrl: "https://ar-js-org.github.io/studio/", description: "AR.js 是一款完全開源、輕量且高效的 JavaScript 增強現實庫，支援標記（marker）、影像（image）及定位（location）三種方式。" },
-                { name: "lens studio", imageUrl: "https://i.ibb.co/C5sLQkhN/ar-snap.jpg", linkUrl: "https://ar.snap.com/lens-studio", description: "Lens Studio 是 Snapchat 提供的免費 AR 開發平台。" },
-                { name: "obj to stl", imageUrl: "https://i.ibb.co/7SPvBTG/obj-to-stl.jpg", linkUrl: "https://anyconv.com/tw/obj-zhuan-stl/", description: "3D列印模型轉檔平台。" },
-                { name: "tripo 3d", imageUrl: "https://i.ibb.co/555H03s/tripo3d.jpg", linkUrl: "https://www.tripo3d.ai/", description: "Tripo3D 是一款 AI 驅動的即時 3D 模型生成平台，可從文字描述或圖片快速創建高精度、附 PBR 材質與自動綁骨骼的 3D 模型。" },
-                { name: "meshy ai", imageUrl: "https://i.ibb.co/3dL2phF/meshy-ai.jpg", linkUrl: "https://www.meshy.ai/zh/workspace/image-to-3d", description: "Meshy AI 是一款能將文字描述或 2D 圖像一鍵變成高品質 3D 模型並自動上貼圖、支援動畫與多格式匯出的 AI 創作平台。" },
-                { name: "hyper 3d", imageUrl: "https://i.ibb.co/pvMVLcn/hyperhuman.jpg", linkUrl: "https://hyper3d.ai/", description: "支持從文字與圖片生成高品質 3D 模型、附 PBR 材質與真實網格拓撲的全能 AI 平台。" },
-                { name: "sudo ai", imageUrl: "https://i.ibb.co/zHJK87gH/sudoai.jpg", linkUrl: "https://www.sudo.ai/", description: "sudo AI 是一款文本或影像輸入驅動的即時 3D 模型生成平台，支援單張或多視角輸入，快速產出帶貼圖的高品質 3D 網格並提供 API 和雲端介面。" },
-                { name: "rokoko", imageUrl: "https://i.ibb.co/gFFjwkWn/rokoko.jpg", linkUrl: "https://www.rokoko.com/products/studio/download", description: "Rokoko 是一家丹麥創立的動作捕捉技術領導者，其 Smartsuit Pro II 感應式動捕衣、Smartgloves 以及免費 AI 網頁工具 Rokoko Vision/Video，提供從專業到入門水準的全身、手部、面部與 AI 視訊動捕方案。" },
-                { name: "hitem 3d", imageUrl: "https://i.ibb.co/QjjswbC1/hitem3d.jpg", linkUrl: "https://www.hitem3d.ai/", description: "Hitem3D 是一款能將 2D 圖像快速轉換成高品質 3D 模型的智慧生成工具。" },
-                { name: "sam 3d", imageUrl: "https://i.ibb.co/vC9bV0Xv/sam3d.jpg", linkUrl: "https://lonlontwo2022.neocities.org/control/sam3d", description: "SAM 3D 可以將任何 2D 影像栩栩如生地呈現出來，準確地重建物體和人物，包括它們的形狀和姿勢。" },
-                { name: "tinker cad", imageUrl: "https://i.ibb.co/mtK5vjZ/tinkercad.jpg", linkUrl: "https://www.tinkercad.com/", description: "Autodesk 推出的免費、瀏覽器基礎 3D 建模與電路模擬平台，使用拖放積木式幾何圖形與 Codeblocks 視覺程式設計，非常適合初學者、教育用途與快速原型製作。" },
-                { name: "spline design", imageUrl: "https://i.ibb.co/3pyzZp3/spline-design.jpg", linkUrl: "https://spline.design/", description: "Spline 是一款強大的即時協作 Web 3D 設計工具，讓設計師與團隊能夠在瀏覽器中直覺地建模、動畫、加入互動元素，並一鍵匯出到多平台及程式碼中。" },
-                { name: "keyshot", imageUrl: "https://i.ibb.co/TtcrFMF/keyshot.jpg", linkUrl: "https://lonlontwo2022.neocities.org/control/software_lock/keyshot", description: "即時光線追蹤與全域照明渲染工具，提供直覺性拖放操作、大量科學準確材質庫與即時預覽功能，讓用戶能在筆電上快速生成專業級 3D 視覺效果。" },
-                { name: "blender", imageUrl: "https://i.ibb.co/vDYZQn0/blender.jpg", linkUrl: "https://www.blender.org/", description: "Blender 是一款免費開源、跨平台的全方位 3D 創作套件，整合建模、雕刻、綁骨、動畫、渲染（Cycles/Eevee）、特效、合成與影片剪輯等完整流程。" },
-                { name: "instant meshes", imageUrl: "https://i.ibb.co/s6HDgQ8/Instant-Meshes.jpg", linkUrl: "https://github.com/wjakob/instant-meshes?tab=readme-ov-file", description: "免費開源的自動重拓撲工具，利用 quad／tri 格式，根據曲面特征快速生成結構化網格並支援手動調整流程，適合用於減面與優化掃描或雕刻後的複雜 3D 模型。" },
-                { name: "dhiwise", imageUrl: "https://i.ibb.co/PdRvgnh/dhiwise.jpg", linkUrl: "https://www.dhiwise.com/", description: "DhiWise是一個AI驅動的平台，可將設計（如Figma）即時轉換成高品質、模組化的React和Flutter全端應用程式程式碼，幫助開發者自動化應用程式開發生命週期，提高開發效率，且無需手動編碼。" },
-                { name: "codepen", imageUrl: "https://i.ibb.co/TmF1mJw/codepen.jpg", linkUrl: "https://codepen.io/pen/", description: "CodePen 是一個線上即時前端程式碼編輯器與社群平台，讓使用者可以即時撰寫、執行、分享 HTML/CSS/JavaScript 程式碼片段（Pens）。" },
-                { name: "p5js", imageUrl: "https://i.ibb.co/VRvj2rs/p5js.jpg", linkUrl: "https://editor.p5js.org/", description: "p5.js 是一個開源 JavaScript 函式庫，專為創意編碼設計，提供簡單直覺的語法來繪製圖形、處理動畫、互動、影音與感測輸入。" },
-                { name: "visual studio code", imageUrl: "https://i.ibb.co/tPmTRfm/Visual-Studio-Code.jpg", linkUrl: "https://code.visualstudio.com/", description: "Microsoft 開發的免費、開源、跨平台程式碼編輯器，支援多語言語法高亮、偵錯、Git 控制、擴充套件與智慧補全，是前端、後端與全端開發者的主力工具之一。" },
-                { name: "vscode dev", imageUrl: "https://i.ibb.co/PCH7TF7/vscode-dev.jpg", linkUrl: "https://vscode.dev/?vscode-lang=zh-tw", description: "瀏覽器版 Visual Studio Code，讓使用者無需安裝軟體即可在雲端編輯。" },
-                { name: "firebase", imageUrl: "https://i.ibb.co/fdYfvPzG/firebase.jpg", linkUrl: "https://studio.firebase.google.com/", description: "Firebase 是 Google 提供的一站式後端雲端平台，整合即時資料庫、認證、託管、雲端函式與分析等服務，讓開發者能快速構建、測試與部署高效能的 Web 與行動應用程式。" },
-                { name: "windsurf", imageUrl: "https://i.ibb.co/Wvh4Mndx/windsurf.jpg", linkUrl: "https://windsurf.com/", description: "Windsurf 提供免費方案，每月可獲得 25 次提示點數，並支援 GPT-4.1、o4-mini 等高級模型。免費用戶可享受無限制的 Cascade、快速 Tab 補全和命令功能，以及每日一次的應用部署。" },
-                { name: "pdfgear", imageUrl: "https://i.ibb.co/z7K3qWS/PDFgear.jpg", linkUrl: "https://www.pdfgear.com/zh/", description: "完全免費且具 AI 助手的跨平臺 PDF 工具，提供從編輯文字、OCR 辨識、批量轉檔、註解簽名到合併壓縮等全面功能，且無登入與浮水印限制。。" },
-                { name: "pdfcandy", imageUrl: "https://i.ibb.co/HLx1hyz2/pdfcandy.jpg", linkUrl: "https://pdfcandy.com/tw/", description: "PDF Candy 是一款功能全面的免費線上 PDF 工具箱，提供超過 40 項轉換、編輯、合併、壓縮、簽名與 OCR 等功能，一鍵搞定各種文件處理需求。" },
-                { name: "online2pdf", imageUrl: "https://i.ibb.co/hWmcjQH/online2pdf.jpg", linkUrl: "https://online2pdf.com/", description: "Online2PDF 是一款完全免費且功能多元的線上 PDF 工具，讓你在瀏覽器中免安裝地進行轉檔。" },
-                { name: "11zon", imageUrl: "https://i.ibb.co/sggGVh1/PDF-ZIP.jpg", linkUrl: "https://www.11zon.com/zh-tw/", description: "支援 PDF 和影像的壓縮、合併、拆分、格式轉換和裁剪。" },
-                { name: "get gree sms", imageUrl: "https://i.ibb.co/S7XMpLJ/Get-Free-SMS.jpg", linkUrl: "https://www.smsonline.cloud/zh-tw/country/Taiwan", description: "可透過平台或 API 批次傳送個性化簡訊，支援預約發送。" },
-                { name: "7 zip", imageUrl: "https://i.ibb.co/F0BbmX0/7-zip.jpg", linkUrl: "https://www.developershome.com/7-zip/", description: "7-Zip 是一款免費開源的檔案壓縮與解壓縮工具。" },
-                { name: "apple support", imageUrl: "https://i.ibb.co/crqdXDZ/apple-os.jpg", linkUrl: "https://support.apple.com/zh_TW/downloads", description: "Mac 各機種驅動程式。" },
-                { name: "uninstall", imageUrl: "https://i.ibb.co/7S57Nv0/creative-cloud-uninstall.jpg", linkUrl: "https://helpx.adobe.com/tw/creative-cloud/help/uninstall-creative-cloud-desktop-app.html", description: "移除 creative cloud。" },
-                { name: "flash player", imageUrl: "https://i.ibb.co/j4vh066/flash-player.jpg", linkUrl: "https://lonlontwo2022.neocities.org/control/flash_player.html", description: "支援 SWF 格式。" },
-                { name: "locale emulator", imageUrl: "https://i.ibb.co/q0FZBH8/Locale-Emulator.jpg", linkUrl: "https://drive.google.com/file/d/1ivYH3VBYwBmoEzu_ORi9Bwf4D8nZYAZL/view?usp=sharing", description: "可模擬不同地區（語系）設定來執行特定地區開發的程式，常用於解決日文、韓文或中文遊戲／軟體因語系不合而無法啟動的問題。" },
-                { name: "aweray", imageUrl: "https://i.ibb.co/QFmqR50/aweray.jpg", linkUrl: "https://sun.aweray.com/tc/", description: "免費且跨平台的遠端桌面與行動支援工具，支援高效即時操控電腦與行動設備、遊戲鍵位映射、螢幕共享與檔案傳輸，是遠端工作與技術支援的全能方案。" },
-                { name: "os2Go", imageUrl: "https://i.ibb.co/yPJNgwX/OS2Go.jpg", linkUrl: "https://lonlontwo2022.neocities.org/control/software_lock/os2go", description: "將整個 Windows 系統拷貝並安裝到 USB 隨身碟或外接硬碟上的工具。" },
-                { name: "wintohdd professional", imageUrl: "https://i.ibb.co/ZzNDkM3J/WinToHDD.jpg", linkUrl: "https://jike.teracloud.jp/share/12118f7d717b3ca6", description: "WinToHDD 終生啟動碼:B2ZQYX86-FWJLTPB8-LSJCYJSQ-XTYH54L9-27F5L2PQ-8QHFWKBF" },
-                { name: "LTSC", imageUrl: "https://i.ibb.co/TrBxrh9/windows11-LTSC.jpg", linkUrl: "https://www.microsoft.com/en-us/software-download/windows11", description: "微軟專為企業與關鍵系統設計的長期支援版本，主打穩定、精簡、不強制更新、支援時間長達 10 年， CTRL + F10 與 oobe反斜線bypassnro。" },
-                { name: "wubuntu", imageUrl: "https://i.ibb.co/VY15bvf/wubuntu.jpg", linkUrl: "https://wubuntu.org/download/", description: "是一款基於 Kubuntu 的 Linux 發行版。" },
-                { name: "virtual box", imageUrl: "https://i.ibb.co/9kz26Stm/Virtual-Box.jpg", linkUrl: "https://kamo.teracloud.jp/share/1291021b52a66265", description: "VirtualBox 是由 Oracle 開發的跨平台虛擬機軟體，可在 Windows、macOS、Linux 等系統中建立與管理虛擬機器，用於執行多個作業系統、測試環境或沙盒實驗。" },
-                { name: "UTM", imageUrl: "https://i.ibb.co/K0dPmMX/UTM.jpg", linkUrl: "https://mac.getutm.app/", description: "UTM 是一款免費開源的 macOS 虛擬機平台，讓你在 Mac 上簡單模擬多種作業系統，甚至在 Apple M 系列晶片上執行 Windows 或 Linux。" },
-                { name: "game", imageUrl: "https://i.ibb.co/9nRyh0h/game.jpg", linkUrl: "https://lonlontwo2022.neocities.org/control/software_lock/game", description: "遊戲收集區。" },
-                { name: "lazy bug", imageUrl: "https://i.ibb.co/Yh9Tbqn/lazy-bug.jpg", linkUrl: "https://lonlontwo2022.neocities.org/control/software_lock/lazy_bug", description: "小懶蟲筆記。" },
-                { name: "yuto", imageUrl: "https://i.ibb.co/xfwGVw9/yuto.jpg", linkUrl: "https://www.yutu.cn/", description: "羽兔網。" },
-                { name: "crack", imageUrl: "https://i.ibb.co/KxrVsz7/crack.jpg", linkUrl: "https://lonlontwo2022.neocities.org/control/software_lock/crack", description: "註冊機。" },
 
 
+    ];
+
+    const mainButtonData = [
+        { name: "multcloud", imageUrl: "https://i.ibb.co/mHy2S51/Mult-Cloud.jpg", linkUrl: "https://www.multcloud.com/tw/", description: "在一個平台傳輸和管理所有雲端硬碟檔案。" },
+        { name: "NYCU", imageUrl: "https://i.ibb.co/vjyw1GJ/NYCU.jpg", linkUrl: "https://lonlontwo2022.neocities.org/control/software_lock/nycu", description: "國立陽明交通大學修業總則。" },
+        { name: "drive to web", imageUrl: "https://i.ibb.co/Nxp4pP0/google-drive.jpg", linkUrl: "https://lonlontwo0420.neocities.org/led_indicator/DriveToWeb", description: "google 空間轉換。" },
+        { name: "artificialanalysis", imageUrl: "https://i.ibb.co/sdSZ5TtJ/20251128093515-1.jpg", linkUrl: "https://artificialanalysis.ai/", description: "世界最新AI工具趨勢競技場排行榜。" },
+        { name: "toolify ai", imageUrl: "https://i.ibb.co/sJMcGr81/toolify-ai.jpg", linkUrl: "https://www.toolify.ai/tw/", description: "掌握世界最新AI工具趨勢及更新觀測站。" },
+        { name: "alternativeto", imageUrl: "https://i.ibb.co/CJyQ0hn/alternativeto.jpg", linkUrl: "https://alternativeto.net", description: "平替方案搜尋引擎。" },
+        { name: "creati ai", imageUrl: "https://i.ibb.co/4ZxP3q1p/creatiai-logo.jpg", linkUrl: "https://creati.ai/tw/", description: "終極 AI 工具目錄。" },
+        { name: "aiyy", imageUrl: "https://i.ibb.co/xShQt1JT/aiyy-1.jpg", linkUrl: "https://aiyy.info/", description: "AI工具應用方案平台。" },
+        { name: "supabase", imageUrl: "https://i.ibb.co/Bfx9hgF/supabase.jpg", linkUrl: "https://supabase.com/", description: "Supabase 是 Firebase 的開源替代方案。" },
+        { name: "fc2", imageUrl: "https://i.ibb.co/pwpzByp/fc2.jpg", linkUrl: "http://web.fc2.com/?lang=ja", description: "日本免費網頁空間。" },
+        { name: "1mb", imageUrl: "https://i.ibb.co/1zLRjm6/1mb-co.jpg", linkUrl: "https://1mb.co/", description: "免費網頁空間。" },
+        { name: "drivehq", imageUrl: "https://i.ibb.co/VCg9Bcj/drivehq.jpg", linkUrl: "https://www.drivehq.com/", description: "drivehq 免費網頁空間。" },
+        { name: "opendrive", imageUrl: "https://i.ibb.co/nm717jg/opendrive.jpg", linkUrl: "https://www.opendrive.com/", description: "opendrive 免費網頁空間。" },
+        { name: "one drive", imageUrl: "https://i.ibb.co/Wppm6Jc/onedrive.jpg", linkUrl: "https://www.microsoft.com/zh-tw/microsoft-365/onedrive/online-cloud-storage", description: "one drive 免費網頁空間。" },
+        { name: "10 minute mail", imageUrl: "https://i.ibb.co/6B1bvhy/10-minute-mail.jpg", linkUrl: "https://10minutemail.net/?lang=zh-tw", description: "免費信箱無限郵。" },
+        { name: "gmail", imageUrl: "https://i.ibb.co/kmG226s/Gmail.jpg", linkUrl: "https://accounts.google.com/lifecycle/steps/signup/name?checkedDomains=youtube&continue=https://mail.google.com/mail&dsh=S-1757580564:1764300725664927&emr=1&flowEntry=SignUp&flowName=GlifWebSignIn&ifkv=ARESoU2BC2iFJGIvs1pFq_emd58Lvd-Qsmi39gR9tCdyKuRP_QSWbs-9PHBDp8W4E-LOa5tdoqt1&ltmpl=default&pstMsg=1&rm=false&service=mail&ss=1&TL=ANzgctSKK_zLBu7v_QbwtRFED_vp8xsG5a1ckxz4d6VAKEuEw3GTa_Vd-J3v3nwq", description: "信箱申請。" },
+        { name: "clashxhub", imageUrl: "https://i.ibb.co/1JZX87sF/clashxhub.jpg", linkUrl: "https://clashxhub.com/", description: "信箱申請外掛。" },
+        { name: "crazymailing", imageUrl: "https://thumbs2.imgbox.com/32/f0/FIuaYKcu_t.jpg", linkUrl: "https://crazymailing.com/", description: "免費信箱無限郵。" },
+        { name: "maildrop", imageUrl: "https://i.ibb.co/Kck1V1kz/maildrop.jpg", linkUrl: "https://maildrop.cc/", description: "maildrop免費信箱無限郵。" },
+        { name: "reurl", imageUrl: "https://i.ibb.co/rmvSVqr/reurl.jpg", linkUrl: "https://reurl.cc/main/tw", description: "縮短網址工具。" },
+        { name: "sync", imageUrl: "https://i.ibb.co/9y68f5j/cp-sync.jpg", linkUrl: "https://cp.sync.com/", description: "sync 免費空間。" },
+        { name: "streamable", imageUrl: "https://i.ibb.co/F05qNYr/streamable.jpg", linkUrl: "https://cp.sync.com/", description: "免費影片空間(有時間限制)。" },
+        { name: "easeUS video", imageUrl: "https://i.ibb.co/35n0661N/Ease-US-Video-Downloader.jpg", linkUrl: "https://jike.teracloud.jp/share/121190947e1bb421", description: "easeUS video 終身授權碼 : SG528-2D5KI-W5UZ3-CJQLP-12ZVM。" },
+        { name: "sendvid", imageUrl: "https://i.ibb.co/sJSWsx8/sendvid.jpg", linkUrl: "https://sendvid.com/", description: "免費影片空間(有時間限制)。" },
+        { name: "dailymotion", imageUrl: "https://i.ibb.co/HT82wBk/dailymotion.jpg", linkUrl: "https://www.dailymotion.com/tw", description: "免費影片空間平台。" },
+        { name: "freemake", imageUrl: "https://i.ibb.co/NjTMMV2/freemake.jpg", linkUrl: "https://www.freemake.com/tw/free_video_downloader/", description: "影片下載工具。" },
+        { name: "mediafire", imageUrl: "https://i.ibb.co/6nw1YyS/Media-Fire.jpg", linkUrl: "https://www.mediafire.com/", description: "免費檔案空間。" },
+        { name: "terabox", imageUrl: "https://i.ibb.co/GFmTN71/terabox.jpg", linkUrl: "https://www.dubox.com/", description: "1024GB Cloud Storage。" },
+        { name: "avoid watermark", imageUrl: "https://i.ibb.co/NkVF4Xr/avoid-watermark.jpg", linkUrl: "https://lonlontwo2022.neocities.org/control/avoid_watermark", description: "避開浮水印工具。" },
+        { name: "image naming", imageUrl: "https://i.ibb.co/QVx7Jfq/image-naming.jpg", linkUrl: "https://lonlontwo2022.neocities.org/control/image_naming", description: "圖檔批次命名工具。" },
+        { name: "image size", imageUrl: "https://i.ibb.co/0jND4PC7/image-size.jpg", linkUrl: "https://lonlontwo2022.neocities.org/image_size", description: "兔兔網圖片縮放與浮水印工具。" },
+        { name: "image segmentation", imageUrl: "https://i.ibb.co/93prF6WN/image-segmentation.jpg", linkUrl: "https://lonlontwo2022.neocities.org/control/image_segmentation", description: "兔兔網圖片分割工具。" },
+        { name: "apowersoft", imageUrl: "https://i.ibb.co/N6Yk3rsQ/apowersoft.jpg", linkUrl: "https://www.apowersoft.tw/crop-video-online", description: "框選影片選取範圍剪除黑邊工具。" },
+        { name: "video frame extractor", imageUrl: "https://i.ibb.co/Q7C88kTg/Video-Frame-Extractor.jpg", linkUrl: "https://frame-extractor.com", description: "影片分割成影格工具。" },
+        { name: "compress", imageUrl: "https://i.ibb.co/p2wVWbP/compressjpeg.jpg", linkUrl: "https://compressjpeg.com/zh/", description: "線上壓縮圖檔工具 (限20張)。" },
+        { name: "imgbox", imageUrl: "https://thumbs2.imgbox.com/9c/a6/K0e9A6cg_t.jpg", linkUrl: "https://imgbox.com/", description: "免費圖床平台。" },
+        { name: "pixabay", imageUrl: "https://i.ibb.co/XtgwDF4/pixabay.jpg", linkUrl: "https://pixabay.com", description: "免費圖片素材庫。" },
+        { name: "poppop ai", imageUrl: "https://i.ibb.co/BHX7Dwwf/poppop-ai.jpg", linkUrl: "https://poppop.ai/zh-tw/ai-vocal-remover", description: "PopPop AI是一個免費的線上多功能音頻工具平台，提供文字轉語音、音效生成、人聲與伴奏分離及歌曲翻唱等AI聲音處理功能。" },
+        { name: "csubtitle", imageUrl: "https://i.ibb.co/ym9yfL3C/c-Subtitle-1.jpg", linkUrl: "https://www.csubtitle.com/", description: "免費文字轉語音,STT（Speech-to-Text）。" },
+        { name: "ttsreader", imageUrl: "https://i.ibb.co/Z6bJ4Wgj/ttsreader-1.jpg", linkUrl: "https://ttsreader.com/", description: "免費文字轉語音,Text To Speech (TTS)。" },
+        { name: "ttsmaker", imageUrl: "https://i.ibb.co/smhP4TL/ttsmaker.jpg", linkUrl: "https://ttsmaker.com/", description: "免費文字轉語音。" },
+        { name: "f5-tts", imageUrl: "https://i.ibb.co/dBB5Bqw/F5-TTS.jpg", linkUrl: "https://huggingface.co/spaces/abidlabs/E2-F5-TTS", description: "語音克隆平台。" },
+        { name: "Seed vc", imageUrl: "https://i.ibb.co/RBzhRwg/Seed-VC.jpg", linkUrl: "https://huggingface.co/spaces/mengtoa/Seed-VC", description: "語音克隆平台。" },
+        { name: "index tts", imageUrl: "https://i.ibb.co/cSr2ryJN/IndexTTS.jpg", linkUrl: "https://jike.teracloud.jp/share/1211a17cee503c61", description: "語音克隆工具下載。" },
+        { name: "minimax", imageUrl: "https://i.ibb.co/BHtv1CJX/minimax.jpg", linkUrl: "https://www.minimax.io/audio", description: "音效生成AI。" },
+        { name: "sonauto ai", imageUrl: "https://i.ibb.co/pjZGFgss/sonauto-ai-1.jpg", linkUrl: "https://sonauto.ai/", description: "創作任何你能想像的歌曲,完全免費。" },
+        { name: "musicfu ai", imageUrl: "https://i.ibb.co/n8ZdmJJC/musicfu-ai.jpg", linkUrl: "https://tw.musicful.ai/", description: "只要輸入文字，就能用我們的 AI 歌曲生成器，輕鬆生成 BGM 音樂、饒舌或 AI 翻唱。零音樂基礎也能創作！" },
+        { name: "suno ai", imageUrl: "https://i.ibb.co/fC6tDZ4/suno.jpg", linkUrl: "https://www.suno.ai/", description: "創作任何你能想像的歌曲。" },
+        { name: "udio ai", imageUrl: "https://i.ibb.co/T0HmKG6/udio.jpg", linkUrl: "https://www.udio.com/", description: "製作你的音樂創作任何歌曲。只需想像一下。" },
+        { name: "fish audio", imageUrl: "https://i.ibb.co/1Gzvsz9/fish-audio.jpg", linkUrl: "https://fish.audio/zh-CN/", description: "最自然的 AI 語音聲音克隆、配音、應有盡有。" },
+        { name: "tempolor", imageUrl: "https://i.ibb.co/X36J59K/tempolor.jpg", linkUrl: "https://www.tempolor.com/", description: "聲音你的願景 200,000+ 首免版稅音樂觸手可及" },
+        { name: "srt", imageUrl: "https://i.ibb.co/WpMH6JK/SRT.jpg", linkUrl: "https://translatesubtitles.com/", description: "字幕srt轉換" },
+        { name: "convert", imageUrl: "https://i.ibb.co/1LbpsCR/convert.jpg", linkUrl: "https://lonlontwo2022.neocities.org/control/software_lock/convert", description: "剪映字體簡體轉繁體。" },
+        { name: "jianying", imageUrl: "https://i.ibb.co/0KMsD9t/jianying.jpg", linkUrl: "https://lonlontwo2022.neocities.org/control/jianying", description: "剪映工具集。" },
+        { name: "davinci", imageUrl: "https://i.ibb.co/QKnNRgB/DaVinci.jpg", linkUrl: "https://lonlontwo2022.neocities.org/control/software_lock/davinci_resolve", description: "專業剪輯軟體需下載。" },
+        { name: "openshot", imageUrl: "https://i.ibb.co/VYvmMyV/openshot.jpg", linkUrl: "https://www.openshot.org/", description: "OpenShot 是一款跨平台影片編輯器，支援 Linux、Mac 和 Windows。" },
+        { name: "flixier", imageUrl: "https://i.ibb.co/P817rR2/flixier.jpg", linkUrl: "https://editor.flixier.com/", description: "線上剪輯平台。" },
+        { name: "clipchamp", imageUrl: "https://i.ibb.co/nbNthnL/clipchamp.jpg", linkUrl: "https://app.clipchamp.com/login", description: "線上剪輯平台。" },
+        { name: "fastreel", imageUrl: "https://i.ibb.co/ZgZdss8/fastreel.jpg", linkUrl: "https://www.fastreel.com/zh/", description: "免費線上影片編輯器。" },
+        { name: "img2go", imageUrl: "https://i.ibb.co/pKss92P/img2go.jpg", linkUrl: "https://www.img2go.com/zh", description: "免費線上圖片編輯器。" },
+        { name: "picwish", imageUrl: "https://i.ibb.co/8PPq3J1/picwish.jpg", linkUrl: "https://lonlontwo2022.neocities.org/control/picwish", description: "佐糖工具組。" },
+        { name: "cogniwerk", imageUrl: "https://i.ibb.co/9GVrxZ6/cogniwerk.jpg", linkUrl: "https://cogniwerk.ai/", description: "生成、訓練和共享 AI 圖像和模型。" },
+        { name: "clipdrop", imageUrl: "https://i.ibb.co/TKCGNsf/clipdrop.jpg", linkUrl: "https://clipdrop.co", description: "創造令人驚嘆的視覺效果。" },
+        { name: "jav player trial", imageUrl: "https://i.ibb.co/m0Z8RWR/Jav-Player-Trial.jpg", linkUrl: "https://lonlontwo2022.neocities.org/control/software_lock/jav_player_trial", description: "解除馬賽克工具 (需下載)。" },
+        { name: "obs", imageUrl: "https://i.ibb.co/gvXp508/obsproject.jpg", linkUrl: "https://lonlontwo2022.neocities.org/control/software_lock/obsproject", description: "專業螢幕錄影 (需下載)。" },
+        { name: "imagetotext", imageUrl: "https://i.ibb.co/rKzHJLtS/imagetotext.jpg", linkUrl: "https://www.imagetotext.info/", description: "線上圖像到文字轉換器，用於從圖像中提取文字。" },
+        { name: "hitpaw video enhancer", imageUrl: "https://i.ibb.co/0ybtx54/Hit-Paw-Video-Enhancer.jpg", linkUrl: "https://lonlontwo2022.neocities.org/control/software_lock/hitpaw", description: "提高影片解析度工具 (需下載)。" },
+        { name: "easeus fixo", imageUrl: "https://i.ibb.co/N2ZNcRTm/Ease-US-Fixo.jpg", linkUrl: "https://kamo.teracloud.jp/share/1291d413ef556fa1", description: "EaseUS Fixo 免費1年版,序號 : HR9LI-2W2K2-31ANC-E7GRG-KK1NS。" },
+        { name: "ezgif", imageUrl: "https://i.ibb.co/S7TfZ05/ezgif.jpg", linkUrl: "https://ezgif.com/video-to-gif", description: "影片轉 gif 平台。" },
+        { name: "online convert", imageUrl: "https://i.ibb.co/mHfhTr8/online-convert.jpg", linkUrl: "https://image.online-convert.com/", description: "在線上將媒體檔案從一種格式轉換為另一種格式。" },
+        { name: "iloveimg", imageUrl: "https://i.ibb.co/gvLp9mK/iloveimg.jpg", linkUrl: "https://www.iloveimg.com/zh-tw", description: "可批量編輯圖片 的所有工具你的線上圖片編輯器就在這裡，而且永遠免費！。" },
+        { name: "123apps", imageUrl: "https://i.ibb.co/nLXSP5s/123apps.jpg", linkUrl: "https://123apps.com/tw/", description: "用於編輯、創建和轉換的線上工具。" },
+        { name: "tinywow", imageUrl: "https://i.ibb.co/vCqgMXrk/tinywow.jpg", linkUrl: "https://tinywow.com/", description: "線上轉換工具綜合平台。" },
+        { name: "movavi video converter", imageUrl: "https://i.ibb.co/mRhDv80/Movavi-Video-Converter.jpg", linkUrl: "https://lonlontwo2022.neocities.org/control/software_lock/movavi_video_converter", description: "影片壓縮軟體 (需下載)。" },
+        { name: "goldwave", imageUrl: "https://i.ibb.co/wQ30TtX/goldwave.jpg", linkUrl: "https://lonlontwo2022.neocities.org/control/software_lock/goldwave", description: "音檔剪輯工具 (需下載)。" },
+        { name: "spleetergui", imageUrl: "https://i.ibb.co/QnT7pJV/spleetergui.jpg", linkUrl: "https://lonlontwo2022.neocities.org/control/software_lock/spleetergui", description: "音檔分離工具 (需下載)。" },
+        { name: "stemroller", imageUrl: "https://i.ibb.co/8Y7xyPJ/stemroller.jpg", linkUrl: "https://www.stemroller.com/", description: "音效拆分工具 (需下載)。" },
+        { name: "aiarty image", imageUrl: "https://i.ibb.co/s97J0z6V/Aiarty-Image.jpg", linkUrl: "https://kamo.teracloud.jp/share/129143eaf37bf3f7", description: "本機安裝式圖片去背工具,License for Win: FCQ5U-JOVXH-5AORK-O2BBX ; License for Mac: FDD7M-SZJIF-SFLPV-EC4BV。" },
+        { name: "fliflik", imageUrl: "https://i.ibb.co/3TpqZNy/FliFlik.jpg", linkUrl: "https://fliflik.com/", description: "本機安裝式圖片處理平台 (需下載)。" },
+        { name: "remove bg", imageUrl: "https://i.ibb.co/JC7c9hy/remove.jpg", linkUrl: "https://www.remove.bg/zh", description: "線上圖片去背平台。" },
+        { name: "erase bg", imageUrl: "https://i.ibb.co/n3XJFsW/erase-bg.jpg", linkUrl: "https://www.erase.bg/zh", description: "線上圖片去背平台。" },
+        { name: "bgsub", imageUrl: "https://i.ibb.co/mJVprTb/bgsub.jpg", linkUrl: "https://bgsub.cn/", description: "使用先進的 人工智能技術 自動替換圖像的背景。" },
+        { name: "remove photos", imageUrl: "https://i.ibb.co/GfdxjhnN/remove-photos.jpg", linkUrl: "https://remove.photos/zh-tw/", description: "從裝置或應用程式中刪除選定的照片。(免帳號登入)" },
+        { name: "inpaintweb", imageUrl: "https://i.ibb.co/C8V2ZR0/cleanup-pictures.jpg", linkUrl: "https://inpaintweb.lxfater.com/", description: "圖片橡皮擦工具(會折損解析度,需透過內建增強4倍)。" },
+        { name: "quququ", imageUrl: "https://i.ibb.co/Jj0Ymqtq/quququ.jpg", linkUrl: "https://quququ.cn/remove", description: "去去去，一键涂抹，无痕去除。" },
+        { name: "unwatermark ai", imageUrl: "https://i.ibb.co/R9HSSSV/resized-image-3.jpg", linkUrl: "https://unwatermark.ai/video-watermark-remover/", description: "影片去除水印工具。" },
+        { name: "supawork ai", imageUrl: "https://i.ibb.co/0jrthpN6/supawork-ai.jpg", linkUrl: "https://supawork.ai/ai-video-watermark-remover", description: "只有影片去除水印工具是免費的。" },
+        { name: "poe", imageUrl: "https://i.ibb.co/PDKt9D3/POE.jpg", linkUrl: "https://poe.com/", description: "Poe是一個智能聊天平台，允許用戶與多種AI模型互動，獲取信息、創作內容或進行對話。" },
+        { name: "chandler", imageUrl: "https://i.ibb.co/mRxw8sK/chandler.jpg", linkUrl: "https://chandler.bet/#/overView", description: "整合 GPT‑4、Claude3、DALL‑E 等模型，支援聊天、圖像生成、資料分析、簡報與影片創作等多樣功能。" },
+        { name: "metaso ai", imageUrl: "https://i.ibb.co/QpJZJv5/metaso.jpg", linkUrl: "https://metaso.cn/", description: "秘塔AI搜索。" },
+        { name: "nami ai", imageUrl: "https://i.ibb.co/tw9PbM16/nami.jpg", linkUrl: "https://bot.n.cn/", description: "納米可以幫你搜索、答疑、提建議，還能撰寫研究報告，請把你的任务交给我吧。" },
+        { name: "cephalon cloud", imageUrl: "https://i.ibb.co/PvSQsW2Y/cephalon.jpg", linkUrl: "https://cephalon.cloud/aigc", description: "工作流應用平台 (需要大陸手機或是透過微信註冊)。" },
+        { name: "tongyi", imageUrl: "https://thumbs2.imgbox.com/cb/b0/ZTdUPbFM_t.jpg", linkUrl: "https://tongyi.aliyun.com/", description: "通義千問 (需要+886 臺灣手機登入帳號)。" },
+        { name: "qwen", imageUrl: "https://thumbs2.imgbox.com/cb/b0/ZTdUPbFM_t.jpg", linkUrl: "https://chat.qwen.ai/", description: "千問模型 (可經由 google 帳號登入模型平台)。" },
+        { name: "toolify ai", imageUrl: "https://i.ibb.co/ksjRDpys/yiyan.jpg", linkUrl: "https://yiyan.baidu.com/?utm_source=toolify.ai", description: "文心一言 (需要+886 臺灣手機登入帳號)。" },
+        { name: "bolt ai", imageUrl: "https://i.ibb.co/mJkyPCh/bolt.jpg", linkUrl: "https://bolt.new/", description: "程式語言的得力助手(但是每日只能問 5 個問題,所以問問題要先設計好)。" },
+        { name: "llamacoder ai", imageUrl: "https://i.ibb.co/3mp95mt2/llamacoder-together.jpg", linkUrl: "https://llamacoder.together.ai/", description: "AI 代碼產生器無須帳號登入。" },
+        { name: "notion", imageUrl: "https://i.ibb.co/hRYnrgPZ/notion.jpg", linkUrl: "https://www.notion.so/chat", description: "資料整理AI,有次數的限制。" },
+        { name: "felo ai", imageUrl: "https://thumbs2.imgbox.com/fa/a8/chusYLlo_t.jpg", linkUrl: "https://felo.ai/search", description: "資料整理AI。" },
+        { name: "askconcierge ai", imageUrl: "https://i.ibb.co/3PmYk3Y/askconcierge.jpg", linkUrl: "https://askconcierge.ai/", description: "與您的應用程式對話自然語言。" },
+        { name: "napkin ai", imageUrl: "https://i.ibb.co/20kJqqy9/napkin.jpg", linkUrl: "https://www.napkin.ai/", description: "Napkin 將您的文字轉換為視覺效果，以便快速有效地分享您的想法。" },
+        { name: "elicit", imageUrl: "https://i.ibb.co/V3XHmbW/elicit.jpg", linkUrl: "https://elicit.org/", description: "以超人的速度分析研究論文。" },
+        { name: "genape", imageUrl: "https://i.ibb.co/fGGFvzD/genape.jpg", linkUrl: "https://app.genape.ai/zh-TW/", description: "GenApe 中文 AI 生產力工具，寫作、繪圖、影片全包辦！。" },
+        { name: "copilot", imageUrl: "https://i.ibb.co/60BMXR1x/Copilot.jpg", linkUrl: "https://www.bing.com/?FORM=Z9FD1", description: "由微軟推出的 AI 助手，整合在 Office 等應用中，能協助撰寫、總結、分析資料並提升工作效率。" },
+        { name: "mistral", imageUrl: "https://i.ibb.co/QXR2Ysk/mistral.jpg", linkUrl: "https://mistral.ai/en", description: "一個由Mistral AI創建的AI助手。" },
+        { name: "ollama", imageUrl: "https://i.ibb.co/ZWkzb5H/ollama.jpg", linkUrl: "https://lonlontwo2022.neocities.org/control/ollama", description: "ollama 本基套件安裝。" },
+        { name: "cerebras", imageUrl: "https://i.ibb.co/RGKLFMnJ/cerebras.jpg", linkUrl: "https://www.cerebras.ai/inference", description: "專為大規模深度學習訓練與推論打造，顯著加快速度並提高能源效率 (超快速GPT回答)。" },
+        { name: "mathgpt", imageUrl: "https://i.ibb.co/Jrvvs8D/mathgpt.jpg", linkUrl: "https://mathgptpro.com/", description: "MathGPT是一個專門解答數學問題的AI助手。" },
+        { name: "gentube", imageUrl: "https://i.ibb.co/ZRBHjSJs/gentube.jpg", linkUrl: "https://www.gentube.app/", description: "GenTube 是一款完全免費、超快速的 AI 文字轉圖平台，支援無限創作與實時社群共創，讓你幾秒內產出高質感圖像並即時查看他人作品。" },
+        { name: "raphael", imageUrl: "https://i.ibb.co/HT075cMM/raphael.jpg", linkUrl: "https://raphael.app/zh", description: "Raphael 是一款完全免費、無使用限制且支援商用的 AI 圖像生成工具，讓創作者輕鬆產出高品質圖片。" },
+        { name: "pollinations ai", imageUrl: "https://i.ibb.co/bg5XFTRr/pollinations-ai.jpg", linkUrl: "https://pollinations.ai/", description: "Pollinations AI 是一個免費、開源的 AI 創作平台，讓使用者透過簡單的文字描述，即可生成圖片、音樂、3D 物件和沉浸式環境，無需註冊或 API 金鑰即可使用。" },
+        { name: "image baidu", imageUrl: "https://i.ibb.co/82DMW6C/baidu.jpg", linkUrl: "https://image.baidu.com/", description: "百度推出的 AI 繪圖平台，可根據文字描述生成多風格圖片果。" },
+        { name: "hunyuan", imageUrl: "https://i.ibb.co/SXQ7W82m/aivideo-hunyuan.jpg", linkUrl: "https://lonlontwo2022.neocities.org/control/hunyuan", description: "Hunyuan AI是一个融合先进算法和大规模计算能力的智能平台。" },
+        { name: "stable diffusion", imageUrl: "https://i.ibb.co/6193jnK/Stable-Diffusion.jpg", linkUrl: "https://lonlontwo2022.neocities.org/control/software_lock/stable_diffusion", description: "基於擴散模型的 AI 影像生成技術，透過逐步去噪還原圖像，可根據文字提示產出高品質且具創造性的圖像，廣泛應用於藝術創作與視覺設計。" },
+        { name: "midjourney", imageUrl: "https://i.ibb.co/C7XX97w/midjourney.jpg", linkUrl: "https://lonlontwo2022.neocities.org/control/software_lock/midjourney", description: "Midjourney 是一款透過 Discord 提示詞生成高質感、風格鮮明圖像的 AI 藝術平台，以其細膩的美學和強大社群共創體驗聞名。" },
+        { name: "leonardo", imageUrl: "https://i.ibb.co/DzHVn2T/leonardo-ai.jpg", linkUrl: "https://app.leonardo.ai/", description: "主打高質感圖像生成的 AI 工具，適合用於遊戲、美術與品牌視覺設計。" },
+        { name: "designer ai", imageUrl: "https://i.ibb.co/NNzqh6c/designer-ai.jpg", linkUrl: "https://designer.microsoft.com", description: "用於輔助視覺與平面設計的 AI 工具，可自動生成排版、圖片與設計提案。" },
+        { name: "bing image creator", imageUrl: "https://i.ibb.co/MnTPqqV/bing-image-creator.jpg", linkUrl: "https://www.bing.com/create", description: "微軟推出的 AI 圖像生成工具，透過文字提示即可快速生成各種風格的圖片，基於 DALL·E 模型運作。" },
+        { name: "firefly", imageUrl: "https://i.ibb.co/r3RC2SC/firefly.jpg", linkUrl: "https://firefly.adobe.com/", description: "Adobe Firefly 是一套整合於 Creative Cloud 的生成式 AI 系列工具。" },
+        { name: "ideogram", imageUrl: "https://i.ibb.co/1JY5BDm/ideogram.jpg", linkUrl: "https://ideogram.ai", description: "AI 圖像生成工具，專注於從文字描述快速創作高品質、風格多變的插畫與視覺作品。" },
+        { name: "getimg ai", imageUrl: "https://i.ibb.co/ssgQ86P/getimg-ai.jpg", linkUrl: "https://getimg.ai/home", description: "多功能 AI 圖像生成與編輯平台，支援文字生成圖片、即時編輯、風格轉換、動畫製作等，適合設計師、行銷人員及創作者使用。" },
+        { name: "palette fm", imageUrl: "https://i.ibb.co/qJN882R/palette-fm.jpg", linkUrl: "https://palette.fm/", description: "完全免費且無需註冊的 AI 圖像上色工具，專為將黑白照片轉換為高品質彩色影像而設計。" },
+        { name: "imagecolorizer", imageUrl: "https://i.ibb.co/7JZRsHzy/imagecolorizer.jpg", linkUrl: "https://imagecolorizer.com/colorize", description: "免費且無需註冊的 AI 圖像上色工具，專為將黑白照片轉換為高品質彩色影像而設計。使用者只需上傳圖片，即可在數秒鐘內獲得色彩豐富、自然真實的結果。" },
+        { name: "websim ai", imageUrl: "https://i.ibb.co/B6rPDgp/websim-ai.jpg", linkUrl: "https://websim.ai/", description: "程式碼網站與應用程式生成平台，允許用戶僅透過自然語言提示或 URL，即可快速創建互動式網頁、工具、遊戲等內容。" },
+        { name: "tldraw", imageUrl: "https://thumbs2.imgbox.com/d7/24/a7JfdfGF_t.jpg", linkUrl: "https://computer.tldraw.com/", description: "tldraw 是一款結合 AI 助手與即時協作的開源白板工具，讓你從手繪草圖快速生成可運行的 UI 或應用原型。" },
+        { name: "florafauna ai", imageUrl: "https://thumbs2.imgbox.com/df/6c/AJ1wbQl0_t.jpg", linkUrl: "https://www.florafauna.ai/", description: "智能植物夥伴，結合圖像識別、園藝建議與創意生成，讓你輕鬆識別植物、照顧綠植，並探索與植物相關的文化與藝術。" },
+        { name: "langflow", imageUrl: "https://i.ibb.co/XkLhY9kM/langflow.jpg", linkUrl: "https://www.langflow.org/", description: "開源的視覺化 AI 應用構建平台，讓你透過拖放元件快速建立多代理與 RAG 工作流程，並支援即時測試與部署。" },
+        { name: "haiper ai", imageUrl: "https://i.ibb.co/QHQ2Xr3/Haiper.jpg", linkUrl: "https://haiper.ai/", description: "Haiper AI 是一款 AI 影片生成平台，支援文字、圖片轉影片，並提供影片重繪與畫質提升功能，協助創作者快速實現創意。。" },
+        { name: "hedra ai", imageUrl: "https://i.ibb.co/5cH5tXv/hedra.jpg", linkUrl: "https://www.hedra.com/", description: "Hedra AI 是一個將靜態圖像與文字或語音轉化為生動虛擬角色影片的 AI 平台，讓創作者輕鬆打造具表情與動作的短影片。" },
+        { name: "magi", imageUrl: "https://i.ibb.co/M5kN6Ztb/magi-1.jpg", linkUrl: "https://magi.sand.ai", description: "數字人平台。" },
+        { name: "kling ai", imageUrl: "https://i.ibb.co/HTvCH7Z/klingai.jpg", linkUrl: "https://klingai.com/", description: "Kling AI 是一款能將文字快速轉換成高品質影片的生成式 AI 工具，專注於即時影片創作與視覺敘事。" },
+        { name: "dreamina", imageUrl: "https://i.ibb.co/pwtYCmq/dreamina.jpg", linkUrl: "https://dreamina.capcut.com/zh-tw/", description: "透過文字提示或圖像輸入，快速生成、編輯並高畫質擴展多種風格圖像（如動漫、寫實、插畫等）的全方位 AI 畫布平台。" },
+        { name: "pixverse ai", imageUrl: "https://i.ibb.co/Fn0Fksp/pixverse.jpg", linkUrl: "https://app.pixverse.ai/", description: "Pixverse AI 是一款能將文字或圖片一鍵生成高品質動畫影片的工具，適合快速創作視覺效果強烈的短影音內容。" },
+        { name: "hailuo ai", imageUrl: "https://i.ibb.co/QctR2dH/hailuoai.jpg", linkUrl: "https://hailuoai.video/", description: "Hailuo AI 是由中國 AI 公司 MiniMax 所推出的免費文字／圖片轉影片生成工具 (必須用google帳號開通)。" },
+        { name: "vidu", imageUrl: "https://i.ibb.co/w4JDXRP/vidu.jpg", linkUrl: "https://www.vidu.studio/", description: "Vidu AI 是一款能將文字、圖片或多張參考圖一鍵生成高品質、風格統一的動態短影片的 AI 工具，強調快速、2D 動畫與角色一致性的視覺創作體驗。" },
+        { name: "pika", imageUrl: "https://i.ibb.co/x3D85LQ/pika.jpg", linkUrl: "https://pika.art/", description: "Pika 是一款由 Pika Labs 推出的 AI 影片生成工具，能將文字或圖片提示快速轉換成 5–10 秒的高品質動態影片，並支援特效與鏡頭控制，是內容創作者與行銷人員的強大助力。" },
+        { name: "vivago ai", imageUrl: "https://i.ibb.co/QCKZ2Y3/vivago.jpg", linkUrl: "https://vivago.ai/", description: "Vivago AI 是一款功能全面的 AI 視覺創作平台，能一鍵將文字或圖片轉成高品質動畫影片與 3D 模型，並具備 Magic Brush、魔法橡皮擦、影像擴展與4K 影像／影片升級等實用工具，非常適合社群創作者和行銷人員使用。" },
+        { name: "runway", imageUrl: "https://i.ibb.co/FbmbPY55/runway.jpg", linkUrl: "https://research.runwayml.com", description: "一款集圖像與影片生成、編輯、視覺效果及音訊處理於一體的全能 AI 創作平台。" },
+        { name: "videotube ai", imageUrl: "https://i.ibb.co/cXhTfX9V/videotube-ai.jpg", linkUrl: "https://videotube.ai/", description: "專為動漫創作者打造的 AI 影片生成平台，由日本開發、與業界製作團隊合作，能根據文字或視覺提示快速生成高質感、具動畫敘事與動態鏡頭效果的專業級短片。" },
+        { name: "vheer ai", imageUrl: "https://i.ibb.co/7Nnzdtp7/vheer.jpg", linkUrl: "https://vheer.com/app/image-to-video", description: "Vheer 是一款完全免費、免登入的 AI 圖像與多媒體工具箱，支援文字轉圖、頭像、Logo、刺青設計、自動去背、圖文轉圖等多功能創作，快速生成高品質內容無水印。" },
+        { name: "magi ai", imageUrl: "https://i.ibb.co/nWs3Hjv/magi.jpg", linkUrl: "https://magi.sand.ai/", description: "MAGI 是一項開放原始碼的自動回歸式影片生成AI。" },
+        { name: "chatglm", imageUrl: "https://i.ibb.co/FkN6Qx38/chatglm-cn.jpg", linkUrl: "https://chatglm.cn/video?lang=zh", description: "chatglm.cn 是由智譜 AI 基於 GLM（生成式語言模型）架構開發的智慧對話平台，支援中英文多輪對話，能進行自然語言理解與生成，並可產生文字、圖片與影片等多種內容。" },
+        { name: "sora2", imageUrl: "https://i.ibb.co/sXTssDp/sora2.jpg", linkUrl: "https://www.mindvideo.ai/image-to-video/", description: "mindvideo ai 支援sora2免費使用，中英文多輪對話，能進行自然語言理解與生成，並可產生文字、圖片與影片等多種內容。" },
+        { name: "gaga art", imageUrl: "https://i.ibb.co/DnTKrws/gaga-art-1.jpg", linkUrl: "https://gaga.art/", description: "gaga art 支援中英文多輪對話，能進行自然語言理解與生成，並可產生文字、圖片與影片等多種內容。" },
+        { name: "google flow", imageUrl: "https://i.ibb.co/fVB9k5mX/googleflow-1.jpg", linkUrl: "https://labs.google/flow/about", description: "google flow 支援中英文多輪對話，能進行自然語言理解與生成，並可產生文字、圖片與影片等多種內容。" },
+        { name: "grok imagine", imageUrl: "https://i.ibb.co/FkyFwYZ1/grok-imagine.jpg", linkUrl: "https://grok.com/imagine", description: "grok imagine 支援中英文多輪對話及獨特瀑布流影片生成，能進行自然語言理解與生成，並可產生文字、圖片與影片等多種內容。" },
+        { name: "higgsfield", imageUrl: "https://i.ibb.co/vCk1VrNg/higgsfield.jpg", linkUrl: "https://higgsfield.ai/", description: "Higgsfield AI 是一款結合多代理 AI 系統、電影級鏡頭控制和內建視覺特效的影片創作平台，讓使用者能夠以簡單的提示，快速生成高品質的長格式影片內容。" },
+        { name: "focalml", imageUrl: "https://i.ibb.co/RvVJk19/focalml.jpg", linkUrl: "https://focalml.com/", description: "FocalML 是一款 AI 驅動的影片創作平台，通過簡單的腳本輸入，快速生成高品質的電視劇、電影或宣傳影片，適合內容創作者和行銷人員使用 (有使用限制)。" },
+        { name: "morph Studio", imageUrl: "https://i.ibb.co/Dwwvvbq/morph.jpg", linkUrl: "https://www.morphstudio.com", description: "Morph Studio 是一款集文字轉影片、圖片轉影片、影片風格轉換和增強等多功能於一身的 AI 影片創作平台，讓使用者輕鬆將創意構想到專業影片。" },
+        { name: "artbreeder", imageUrl: "https://i.ibb.co/DgYzKPK/artbreeder.jpg", linkUrl: "https://www.artbreeder.com/create", description: "Artbreeder 是一款基於 AI 的圖像創作平台，通過圖像混合和基因控制，讓用戶輕鬆創作出獨特的視覺作品，並與全球創作者共同探索無限的創意可能。" },
+        { name: "lumalabs ai", imageUrl: "https://i.ibb.co/pZR4Zws/lumalabs.jpg", linkUrl: "https://lumalabs.ai/dream-machine/creations", description: "一款能將文字提示或圖片轉換為 5–10 秒高品質、自然流暢動畫影片的工具，具備寫實動態、電影級鏡頭運鏡與精準物理模擬，非常適合創作者快速生成短影片內容。" },
+        { name: "skyreels ai", imageUrl: "https://i.ibb.co/44Sy4tV/SkyReels.jpg", linkUrl: "https://www.skyreels.ai/home", description: "SkyReels 是一款以人為中心的 AI 動畫影片生成平台，透過文字或圖片即可快速創作具表情與動作控制的電影級短片。" },
+        { name: "playground", imageUrl: "https://i.ibb.co/VSPWJnV/playground.jpg", linkUrl: "https://playground.com/", description: "結合文字提示與畫布編輯的全能式 AI 繪圖與修圖平台，用戶可輕鬆以 free-tier 生成高品質圖像並進行內容擴展或去背處理。" },
+        { name: "perchance", imageUrl: "https://i.ibb.co/s3gyg1f/perchance.jpg", linkUrl: "https://perchance.org/ai-text-to-image-generator", description: "完全免費、免登入、無使用限制 的創作工具平台，透過文字提示即可生成高品質圖像、角色設定或短篇故事，尤其適合草稿創作與趣味角色開發。" },
+        { name: "prome ai", imageUrl: "https://i.ibb.co/Qmbcnfg/promeai.jpg", linkUrl: "https://www.promeai.pro/", description: "PromeAI 是一款功能強大的多合一 AI 設計平台，能將手繪草圖、照片、文字等輸入快速轉換成專業級渲染圖像、動畫、短影片及 3D 設計成果，廣受設計師與創作者青睞。" },
+        { name: "piclumen", imageUrl: "https://i.ibb.co/6RmMsr6/piclumen.jpg", linkUrl: "https://www.piclumen.com/", description: "PicLumen AI 是一款完全免費且無使用限制的 AI 圖像生成與編輯工具。" },
+        { name: "pixnova ai", imageUrl: "https://i.ibb.co/XZkGQ2v/pixnova.jpg", linkUrl: "https://pixnova.ai/", description: "一款完全免費且免登入的全能 AI 圖像編輯平台，能一鍵生成高質感圖片、換臉、更換服裝、改髮型、升級畫質與去背，是社交創作者與設計控的萬用工具。" },
+        { name: "clipfly ai", imageUrl: "https://i.ibb.co/QFBVWsXF/clipfly-ai.jpg", linkUrl: "https://www.clipfly.ai/", description: "Clipfly AI 是一款集影像生成、影像動畫與影片編輯於一體的線上/行動AI影音平台，從文字或圖片啟動快速生成動態短片，並可套入濾鏡、音樂與轉場等多功能剪輯工具。" },
+        { name: "cgdream ai", imageUrl: "https://i.ibb.co/sVyvJmJ/cgdream.jpg", linkUrl: "https://cgdream.ai/", description: "結合 3D 模型和生成式 AI 的圖像生成平台，讓你可透過文字提示精準控制構圖、濾鏡與視角，快速創作出專業水準的 2D 視覺內容。" },
+        { name: "faceswapper ai", imageUrl: "https://i.ibb.co/d2DZ1Ks/faceswapper.jpg", linkUrl: "https://faceswapper.ai/zh-tw/", description: "FaceSwapper AI 是一款操作簡單、可免費體驗、多功能支援照片與影片換臉、服裝替換與性別變換的線上及手機應用工具。" },
+        { name: "recraft ai", imageUrl: "https://i.ibb.co/WVkQRGM/recraft.jpg", linkUrl: "https://www.recraft.ai/", description: "能透過文字提示或草圖生成高品質點陣及向量圖像（包含 SVG 和 3D 概念)。" },
+        { name: "krea ai", imageUrl: "https://i.ibb.co/bs6RB2w/krea-ai.jpg", linkUrl: "https://www.krea.ai/home", description: "全能 AI 創作平台，支援圖片及10秒短片生成、4K 影像升級、AI 自定義訓練與物件移除，讓創作者透過即時互動介面快速實現專業級的視覺內容。" },
+        { name: "style ai", imageUrl: "https://i.ibb.co/fb028yz/styleai.jpg", linkUrl: "https://styleai.art/zh", description: "Style AI 通常是指利用人工智慧工具來分析、學習並應用不同藝術風格，讓圖像、照片或設計作品實現風格轉換、複製或創意生成，如將照片變成名畫風格、風格一致性修圖或藝術作品仿製等。" },
+        { name: "dzine ai", imageUrl: "https://i.ibb.co/mrfLLNQM/dzine-ai.jpg", linkUrl: "https://www.stylar.ai/", description: "專門改變圖片風格的平台。" },
+        { name: "shakker ai", imageUrl: "https://i.ibb.co/hLLP9H4/shakker.jpg", linkUrl: "https://www.shakker.ai/home", description: "多樣風格轉換、in‑painting、LoRA 微調等功能，讓創作者無痛將構想瞬間轉化為高品質視覺作品。" },
+        { name: "alpaca", imageUrl: "https://i.ibb.co/cDcytd3/alpaca.jpg", linkUrl: "https://lonlontwo2022.neocities.org/control/software_lock/alpaca", description: "一款內建於 Photoshop 中的 AI 插件，可以透過文字提示完成圖像生成、擴充與上色等功能，整合在 Photoshop 界面中使用。" },
+        { name: "mokker ai", imageUrl: "https://i.ibb.co/fq51qVn/mokker-ai.jpg", linkUrl: "https://app.mokker.ai/", description: "Mokker AI 是一款專為電商產品設計的工具，透過 AI 即可一鍵去背並套用多款場景模板，瞬間生成專業級商品照片，節省拍攝與後製成本。" },
+        { name: "slidesgo", imageUrl: "https://i.ibb.co/LCCdSSh/slidesgo.jpg", linkUrl: "https://slidesgo.com/", description: "Slidesgo 是一個提供免費 Google Slides 和 PowerPoint 模板的網站，專為教育、商業、醫療、行銷等領域設計，並結合 AI 工具，協助用戶快速製作專業簡報。" },
+        { name: "gamma", imageUrl: "https://i.ibb.co/cxpR0Pb/gamma.jpg", linkUrl: "https://gamma.app/", description: "Gamma 是一款 AI 驅動的簡報與內容創作工具，能透過智能模板和自然語言指令，快速生成專業、互動且視覺吸引力強的簡報，幫助用戶高效呈現想法。" },
+        { name: "ahaslides", imageUrl: "https://i.ibb.co/8Dn5X8y/ahaslides.jpg", linkUrl: "https://ahaslides.com/zh-TW/", description: "AhaSlides 是一款結合 AI 和互動功能的簡報平台，能讓你透過文字提示快速生成兼具投票、測驗、雲端圖等互動元素的專業報告，在 30 秒內完成吸睛簡報。" },
+        { name: "cutout pro", imageUrl: "https://i.ibb.co/Bz56CW2/cutout-pro.jpg", linkUrl: "https://www.cutout.pro/ai-art-generation", description: "Cutout Pro 是一款集背景移除、照片增強與 AI 藝術生成於一體的全面圖像與影片編輯平台，支援批量處理。" },
+        { name: "lexica", imageUrl: "https://i.ibb.co/wCL2ZqJ/lexica-km.jpg", linkUrl: "https://lexica.art/", description: "Lexica 是一款 AI 圖像搜尋與生成平台，結合 Stable Diffusion 引擎，讓使用者可依關鍵字探索他人作品並直接產出類似風格的圖像，適合靈感蒐集與創作參考。" },
+        { name: "tensor art", imageUrl: "https://i.ibb.co/bWzpbrM/tensor-art.jpg", linkUrl: "https://tensor.art/", description: "Tensor Art 是一款提供每日免費額度、支援多種 Stable Diffusion 模型與 LoRA。" },
+        { name: "namelix", imageUrl: "https://i.ibb.co/kyPb3ry/namelix.jpg", linkUrl: "https://namelix.com/", description: "Namelix 是一款免費的 AI 商業命名平台，透過輸入關鍵字和風格設定，即時生成短小好記且具品牌感的公司／域名建議，還能檢查網域可用性並搭配簡易 Logo 設計。" },
+        { name: "stitch", imageUrl: "https://i.ibb.co/HTrvdQX7/stitch-withgoogle.jpg", linkUrl: "https://stitch.withgoogle.com/", description: "Stitch by Google 是一種 AI 驅動的低程式碼 UI 設計工具。" },
+        { name: "kittl ai", imageUrl: "https://i.ibb.co/N1SDtqr/kittl.jpg", linkUrl: "https://www.kittl.com/feature/kittl-ai", description: "結合文字提示、模板與向量設計工具於一身的智能圖形設計平台，讓使用者輕鬆生成商業級 Logo、貼圖、商品 mockup 與社群視覺素材。" },
+        { name: "inkscape", imageUrl: "https://i.ibb.co/zQxKhmb/Inkscape.jpg", linkUrl: "https://inkscape.org/zh-hant/", description: "Inkscape 是一款功能齊全的免費開源向量圖形編輯器，支援 SVG 格式與多種進階繪圖工具，能製作標誌、插畫、技術圖與圖表，且可跨平台運行。" },
+        { name: "storybook", imageUrl: "https://i.ibb.co/tGDMBXB/Gemini-storybook.jpg", linkUrl: "https://gemini.google/overview/storybook/", description: "Gemini storybook 可以生動的編輯故事書及翻頁語音腳本。" },
+        { name: "macromedia", imageUrl: "https://i.ibb.co/DPnXzHQT/flash5.jpg", linkUrl: "https://kamo.teracloud.jp/share/1291095f0da54f64", description: "Macromedia flash 5.0 sn: FLW500-03143-77238-80660 (須調整成XP相容性及用最高權限安裝)。" },
+        { name: "opentoonz", imageUrl: "https://i.ibb.co/CbP8618/Open-Toonz.jpg", linkUrl: "https://opentoonz.github.io/index.html", description: "OpenToonz 是一款由 Studio Ghibli 共用技術打造的免費開源 2D 動畫製作軟體。" },
+        { name: "darktable", imageUrl: "https://i.ibb.co/42YFwFj/Darktable.jpg", linkUrl: "https://www.darktable.org/", description: "免費開源、專門針對 RAW 圖片和大量照片處理的非破壞性攝影工作流程應用，為專業與業餘攝影師提供 Lightroom 類似功能與 GPU 加速效能。" },
+        { name: "pixlr", imageUrl: "https://i.ibb.co/gZRXjgz/pixlr.jpg", linkUrl: "https://pixlr.com/tw/suite/", description: "Pixlr 是一款雲端 AI 圖像編輯與設計平台，結合文字生成圖像、智慧去背與豐富濾鏡效果，提供類似 Photoshop 的分層編輯體驗，且從網頁到手機跨平台皆可使用。" },
+        { name: "boxy svg", imageUrl: "https://i.ibb.co/Lgd5NTy/Boxy-SVG.jpg", linkUrl: "https://boxy-svg.com/app", description: "Boxy SVG 是一款專為 web 與跨平台使用者設計的 SVG 向量圖編輯器。" },
+        { name: "vectr", imageUrl: "https://i.ibb.co/dWdWwRn/vectr.jpg", linkUrl: "https://vectr.com/", description: "免費且跨平台的 AI 驅動向量圖形編輯工具，透過直觀界面支援文字‑圖像生成、漸層填色及即時協作，非常適合快速創建徽標、介面或簡易插畫。" },
+        { name: "gravit", imageUrl: "https://i.ibb.co/7WqHgqf/gravit.jpg", linkUrl: "https://designer.gravit.io/", description: "Adobe Illustrator 的輕量替代方案。" },
+        { name: "lunacy", imageUrl: "https://i.ibb.co/6HZbVv2/lunacy.jpg", linkUrl: "https://icons8.com/lunacy", description: "Lunacy 是一款免費跨平台（Windows/macOS/Linux）且具備 AI 工具。" },
+        { name: "animated drawings", imageUrl: "https://i.ibb.co/5k3HTZB/Animated-Drawings.jpg", linkUrl: "https://sketch.metademolab.com/", description: "由 Meta 開發的免費網頁工具，透過機器學習自動為手繪圖像進行骨架識別與綁定，並套用多種預設動畫。" },
+        { name: "scribus", imageUrl: "https://i.ibb.co/h14PQJJ/scribus.jpg", linkUrl: "https://www.scribus.net/", description: "提供專業級的排版與版面設計功能，支援多頁文件製作、PDF 輸出與色彩管理，適合用來製作海報、書籍、雜誌及宣傳單張等印刷品。" },
+        { name: "openoffice", imageUrl: "https://i.ibb.co/T8PTr0c/openoffice.jpg", linkUrl: "https://www.openoffice.org/zh-tw/download/index.html", description: "OpenOffice 是一套免費開源的跨平台辦公軟體組合，Microsoft Office 的成熟替代方案。" },
+        { name: "libreoffice", imageUrl: "https://i.ibb.co/GQt2K5JG/libreoffice.jpg", linkUrl: "https://www.libreoffice.org/download/download-libreoffice/", description: "LibreOffice 是一套完全免費、開源且功能強大的辦公軟體套裝。" },
+        { name: "particleillusion", imageUrl: "https://i.ibb.co/vX5n3RT/particleillusion.jpg", linkUrl: "https://lonlontwo2022.neocities.org/control/software_lock/particleillusion", description: "內建上千種預設發射器、支援硬體加速、3D 粒子與動態模擬，即插即用，適合快速創作煙霧、火花、爆炸等視覺效果。" },
+        { name: "AR.js", imageUrl: "https://i.ibb.co/q5w6BDq/as-js.jpg", linkUrl: "https://ar-js-org.github.io/studio/", description: "AR.js 是一款完全開源、輕量且高效的 JavaScript 增強現實庫，支援標記（marker）、影像（image）及定位（location）三種方式。" },
+        { name: "lens studio", imageUrl: "https://i.ibb.co/C5sLQkhN/ar-snap.jpg", linkUrl: "https://ar.snap.com/lens-studio", description: "Lens Studio 是 Snapchat 提供的免費 AR 開發平台。" },
+        { name: "obj to stl", imageUrl: "https://i.ibb.co/7SPvBTG/obj-to-stl.jpg", linkUrl: "https://anyconv.com/tw/obj-zhuan-stl/", description: "3D列印模型轉檔平台。" },
+        { name: "tripo 3d", imageUrl: "https://i.ibb.co/555H03s/tripo3d.jpg", linkUrl: "https://www.tripo3d.ai/", description: "Tripo3D 是一款 AI 驅動的即時 3D 模型生成平台，可從文字描述或圖片快速創建高精度、附 PBR 材質與自動綁骨骼的 3D 模型。" },
+        { name: "meshy ai", imageUrl: "https://i.ibb.co/3dL2phF/meshy-ai.jpg", linkUrl: "https://www.meshy.ai/zh/workspace/image-to-3d", description: "Meshy AI 是一款能將文字描述或 2D 圖像一鍵變成高品質 3D 模型並自動上貼圖、支援動畫與多格式匯出的 AI 創作平台。" },
+        { name: "hyper 3d", imageUrl: "https://i.ibb.co/pvMVLcn/hyperhuman.jpg", linkUrl: "https://hyper3d.ai/", description: "支持從文字與圖片生成高品質 3D 模型、附 PBR 材質與真實網格拓撲的全能 AI 平台。" },
+        { name: "sudo ai", imageUrl: "https://i.ibb.co/zHJK87gH/sudoai.jpg", linkUrl: "https://www.sudo.ai/", description: "sudo AI 是一款文本或影像輸入驅動的即時 3D 模型生成平台，支援單張或多視角輸入，快速產出帶貼圖的高品質 3D 網格並提供 API 和雲端介面。" },
+        { name: "rokoko", imageUrl: "https://i.ibb.co/gFFjwkWn/rokoko.jpg", linkUrl: "https://www.rokoko.com/products/studio/download", description: "Rokoko 是一家丹麥創立的動作捕捉技術領導者，其 Smartsuit Pro II 感應式動捕衣、Smartgloves 以及免費 AI 網頁工具 Rokoko Vision/Video，提供從專業到入門水準的全身、手部、面部與 AI 視訊動捕方案。" },
+        { name: "hitem 3d", imageUrl: "https://i.ibb.co/QjjswbC1/hitem3d.jpg", linkUrl: "https://www.hitem3d.ai/", description: "Hitem3D 是一款能將 2D 圖像快速轉換成高品質 3D 模型的智慧生成工具。" },
+        { name: "sam 3d", imageUrl: "https://i.ibb.co/vC9bV0Xv/sam3d.jpg", linkUrl: "https://lonlontwo2022.neocities.org/control/sam3d", description: "SAM 3D 可以將任何 2D 影像栩栩如生地呈現出來，準確地重建物體和人物，包括它們的形狀和姿勢。" },
+        { name: "tinker cad", imageUrl: "https://i.ibb.co/mtK5vjZ/tinkercad.jpg", linkUrl: "https://www.tinkercad.com/", description: "Autodesk 推出的免費、瀏覽器基礎 3D 建模與電路模擬平台，使用拖放積木式幾何圖形與 Codeblocks 視覺程式設計，非常適合初學者、教育用途與快速原型製作。" },
+        { name: "spline design", imageUrl: "https://i.ibb.co/3pyzZp3/spline-design.jpg", linkUrl: "https://spline.design/", description: "Spline 是一款強大的即時協作 Web 3D 設計工具，讓設計師與團隊能夠在瀏覽器中直覺地建模、動畫、加入互動元素，並一鍵匯出到多平台及程式碼中。" },
+        { name: "keyshot", imageUrl: "https://i.ibb.co/TtcrFMF/keyshot.jpg", linkUrl: "https://lonlontwo2022.neocities.org/control/software_lock/keyshot", description: "即時光線追蹤與全域照明渲染工具，提供直覺性拖放操作、大量科學準確材質庫與即時預覽功能，讓用戶能在筆電上快速生成專業級 3D 視覺效果。" },
+        { name: "blender", imageUrl: "https://i.ibb.co/vDYZQn0/blender.jpg", linkUrl: "https://www.blender.org/", description: "Blender 是一款免費開源、跨平台的全方位 3D 創作套件，整合建模、雕刻、綁骨、動畫、渲染（Cycles/Eevee）、特效、合成與影片剪輯等完整流程。" },
+        { name: "instant meshes", imageUrl: "https://i.ibb.co/s6HDgQ8/Instant-Meshes.jpg", linkUrl: "https://github.com/wjakob/instant-meshes?tab=readme-ov-file", description: "免費開源的自動重拓撲工具，利用 quad／tri 格式，根據曲面特征快速生成結構化網格並支援手動調整流程，適合用於減面與優化掃描或雕刻後的複雜 3D 模型。" },
+        { name: "dhiwise", imageUrl: "https://i.ibb.co/PdRvgnh/dhiwise.jpg", linkUrl: "https://www.dhiwise.com/", description: "DhiWise是一個AI驅動的平台，可將設計（如Figma）即時轉換成高品質、模組化的React和Flutter全端應用程式程式碼，幫助開發者自動化應用程式開發生命週期，提高開發效率，且無需手動編碼。" },
+        { name: "codepen", imageUrl: "https://i.ibb.co/TmF1mJw/codepen.jpg", linkUrl: "https://codepen.io/pen/", description: "CodePen 是一個線上即時前端程式碼編輯器與社群平台，讓使用者可以即時撰寫、執行、分享 HTML/CSS/JavaScript 程式碼片段（Pens）。" },
+        { name: "p5js", imageUrl: "https://i.ibb.co/VRvj2rs/p5js.jpg", linkUrl: "https://editor.p5js.org/", description: "p5.js 是一個開源 JavaScript 函式庫，專為創意編碼設計，提供簡單直覺的語法來繪製圖形、處理動畫、互動、影音與感測輸入。" },
+        { name: "visual studio code", imageUrl: "https://i.ibb.co/tPmTRfm/Visual-Studio-Code.jpg", linkUrl: "https://code.visualstudio.com/", description: "Microsoft 開發的免費、開源、跨平台程式碼編輯器，支援多語言語法高亮、偵錯、Git 控制、擴充套件與智慧補全，是前端、後端與全端開發者的主力工具之一。" },
+        { name: "vscode dev", imageUrl: "https://i.ibb.co/PCH7TF7/vscode-dev.jpg", linkUrl: "https://vscode.dev/?vscode-lang=zh-tw", description: "瀏覽器版 Visual Studio Code，讓使用者無需安裝軟體即可在雲端編輯。" },
+        { name: "firebase", imageUrl: "https://i.ibb.co/fdYfvPzG/firebase.jpg", linkUrl: "https://studio.firebase.google.com/", description: "Firebase 是 Google 提供的一站式後端雲端平台，整合即時資料庫、認證、託管、雲端函式與分析等服務，讓開發者能快速構建、測試與部署高效能的 Web 與行動應用程式。" },
+        { name: "windsurf", imageUrl: "https://i.ibb.co/Wvh4Mndx/windsurf.jpg", linkUrl: "https://windsurf.com/", description: "Windsurf 提供免費方案，每月可獲得 25 次提示點數，並支援 GPT-4.1、o4-mini 等高級模型。免費用戶可享受無限制的 Cascade、快速 Tab 補全和命令功能，以及每日一次的應用部署。" },
+        { name: "pdfgear", imageUrl: "https://i.ibb.co/z7K3qWS/PDFgear.jpg", linkUrl: "https://www.pdfgear.com/zh/", description: "完全免費且具 AI 助手的跨平臺 PDF 工具，提供從編輯文字、OCR 辨識、批量轉檔、註解簽名到合併壓縮等全面功能，且無登入與浮水印限制。。" },
+        { name: "pdfcandy", imageUrl: "https://i.ibb.co/HLx1hyz2/pdfcandy.jpg", linkUrl: "https://pdfcandy.com/tw/", description: "PDF Candy 是一款功能全面的免費線上 PDF 工具箱，提供超過 40 項轉換、編輯、合併、壓縮、簽名與 OCR 等功能，一鍵搞定各種文件處理需求。" },
+        { name: "online2pdf", imageUrl: "https://i.ibb.co/hWmcjQH/online2pdf.jpg", linkUrl: "https://online2pdf.com/", description: "Online2PDF 是一款完全免費且功能多元的線上 PDF 工具，讓你在瀏覽器中免安裝地進行轉檔。" },
+        { name: "11zon", imageUrl: "https://i.ibb.co/sggGVh1/PDF-ZIP.jpg", linkUrl: "https://www.11zon.com/zh-tw/", description: "支援 PDF 和影像的壓縮、合併、拆分、格式轉換和裁剪。" },
+        { name: "get gree sms", imageUrl: "https://i.ibb.co/S7XMpLJ/Get-Free-SMS.jpg", linkUrl: "https://www.smsonline.cloud/zh-tw/country/Taiwan", description: "可透過平台或 API 批次傳送個性化簡訊，支援預約發送。" },
+        { name: "7 zip", imageUrl: "https://i.ibb.co/F0BbmX0/7-zip.jpg", linkUrl: "https://www.developershome.com/7-zip/", description: "7-Zip 是一款免費開源的檔案壓縮與解壓縮工具。" },
+        { name: "apple support", imageUrl: "https://i.ibb.co/crqdXDZ/apple-os.jpg", linkUrl: "https://support.apple.com/zh_TW/downloads", description: "Mac 各機種驅動程式。" },
+        { name: "uninstall", imageUrl: "https://i.ibb.co/7S57Nv0/creative-cloud-uninstall.jpg", linkUrl: "https://helpx.adobe.com/tw/creative-cloud/help/uninstall-creative-cloud-desktop-app.html", description: "移除 creative cloud。" },
+        { name: "flash player", imageUrl: "https://i.ibb.co/j4vh066/flash-player.jpg", linkUrl: "https://lonlontwo2022.neocities.org/control/flash_player.html", description: "支援 SWF 格式。" },
+        { name: "locale emulator", imageUrl: "https://i.ibb.co/q0FZBH8/Locale-Emulator.jpg", linkUrl: "https://drive.google.com/file/d/1ivYH3VBYwBmoEzu_ORi9Bwf4D8nZYAZL/view?usp=sharing", description: "可模擬不同地區（語系）設定來執行特定地區開發的程式，常用於解決日文、韓文或中文遊戲／軟體因語系不合而無法啟動的問題。" },
+        { name: "aweray", imageUrl: "https://i.ibb.co/QFmqR50/aweray.jpg", linkUrl: "https://sun.aweray.com/tc/", description: "免費且跨平台的遠端桌面與行動支援工具，支援高效即時操控電腦與行動設備、遊戲鍵位映射、螢幕共享與檔案傳輸，是遠端工作與技術支援的全能方案。" },
+        { name: "os2Go", imageUrl: "https://i.ibb.co/yPJNgwX/OS2Go.jpg", linkUrl: "https://lonlontwo2022.neocities.org/control/software_lock/os2go", description: "將整個 Windows 系統拷貝並安裝到 USB 隨身碟或外接硬碟上的工具。" },
+        { name: "wintohdd professional", imageUrl: "https://i.ibb.co/ZzNDkM3J/WinToHDD.jpg", linkUrl: "https://jike.teracloud.jp/share/12118f7d717b3ca6", description: "WinToHDD 終生啟動碼:B2ZQYX86-FWJLTPB8-LSJCYJSQ-XTYH54L9-27F5L2PQ-8QHFWKBF" },
+        { name: "LTSC", imageUrl: "https://i.ibb.co/TrBxrh9/windows11-LTSC.jpg", linkUrl: "https://www.microsoft.com/en-us/software-download/windows11", description: "微軟專為企業與關鍵系統設計的長期支援版本，主打穩定、精簡、不強制更新、支援時間長達 10 年， CTRL + F10 與 oobe反斜線bypassnro。" },
+        { name: "wubuntu", imageUrl: "https://i.ibb.co/VY15bvf/wubuntu.jpg", linkUrl: "https://wubuntu.org/download/", description: "是一款基於 Kubuntu 的 Linux 發行版。" },
+        { name: "virtual box", imageUrl: "https://i.ibb.co/9kz26Stm/Virtual-Box.jpg", linkUrl: "https://kamo.teracloud.jp/share/1291021b52a66265", description: "VirtualBox 是由 Oracle 開發的跨平台虛擬機軟體，可在 Windows、macOS、Linux 等系統中建立與管理虛擬機器，用於執行多個作業系統、測試環境或沙盒實驗。" },
+        { name: "UTM", imageUrl: "https://i.ibb.co/K0dPmMX/UTM.jpg", linkUrl: "https://mac.getutm.app/", description: "UTM 是一款免費開源的 macOS 虛擬機平台，讓你在 Mac 上簡單模擬多種作業系統，甚至在 Apple M 系列晶片上執行 Windows 或 Linux。" },
+        { name: "game", imageUrl: "https://i.ibb.co/9nRyh0h/game.jpg", linkUrl: "https://lonlontwo2022.neocities.org/control/software_lock/game", description: "遊戲收集區。" },
+        { name: "lazy bug", imageUrl: "https://i.ibb.co/Yh9Tbqn/lazy-bug.jpg", linkUrl: "https://lonlontwo2022.neocities.org/control/software_lock/lazy_bug", description: "小懶蟲筆記。" },
+        { name: "yuto", imageUrl: "https://i.ibb.co/xfwGVw9/yuto.jpg", linkUrl: "https://www.yutu.cn/", description: "羽兔網。" },
+        { name: "crack", imageUrl: "https://i.ibb.co/KxrVsz7/crack.jpg", linkUrl: "https://lonlontwo2022.neocities.org/control/software_lock/crack", description: "註冊機。" },
 
 
 
@@ -361,22 +359,24 @@ $(document).ready(function () {
 
 
 
-            ];
 
-            function getRandomLightColor() {
-                const hue = Math.floor(Math.random() * 360);
-                const saturation = 30 + Math.floor(Math.random() * 30);
-                const lightness = 80 + Math.floor(Math.random() * 15);
-                return `hsl(${hue}, ${saturation}%, ${lightness}%)`;
-            }
 
-            function generateCommonButtons() {
-                const commonButtonsContainer = $('#commonButtons');
-                commonButtonsContainer.empty();
+    ];
 
-                commonButtonData.forEach(function (button) {
-                    const bgColor = getRandomLightColor();
-                    const buttonElement = `
+    function getRandomLightColor() {
+        const hue = Math.floor(Math.random() * 360);
+        const saturation = 30 + Math.floor(Math.random() * 30);
+        const lightness = 80 + Math.floor(Math.random() * 15);
+        return `hsl(${hue}, ${saturation}%, ${lightness}%)`;
+    }
+
+    function generateCommonButtons() {
+        const commonButtonsContainer = $('#commonButtons');
+        commonButtonsContainer.empty();
+
+        commonButtonData.forEach(function (button) {
+            const bgColor = getRandomLightColor();
+            const buttonElement = `
                         <a href="${button.linkUrl}" class="common-button" target="_blank">
                             <img class="common-image" src="${button.imageUrl}" alt="${button.name}" loading="lazy">
                             <div class="common-label">
@@ -384,16 +384,16 @@ $(document).ready(function () {
                             </div>
                         </a>
                     `;
-                    commonButtonsContainer.append(buttonElement);
-                });
-            }
+            commonButtonsContainer.append(buttonElement);
+        });
+    }
 
-            function generateButtonGrid() {
-                const buttonGridContainer = $('#buttonGrid');
-                buttonGridContainer.empty();
+    function generateButtonGrid() {
+        const buttonGridContainer = $('#buttonGrid');
+        buttonGridContainer.empty();
 
-                mainButtonData.forEach(function (button, index) {
-                    const buttonElement = `
+        mainButtonData.forEach(function (button, index) {
+            const buttonElement = `
                         <a href="${button.linkUrl}" class="image-button" target="_blank" style="animation-delay: ${index * 0.1}s">
                             <div class="image-container">
                                 <img src="${button.imageUrl}" alt="${button.name}" loading="lazy">
@@ -410,79 +410,79 @@ $(document).ready(function () {
                             ` : ''}
                         </a>
                     `;
-                    buttonGridContainer.append(buttonElement);
-                });
-            }
-
-            function adjustScrollAreaHeight() {
-                const windowHeight = $(window).height();
-                const fixedTopHeight = $('#fixedTopSection').outerHeight(true);
-                const scrollableHeight = windowHeight - fixedTopHeight;
-                $('#scrollableMainContent').height(scrollableHeight);
-            }
-
-            // 初始化拖動功能
-            function initDragScroll() {
-                const container = document.getElementById('commonButtonsContainer');
-                let isDown = false;
-                let startX;
-                let scrollLeft;
-
-                container.addEventListener('mousedown', (e) => {
-                    isDown = true;
-                    container.style.cursor = 'grabbing';
-                    startX = e.pageX - container.offsetLeft;
-                    scrollLeft = container.scrollLeft;
-                });
-
-                container.addEventListener('mouseleave', () => {
-                    isDown = false;
-                    container.style.cursor = 'grab';
-                });
-
-                container.addEventListener('mouseup', () => {
-                    isDown = false;
-                    container.style.cursor = 'grab';
-                });
-
-                container.addEventListener('mousemove', (e) => {
-                    if (!isDown) return;
-                    e.preventDefault();
-                    const x = e.pageX - container.offsetLeft;
-                    const walk = (x - startX) * 2; // 調整滑動速度
-                    container.scrollLeft = scrollLeft - walk;
-                });
-            }
-
-            generateCommonButtons();
-            generateButtonGrid();
-            adjustScrollAreaHeight();
-            $(window).on('resize', adjustScrollAreaHeight);
-
-            // 初始化拖動功能
-            initDragScroll();
-
-            $('#buttonGrid').on('click', '.description-toggle', function (event) {
-                event.preventDefault();
-                event.stopPropagation();
-
-                const $tooltipBox = $(this).closest('.image-button').find('.description-tooltip-box');
-
-                $('.description-tooltip-box.active').not($tooltipBox).removeClass('active');
-
-                $tooltipBox.toggleClass('active');
-            });
-
-            $('#buttonGrid').on('click', '.close-tooltip-box', function (event) {
-                event.preventDefault();
-                event.stopPropagation();
-
-                $(this).closest('.description-tooltip-box').removeClass('active');
-            });
-
-            $(document).on('click', function (event) {
-                if (!$(event.target).closest('.image-button').length && !$(event.target).closest('.description-tooltip-box.active').length) {
-                    $('.description-tooltip-box.active').removeClass('active');
-                }
-            });
+            buttonGridContainer.append(buttonElement);
         });
+    }
+
+    function adjustScrollAreaHeight() {
+        const windowHeight = $(window).height();
+        const fixedTopHeight = $('#fixedTopSection').outerHeight(true);
+        const scrollableHeight = windowHeight - fixedTopHeight;
+        $('#scrollableMainContent').height(scrollableHeight);
+    }
+
+    // 初始化拖動功能
+    function initDragScroll() {
+        const container = document.getElementById('commonButtonsContainer');
+        let isDown = false;
+        let startX;
+        let scrollLeft;
+
+        container.addEventListener('mousedown', (e) => {
+            isDown = true;
+            container.style.cursor = 'grabbing';
+            startX = e.pageX - container.offsetLeft;
+            scrollLeft = container.scrollLeft;
+        });
+
+        container.addEventListener('mouseleave', () => {
+            isDown = false;
+            container.style.cursor = 'grab';
+        });
+
+        container.addEventListener('mouseup', () => {
+            isDown = false;
+            container.style.cursor = 'grab';
+        });
+
+        container.addEventListener('mousemove', (e) => {
+            if (!isDown) return;
+            e.preventDefault();
+            const x = e.pageX - container.offsetLeft;
+            const walk = (x - startX) * 2; // 調整滑動速度
+            container.scrollLeft = scrollLeft - walk;
+        });
+    }
+
+    generateCommonButtons();
+    generateButtonGrid();
+    adjustScrollAreaHeight();
+    $(window).on('resize', adjustScrollAreaHeight);
+
+    // 初始化拖動功能
+    initDragScroll();
+
+    $('#buttonGrid').on('click', '.description-toggle', function (event) {
+        event.preventDefault();
+        event.stopPropagation();
+
+        const $tooltipBox = $(this).closest('.image-button').find('.description-tooltip-box');
+
+        $('.description-tooltip-box.active').not($tooltipBox).removeClass('active');
+
+        $tooltipBox.toggleClass('active');
+    });
+
+    $('#buttonGrid').on('click', '.close-tooltip-box', function (event) {
+        event.preventDefault();
+        event.stopPropagation();
+
+        $(this).closest('.description-tooltip-box').removeClass('active');
+    });
+
+    $(document).on('click', function (event) {
+        if (!$(event.target).closest('.image-button').length && !$(event.target).closest('.description-tooltip-box.active').length) {
+            $('.description-tooltip-box.active').removeClass('active');
+        }
+    });
+});
