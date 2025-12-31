@@ -130,38 +130,43 @@ function loadButtonList(type) {
                 name: item.name,
                 image: item.imageUrl,
                 url: item.linkUrl,
-                active: true, // 常用按鈕預設無此欄位，設為啟用
-                locked: false // 常用按鈕預設無此欄位，設為未上鎖
+                desc: '', // 常用按鈕無說明
+                active: true,
+                locked: false
             }));
 
             // 更新計數
             const badge = document.querySelector(`.tab-btn[data-tab="common"] .badge`);
             if (badge) badge.textContent = data.length;
         } else {
-            console.error('找不到 commonButtonData，請確認檔案是否正確引入');
+            console.error('找不到 commonButtonData');
             container.innerHTML = '<div class="empty-state">無法讀取常用按鈕資料</div>';
             return;
         }
-    } else {
-        // 其他類型暫時維持模擬或空
-        console.log('尚未實作此類型的資料讀取');
-        // 模擬資料作為佔位符
-        if (type === 'tools') {
-            const mockData = [
-                {
-                    name: "chatgpt",
-                    image: "https://i.ibb.co/6Jv2qS2p/chatgpt.jpg",
-                    url: "https://chat.openai.com/chat",
-                    active: true,
-                    locked: true
-                }
-            ];
-            data = mockData;
+    } else if (type === 'tools') {
+        // 檢查 mainButtonData 是否存在
+        if (typeof mainButtonData !== 'undefined') {
+            data = mainButtonData.map(item => ({
+                name: item.name,
+                image: item.imageUrl,
+                url: item.linkUrl,
+                desc: item.description || '', // 工具按鈕有說明
+                active: true,
+                locked: false
+            }));
 
             // 更新計數
             const count = document.querySelector(`.tab-btn[data-tab="tools"] .count`);
-            if (count) count.textContent = "待實作";
+            if (count) count.textContent = data.length;
+        } else {
+            console.error('找不到 mainButtonData');
+            container.innerHTML = '<div class="empty-state">無法讀取工具按鈕資料</div>';
+            return;
         }
+    } else {
+        console.log('尚未實作此類型的資料讀取');
+        container.innerHTML = '<div class="empty-state">此分類暫無資料</div>';
+        return;
     }
 
     if (data.length === 0) {
@@ -171,6 +176,9 @@ function loadButtonList(type) {
 
     // 渲染列表
     data.forEach((item, index) => {
+        // 將說明文字加入顯示 (如果有)
+        const descHtml = item.desc ? `<div class="info-row desc" style="font-size: 0.8rem; color: #888; margin-top: 4px;">📝 ${item.desc}</div>` : '';
+
         const itemHTML = `
             <div class="list-item">
                 <div class="item-img-box">
@@ -182,6 +190,7 @@ function loadButtonList(type) {
                         <span class="item-name">${item.name}</span>
                         <span class="status-badge ${item.active ? 'active' : ''}">${item.active ? '啟用' : '停用'}</span>
                     </div>
+                    ${descHtml}
                     <div class="info-row link">
                         <span class="link-icon">🔗</span>
                         <span class="item-link"><a href="${item.url}" target="_blank" style="color: inherit; text-decoration: none;">${item.url}</a></span>
