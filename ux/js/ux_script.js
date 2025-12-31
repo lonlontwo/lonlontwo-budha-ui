@@ -313,16 +313,16 @@ async function handleButtonSubmit() {
 
     const data = {
         name: nameInput.value.trim(),
-        image: imgInput.value.trim(),
-        url: urlInput.value.trim(),
+        image: imgInput.value.trim() || 'https://via.placeholder.com/100?text=No+Img', // 預設圖片
+        url: urlInput.value.trim() || 'javascript:void(0)', // 預設無效連結
         desc: descInput.value.trim(),
         locked: pwdInput.value.trim() !== '', // 若有密碼則視為鎖定
         lockPassword: pwdInput.value.trim(), // 實務上建議加密，此處示範直接儲存
         updatedAt: firebase.firestore.FieldValue.serverTimestamp()
     };
 
-    if (!data.name || !data.url) {
-        alert('名稱與目標網址為必填欄位！');
+    if (!data.name) {
+        alert('名稱為必填欄位！');
         return;
     }
 
