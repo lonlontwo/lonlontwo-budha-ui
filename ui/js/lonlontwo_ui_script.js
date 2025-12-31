@@ -622,6 +622,44 @@ $(document).ready(function () {
     adjustScrollAreaHeight();
     $(window).on('resize', adjustScrollAreaHeight);
 
+    // 密碼彈窗邏輯
+    let currentLockedButton = null;
+
+    function showPasswordModal(buttonName, password, url) {
+        console.log('顯示密碼彈窗:', { buttonName, password: password ? '***' : 'undefined', url });
+
+        currentLockedButton = { password, url };
+
+        $('#passwordModalTitle').text(`🔒 ${buttonName}`);
+        $('#passwordModalSubtitle').text('請輸入密碼以訪問此內容');
+        $('#passwordModalError').text('');
+        $('#passwordModalInput').val('');
+        $('#passwordModal').addClass('active');
+        $('#passwordModalInput').focus();
+    }
+
+    function hidePasswordModal() {
+        $('#passwordModal').removeClass('active');
+        currentLockedButton = null;
+    }
+
+    function checkPassword() {
+        const userInput = $('#passwordModalInput').val();
+        console.log('檢查密碼:', {
+            userInput,
+            correctPassword: currentLockedButton?.password,
+            match: userInput === currentLockedButton?.password
+        });
+
+        if (userInput === currentLockedButton.password) {
+            window.open(currentLockedButton.url, '_blank');
+            hidePasswordModal();
+        } else {
+            $('#passwordModalError').text('❌ 密碼錯誤，請重試');
+            $('#passwordModalInput').val('').focus();
+        }
+    }
+
     // 密碼鎖按鈕點擊處理
     $(document).on('click', '.locked-button', function (e) {
         e.preventDefault();
@@ -629,12 +667,24 @@ $(document).ready(function () {
         const url = $(this).data('url');
         const name = $(this).data('name');
 
-        const userInput = prompt(`🔒 「${name}」需要密碼才能訪問\n\n請輸入密碼：`);
+        console.log('點擊鎖定按鈕:', { name, password, url, element: this });
 
-        if (userInput === password) {
-            window.open(url, '_blank');
-        } else if (userInput !== null) {
-            alert('❌ 密碼錯誤');
+        showPasswordModal(name, password, url);
+    });
+
+    // 彈窗按鈕事件
+    $('#passwordModalCancel').on('click', hidePasswordModal);
+    $('#passwordModalConfirm').on('click', checkPassword);
+    $('#passwordModalInput').on('keypress', function (e) {
+        if (e.which === 13) { // Enter key
+            checkPassword();
+        }
+    });
+
+    // 點擊背景關閉
+    $('#passwordModal').on('click', function (e) {
+        if (e.target === this) {
+            hidePasswordModal();
         }
     });
 
