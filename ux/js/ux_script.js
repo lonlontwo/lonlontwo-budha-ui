@@ -720,6 +720,44 @@ function showNotification(message, type = 'info') {
 }
 
 // ===================================
+// == UI 互動邏輯 (類型切換) ==
+// ===================================
+function switchButtonType(type) {
+    console.log('切換類型:', type);
+
+    // 更新隱藏欄位
+    const typeInput = document.getElementById('btnTypeInput');
+    if (typeInput) typeInput.value = type;
+
+    // 更新 UI 樣式
+    document.querySelectorAll('.type-option').forEach(opt => {
+        if (opt.dataset.type === type) {
+            opt.classList.add('active');
+        } else {
+            opt.classList.remove('active');
+        }
+    });
+
+    // 切換欄位顯示
+    const urlGroup = document.getElementById('urlFieldGroup');
+    const folderGroup = document.getElementById('folderContentGroup');
+    const nameInput = document.getElementById('btnNameInput');
+
+    if (type === 'folder') {
+        if (urlGroup) urlGroup.style.display = 'none';
+        if (folderGroup) {
+            folderGroup.style.display = 'block';
+            folderGroup.classList.add('fade-in'); // 可以加動畫 class
+        }
+        if (nameInput) nameInput.placeholder = '資料夾名稱';
+    } else {
+        if (urlGroup) urlGroup.style.display = 'block';
+        if (folderGroup) folderGroup.style.display = 'none';
+        if (nameInput) nameInput.placeholder = '按鈕名稱';
+    }
+}
+
+// ===================================
 // == 匯出函數供外部使用 ==
 // ===================================
 window.uxAdmin = {
@@ -731,5 +769,6 @@ window.uxAdmin = {
     deleteButton,
     toggleButtonStatus,
     resetButtonForm,
-    handleLogout
+    handleLogout,
+    switchButtonType // 新增匯出
 };

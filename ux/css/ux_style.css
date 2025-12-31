@@ -308,6 +308,59 @@ body {
     margin-bottom: 20px;
 }
 
+/* 類型選擇器樣式 */
+.type-selector {
+    display: flex;
+    gap: 15px;
+    margin-top: 8px;
+}
+
+.type-option {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    background: #2a2a2a;
+    border: 2px solid #333;
+    padding: 15px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    opacity: 0.7;
+}
+
+.type-option:hover {
+    background: #333;
+    opacity: 1;
+}
+
+.type-option.active {
+    border-color: var(--warning-color);
+    /* 黃色邊框 */
+    background: rgba(255, 193, 7, 0.1);
+    opacity: 1;
+}
+
+.type-icon {
+    font-size: 1.5rem;
+}
+
+.folder-icon {
+    color: var(--warning-color);
+}
+
+.type-label {
+    font-weight: 600;
+    font-size: 1rem;
+    color: var(--text-secondary);
+}
+
+.type-option.active .type-label {
+    color: var(--warning-color);
+    /* 選中時文字變黃 */
+}
+
 .form-group label {
     display: block;
     margin-bottom: 8px;
