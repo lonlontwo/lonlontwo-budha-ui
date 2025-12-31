@@ -377,7 +377,7 @@ $(document).ready(function () {
         commonButtonData.forEach(function (button) {
             const bgColor = getRandomLightColor();
             const buttonElement = `
-                        <a href="${button.linkUrl}" class="common-button" target="_blank">
+                        <a href="${button.linkUrl}" class="common-button" target="_blank" data-name="${button.name}">
                             <img class="common-image" src="${button.imageUrl}" alt="${button.name}" loading="lazy">
                             <div class="common-label">
                                 ${button.name}
@@ -394,7 +394,7 @@ $(document).ready(function () {
 
         mainButtonData.forEach(function (button, index) {
             const buttonElement = `
-                        <a href="${button.linkUrl}" class="image-button" target="_blank" style="animation-delay: ${index * 0.1}s">
+                        <a href="${button.linkUrl}" class="image-button" target="_blank" style="animation-delay: ${index * 0.1}s" data-name="${button.name}" data-description="${button.description || ''}">
                             <div class="image-container">
                                 <img src="${button.imageUrl}" alt="${button.name}" loading="lazy">
                             </div>
