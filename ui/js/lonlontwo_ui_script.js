@@ -434,32 +434,18 @@ $(document).ready(function () {
         if (!data || data.length === 0) return;
 
         data.forEach(function (button) {
-            // 只顯示啟用的按鈕 (如果是從 Firebase 來的資料會有 active 欄位)
-            // 如果是靜態資料 (沒有 active 欄位) 則預設顯示
             if (typeof button.active !== 'undefined' && !button.active) {
                 return;
             }
 
-            // 除錯：顯示完整按鈕資料
-            if (button.locked) {
-                console.log('鎖定按鈕資料:', button);
-            }
-
             const bgColor = getRandomLightColor();
-            const isLocked = button.locked && button.password;
             const targetUrl = button.url || button.linkUrl;
 
             const buttonElement = `
-                        <a href="${isLocked ? '#' : targetUrl}" 
-                           class="common-button ${isLocked ? 'locked-button' : ''}" 
-                           ${isLocked ? '' : 'target="_blank"'}
-                           data-name="${button.name}"
-                           data-locked="${isLocked ? 'true' : 'false'}"
-                           data-password="${isLocked ? button.password : ''}"
-                           data-url="${targetUrl}">
+                        <a href="${targetUrl}" class="common-button" target="_blank" data-name="${button.name}">
                             <img class="common-image" src="${button.image || button.imageUrl}" alt="${button.name}" loading="lazy">
                             <div class="common-label">
-                                ${isLocked ? '🔒 ' : ''}${button.name}
+                                ${button.name}
                             </div>
                         </a>
                     `;
@@ -515,26 +501,15 @@ $(document).ready(function () {
             const img = button.image || button.imageUrl;
             const desc = button.desc || button.description || '';
 
-            // 是否啟用檢查
             if (typeof button.active !== 'undefined' && !button.active) return;
 
-            const isLocked = button.locked && button.password;
-
             const buttonElement = `
-                        <a href="${isLocked ? '#' : link}" 
-                           class="image-button ${isLocked ? 'locked-button' : ''}" 
-                           ${isLocked ? '' : 'target="_blank"'}
-                           style="animation-delay: ${index * 0.1}s" 
-                           data-name="${name}" 
-                           data-description="${desc}"
-                           data-locked="${isLocked ? 'true' : 'false'}"
-                           data-password="${isLocked ? button.password : ''}"
-                           data-url="${link}">
+                        <a href="${link}" class="image-button" target="_blank" style="animation-delay: ${index * 0.1}s" data-name="${name}" data-description="${desc}">
                             <div class="image-container">
                                 <img src="${img}" alt="${name}" loading="lazy">
                             </div>
                             <div class="button-label">
-                                ${isLocked ? '🔒 ' : ''}${name}
+                                ${name}
                                 ${desc ? `<button class="description-toggle">i</button>` : ''}
                             </div>
                             ${desc ? `
@@ -626,72 +601,6 @@ $(document).ready(function () {
     loadToolButtons();
     adjustScrollAreaHeight();
     $(window).on('resize', adjustScrollAreaHeight);
-
-    // 密碼彈窗邏輯
-    let currentLockedButton = null;
-
-    function showPasswordModal(buttonName, password, url) {
-        console.log('顯示密碼彈窗:', { buttonName, password: password ? '***' : 'undefined', url });
-
-        currentLockedButton = { password, url };
-
-        $('#passwordModalTitle').text(`🔒 ${buttonName}`);
-        $('#passwordModalSubtitle').text('請輸入密碼以訪問此內容');
-        $('#passwordModalError').text('');
-        $('#passwordModalInput').val('');
-        $('#passwordModal').addClass('active');
-        $('#passwordModalInput').focus();
-    }
-
-    function hidePasswordModal() {
-        $('#passwordModal').removeClass('active');
-        currentLockedButton = null;
-    }
-
-    function checkPassword() {
-        const userInput = $('#passwordModalInput').val();
-        console.log('檢查密碼:', {
-            userInput,
-            correctPassword: currentLockedButton?.password,
-            match: userInput === currentLockedButton?.password
-        });
-
-        if (userInput === currentLockedButton.password) {
-            window.open(currentLockedButton.url, '_blank');
-            hidePasswordModal();
-        } else {
-            $('#passwordModalError').text('❌ 密碼錯誤，請重試');
-            $('#passwordModalInput').val('').focus();
-        }
-    }
-
-    // 密碼鎖按鈕點擊處理
-    $(document).on('click', '.locked-button', function (e) {
-        e.preventDefault();
-        const password = $(this).data('password');
-        const url = $(this).data('url');
-        const name = $(this).data('name');
-
-        console.log('點擊鎖定按鈕:', { name, password, url, element: this });
-
-        showPasswordModal(name, password, url);
-    });
-
-    // 彈窗按鈕事件
-    $('#passwordModalCancel').on('click', hidePasswordModal);
-    $('#passwordModalConfirm').on('click', checkPassword);
-    $('#passwordModalInput').on('keypress', function (e) {
-        if (e.which === 13) { // Enter key
-            checkPassword();
-        }
-    });
-
-    // 點擊背景關閉
-    $('#passwordModal').on('click', function (e) {
-        if (e.target === this) {
-            hidePasswordModal();
-        }
-    });
 
     // 初始化拖動功能
     initDragScroll();

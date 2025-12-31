@@ -325,11 +325,9 @@ async function handleButtonSubmit() {
 
     const data = {
         name: nameInput.value.trim(),
-        image: imgInput.value.trim() || 'https://via.placeholder.com/100?text=No+Img', // 預設圖片
-        url: urlInput.value.trim() || 'javascript:void(0)', // 預設無效連結
+        image: imgInput.value.trim() || 'https://via.placeholder.com/100?text=No+Img',
+        url: urlInput.value.trim() || 'javascript:void(0)',
         desc: descInput.value.trim(),
-        locked: pwdInput.value.trim() !== '', // 若有密碼則視為鎖定
-        password: pwdInput.value.trim(), // 改用 password 欄位名稱
         updatedAt: firebase.firestore.FieldValue.serverTimestamp()
     };
 
@@ -356,17 +354,13 @@ async function handleButtonSubmit() {
             data.createdAt = firebase.firestore.FieldValue.serverTimestamp();
 
             console.log('即將寫入 Firebase 的完整資料:', JSON.stringify(data, null, 2));
-            console.log('password 值:', data.password);
-            console.log('password 型別:', typeof data.password);
 
             await db.collection(collectionName).add(data);
             showButtonFeedback(submitBtn, '✓ 已新增', 'success');
-            // 清空表單以便繼續新增
             nameInput.value = '';
             imgInput.value = '';
             urlInput.value = '';
             descInput.value = '';
-            pwdInput.value = '';
         }
     } catch (error) {
         console.error('儲存失敗:', error);
@@ -386,12 +380,10 @@ async function editButton(collectionName, id) {
         }
         const data = doc.data();
 
-        // 填入表單
         document.getElementById('btnNameInput').value = data.name || '';
         document.getElementById('btnImgInput').value = data.image || '';
         document.getElementById('btnUrlInput').value = data.url || '';
         document.getElementById('btnDescInput').value = data.desc || '';
-        document.getElementById('btnPwdInput').value = data.password || '';
 
         // 設定編輯模式
         document.getElementById('editingBtnId').value = id;
@@ -418,7 +410,6 @@ function resetButtonForm() {
     document.getElementById('btnImgInput').value = '';
     document.getElementById('btnUrlInput').value = '';
     document.getElementById('btnDescInput').value = '';
-    document.getElementById('btnPwdInput').value = '';
     document.getElementById('editingBtnId').value = '';
 
     const submitBtn = document.getElementById('btnSubmitBtn');
