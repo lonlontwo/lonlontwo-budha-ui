@@ -36,7 +36,7 @@ const backToFrontendBtn = document.getElementById('backToFrontendBtn');
 // ===================================
 // == 登入功能 ==
 // ===================================
-function handleLogin() {
+async function handleLogin() {
     const password = passwordInput.value.trim();
 
     if (password === '') {
@@ -44,18 +44,44 @@ function handleLogin() {
         return;
     }
 
-    if (password === ADMIN_PASSWORD) {
-        // 登入成功
-        isLoggedIn = true;
-        // sessionStorage.setItem('ux_logged_in', 'true'); // 移除記憶功能
-        showDashboard();
-        loginError.textContent = '';
-        passwordInput.value = '';
-    } else {
-        // 登入失敗
-        showLoginError('密碼錯誤,請重試');
-        passwordInput.value = '';
-        passwordInput.focus();
+    // 顯示載入中... (可選)
+    loginButton.textContent = '驗證中...';
+    loginButton.disabled = true;
+
+    try {
+        // 從 Firebase 取得目前設定的密碼
+        const doc = await db.collection('settings').doc('site_config').get();
+        let currentPassword = ADMIN_PASSWORD; // 預設使用寫死密碼
+
+        if (doc.exists && doc.data().admin_password) {
+            currentPassword = doc.data().admin_password;
+        }
+
+        if (password === currentPassword) {
+            // 登入成功
+            isLoggedIn = true;
+            // sessionStorage.setItem('ux_logged_in', 'true'); // 移除記憶功能
+            showDashboard();
+            loginError.textContent = '';
+            passwordInput.value = '';
+        } else {
+            // 登入失敗
+            showLoginError('密碼錯誤,請重試');
+            passwordInput.value = '';
+            passwordInput.focus();
+        }
+    } catch (error) {
+        console.error("登入驗證錯誤:", error);
+        // 如果連線失敗，暫時允許使用預設密碼備援 (視需求而定，為了安全也可以改成禁止登入)
+        if (password === ADMIN_PASSWORD) {
+            isLoggedIn = true;
+            showDashboard();
+        } else {
+            showLoginError('系統錯誤或密碼不正確');
+        }
+    } finally {
+        loginButton.textContent = '登入';
+        loginButton.disabled = false;
     }
 }
 
@@ -214,9 +240,6 @@ function loadButtonList(type) {
 }
 
 // ===================================
-// == 設定資料載入 ==
-// ===================================
-// ===================================
 // == 設定資料載入 (優先從 Firebase) ==
 // ===================================
 async function loadSettingsData() {
@@ -275,10 +298,34 @@ async function saveSettingsData() {
     const logoLinkInput = document.getElementById('logoLinkInput');
     const submitBtn = document.querySelector('#settingsView .submit-btn');
 
+    // 密碼相關輸入框
+    const oldPwInput = document.getElementById('oldPasswordInput');
+    const newPwInput = document.getElementById('newPasswordInput');
+    const confirmPwInput = document.getElementById('confirmPasswordInput');
+
     const newMarquee = marqueeInput.value.trim();
     const newLogo = logoLinkInput.value.trim();
 
-    if (!newMarquee && !newLogo) {
+    // 密碼變更邏輯
+    const oldPw = oldPwInput.value.trim();
+    const newPw = newPwInput.value.trim();
+    const confirmPw = confirmPwInput.value.trim();
+    let changePassword = false;
+
+    if (oldPw || newPw || confirmPw) {
+        // 如果有填寫任何密碼欄位，就要進行驗證
+        if (!oldPw || !newPw || !confirmPw) {
+            alert('修改密碼請完整填寫：舊密碼、新密碼與確認密碼');
+            return;
+        }
+        if (newPw !== confirmPw) {
+            alert('新密碼與確認密碼不符！');
+            return;
+        }
+        changePassword = true;
+    }
+
+    if (!newMarquee && !newLogo && !changePassword) {
         alert('內容不能全空');
         return;
     }
@@ -289,11 +336,32 @@ async function saveSettingsData() {
     submitBtn.disabled = true;
 
     try {
-        await db.collection('settings').doc('site_config').set({
+        const updateData = {
             marquee: newMarquee,
             logo: newLogo,
             updatedAt: firebase.firestore.FieldValue.serverTimestamp()
-        }, { merge: true });
+        };
+
+        // 如果要改密碼，先驗證舊密碼
+        if (changePassword) {
+            const doc = await db.collection('settings').doc('site_config').get();
+            let currentDbPassword = ADMIN_PASSWORD;
+            if (doc.exists && doc.data().admin_password) {
+                currentDbPassword = doc.data().admin_password;
+            }
+
+            if (oldPw !== currentDbPassword) {
+                alert('舊密碼錯誤！無法變更密碼');
+                submitBtn.textContent = originalBtnText;
+                submitBtn.disabled = false;
+                return;
+            }
+
+            // 驗證通過，加入新密碼
+            updateData.admin_password = newPw;
+        }
+
+        await db.collection('settings').doc('site_config').set(updateData, { merge: true });
 
         // 成功提示 (直接顯示在按鈕上，不彈出視窗)
         submitBtn.textContent = '✅ 設定完成';
@@ -304,6 +372,11 @@ async function saveSettingsData() {
         const logoHint = logoLinkInput.nextElementSibling;
         if (marqueeHint) marqueeHint.textContent = `目前設置 (Firebase)：${newMarquee.substring(0, 30)}...`;
         if (logoHint) logoHint.textContent = `目前設置 (Firebase)：${newLogo}`;
+
+        // 清空密碼欄位
+        oldPwInput.value = '';
+        newPwInput.value = '';
+        confirmPwInput.value = '';
 
         // 2秒後自動恢復按鈕原狀
         setTimeout(() => {
