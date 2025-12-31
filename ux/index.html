@@ -81,12 +81,7 @@
                         <label>密碼鎖 (Lock Password) <span class="warning-label">🔒 選填，設定後需密碼才能訪問</span></label>
                         <input type="text" id="btnPwdInput" class="admin-input" placeholder="留空則不鎖定">
                     </div>
-                    <div style="display: flex; gap: 10px;">
-                        <button class="submit-btn" id="btnCancelBtn" onclick="window.uxAdmin.resetButtonForm()"
-                            style="background: #666; flex: 1;">取消</button>
-                        <button class="submit-btn" id="btnSubmitBtn" onclick="handleButtonSubmit()"
-                            style="flex: 2;">新增按鈕</button>
-                    </div>
+                    <button class="submit-btn" id="btnSubmitBtn" onclick="handleButtonSubmit()">新增按鈕</button>
                     <input type="hidden" id="editingBtnId">
                 </div>
 
