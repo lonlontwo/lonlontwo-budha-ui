@@ -598,41 +598,92 @@ body {
 
 .slider {
     position: absolute;
+}
+
+/* 子按鈕編輯器樣式 */
+.sub-btn-editor {
+    background: #252525;
+    padding: 15px;
+    border-radius: 8px;
+    border: 1px solid #333;
+}
+
+.sub-btn-inputs {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 15px;
+    flex-wrap: wrap;
+}
+
+.admin-input.small {
+    flex: 1;
+    min-width: 150px;
+    margin-bottom: 0;
+}
+
+.add-sub-btn {
+    background: var(--success-color);
+    white-space: nowrap;
+}
+
+.sub-btn-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    max-height: 250px;
+    overflow-y: auto;
+}
+
+.sub-btn-item {
+    display: flex;
+    align-items: center;
+    background: #333;
+    padding: 10px;
+    border-radius: 4px;
+    border: 1px solid #444;
+}
+
+.sub-btn-img {
+    width: 32px;
+    height: 32px;
+    border-radius: 4px;
+    object-fit: cover;
+    margin-right: 12px;
+    background: #000;
+}
+
+.sub-btn-info {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.sub-name {
+    font-weight: bold;
+    color: #eee;
+}
+
+.sub-url {
+    font-size: 0.8rem;
+    color: #aaa;
+}
+
+.remove-sub-btn {
+    background: none;
+    border: none;
+    color: #ff5252;
     cursor: pointer;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background-color: #ccc;
-    transition: .4s;
+    font-size: 1.2rem;
+    padding: 5px;
+    opacity: 0.7;
 }
 
-.slider:before {
-    position: absolute;
-    content: "";
-    height: 20px;
-    width: 20px;
-    left: 3px;
-    bottom: 3px;
-    background-color: white;
-    transition: .4s;
+.remove-sub-btn:hover {
+    opacity: 1;
+    transform: scale(1.1);
 }
 
-input:checked+.slider {
-    background-color: #4caf50;
-}
 
-input:checked+.slider:before {
-    transform: translateX(24px);
-}
-
-.slider.round {
-    border-radius: 34px;
-}
-
-.slider.round:before {
-    border-radius: 50%;
-}
 
 .view-section {
     display: none;

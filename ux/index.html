@@ -99,14 +99,28 @@
                     <!-- 資料夾內容欄位 (資料夾模式顯示) -->
                     <div id="folderContentGroup" style="display: none;">
                         <div class="form-group">
-                            <label>📂 資料夾內容管理 (JSON)</label>
-                            <textarea id="btnFolderJsonInput" class="admin-input" rows="6" placeholder='[
-    { "name": "子按鈕1", "url": "...", "img": "..." },
-    { "name": "子按鈕2", "url": "...", "img": "..." }
-]'></textarea>
-                            <div class="field-hint" style="color: #888; font-size: 0.8rem; margin-top: 5px;">
-                                暫時使用 JSON 格式輸入，未來將升級為視覺化編輯。
+                            <label>📂 資料夾子按鈕管理</label>
+
+                            <!-- 視覺化編輯器 -->
+                            <div class="sub-btn-editor">
+                                <div class="sub-btn-inputs">
+                                    <input type="text" id="subBtnName" placeholder="名稱 (例如: GPT-4o)"
+                                        class="admin-input small">
+                                    <input type="text" id="subBtnUrl" placeholder="目標連結 URL" class="admin-input small">
+                                    <input type="text" id="subBtnImg" placeholder="圖片 URL (選填)"
+                                        class="admin-input small">
+                                    <button type="button" class="action-btn add-sub-btn"
+                                        onclick="window.uxAdmin.addSubButton()">➕ 新增</button>
+                                </div>
+
+                                <!-- 子按鈕列表展示 -->
+                                <div id="subBtnList" class="sub-btn-list">
+                                    <!-- JS 會動態將子按鈕加在這裡 -->
+                                </div>
                             </div>
+
+                            <!-- 隱藏的 JSON 儲存欄位 (程式自動同步，不給人看) -->
+                            <textarea id="btnFolderJsonInput" class="admin-input" style="display: none;"></textarea>
                         </div>
                     </div>
                     <div class="form-group">

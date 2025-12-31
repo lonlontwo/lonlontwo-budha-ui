@@ -498,6 +498,9 @@ async function editButton(collectionName, id) {
             // 填入 JSON 內容
             const jsonStr = data.content ? JSON.stringify(data.content, null, 4) : '[]';
             document.getElementById('btnFolderJsonInput').value = jsonStr;
+            // 重繪子按鈕列表
+            if (window.uxAdmin && window.uxAdmin.renderSubButtonList) window.uxAdmin.renderSubButtonList();
+
             // 清空 URL 欄位避免混淆
             document.getElementById('btnUrlInput').value = '';
         } else {
@@ -818,6 +821,99 @@ function switchButtonType(type) {
 }
 
 // ===================================
+// == 子按鈕管理 (Visual Editor) ==
+// ===================================
+function addSubButton() {
+    const nameInput = document.getElementById('subBtnName');
+    const urlInput = document.getElementById('subBtnUrl');
+    const imgInput = document.getElementById('subBtnImg');
+    const jsonInput = document.getElementById('btnFolderJsonInput');
+
+    const name = nameInput.value.trim();
+    const url = urlInput.value.trim();
+    const img = imgInput.value.trim();
+
+    if (!name || !url) {
+        alert('請輸入名稱與目標連結！');
+        return;
+    }
+
+    // 讀取現有 JSON
+    let currentList = [];
+    try {
+        currentList = JSON.parse(jsonInput.value || '[]');
+    } catch (e) {
+        currentList = [];
+    }
+
+    // 新增項目
+    currentList.push({
+        name: name,
+        url: url,
+        img: img || 'https://via.placeholder.com/32' // 預設圖
+    });
+
+    // 寫回 JSON 並重繪
+    jsonInput.value = JSON.stringify(currentList, null, 4);
+    renderSubButtonList();
+
+    // 清空輸入
+    nameInput.value = '';
+    urlInput.value = '';
+    imgInput.value = '';
+}
+
+function removeSubButton(index) {
+    const jsonInput = document.getElementById('btnFolderJsonInput');
+    let currentList = [];
+    try {
+        currentList = JSON.parse(jsonInput.value || '[]');
+    } catch (e) { return; }
+
+    // 刪除指定索引
+    currentList.splice(index, 1);
+
+    // 寫回 JSON 並重繪
+    jsonInput.value = JSON.stringify(currentList, null, 4);
+    renderSubButtonList();
+}
+
+function renderSubButtonList() {
+    const listContainer = document.getElementById('subBtnList');
+    const jsonInput = document.getElementById('btnFolderJsonInput');
+
+    if (!listContainer) return;
+
+    let currentList = [];
+    try {
+        currentList = JSON.parse(jsonInput.value || '[]');
+    } catch (e) {
+        listContainer.innerHTML = '<div style="color:red; padding:10px;">JSON 格式錯誤</div>';
+        return;
+    }
+
+    if (currentList.length === 0) {
+        listContainer.innerHTML = '<div style="color:#666; padding:10px; text-align:center;">尚無子按鈕，請在上方新增</div>';
+        return;
+    }
+
+    let html = '';
+    currentList.forEach((item, index) => {
+        html += `
+            <div class="sub-btn-item">
+                <img src="${item.img || 'https://via.placeholder.com/32'}" class="sub-btn-img" onerror="this.src='https://via.placeholder.com/32'">
+                <div class="sub-btn-info">
+                    <span class="sub-name">${item.name}</span>
+                    <span class="sub-url">${item.url}</span>
+                </div>
+                <button type="button" class="remove-sub-btn" onclick="window.uxAdmin.removeSubButton(${index})">✖</button>
+            </div>
+        `;
+    });
+    listContainer.innerHTML = html;
+}
+
+// ===================================
 // == 匯出函數供外部使用 ==
 // ===================================
 window.uxAdmin = {
@@ -830,5 +926,8 @@ window.uxAdmin = {
     toggleButtonStatus,
     resetButtonForm,
     handleLogout,
-    switchButtonType // 新增匯出
+    switchButtonType,
+    addSubButton,      // 新增
+    removeSubButton,   // 新增
+    renderSubButtonList // 新增
 };
