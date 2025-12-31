@@ -13,7 +13,8 @@ $(document).ready(function () {
         e.preventDefault();
     });
 
-    // 2. 防 F12 和其他開發者工具快捷鍵
+    // 2. 防 F12 和其他開發者工具快捷鍵 (暫時關閉以便除錯)
+    /*
     $(document).on('keydown', function (e) {
         if (e.key === 'F12' || e.keyCode === 123) { e.preventDefault(); }
         if (e.ctrlKey && e.shiftKey && (e.key === 'I' || e.keyCode === 73)) { e.preventDefault(); }
@@ -21,6 +22,7 @@ $(document).ready(function () {
         if (e.ctrlKey && e.shiftKey && (e.key === 'C' || e.keyCode === 67)) { e.preventDefault(); }
         if (e.ctrlKey && (e.key === 'U' || e.keyCode === 85)) { e.preventDefault(); }
     });
+    */
 
     // 3. 防複製 (Ctrl+C, 右鍵複製)
     $(document).on('copy', function (e) {
