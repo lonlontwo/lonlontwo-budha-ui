@@ -419,14 +419,11 @@ function resetButtonForm() {
 
 // 刪除按鈕
 async function deleteButton(collectionName, id, name) {
-    if (confirm(`確定要刪除「${name}」嗎？此動作無法復原。`)) {
-        try {
-            await db.collection(collectionName).doc(id).delete();
-            // 不需手動 refresh，onSnapshot 會處理
-        } catch (error) {
-            console.error('刪除失敗:', error);
-            alert('刪除失敗');
-        }
+    try {
+        await db.collection(collectionName).doc(id).delete();
+        // 不需手動 refresh，onSnapshot 會處理
+    } catch (error) {
+        console.error('刪除失敗:', error);
     }
 }
 
