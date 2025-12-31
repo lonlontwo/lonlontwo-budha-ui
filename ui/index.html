@@ -8,6 +8,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="css/lonlontwo_ui_style.css">
+    <link rel="stylesheet" href="css/folder_modal.css">
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
@@ -55,6 +56,26 @@
     <div class="scrollable-main-content" id="scrollableMainContent">
         <div class="button-grid" id="buttonGrid">
             <!-- 按鈕將由JavaScript動態生成 -->
+        </div>
+    </div>
+
+    <!-- 資料夾彈窗 (Folder Modal) -->
+    <div id="folderModalOverlay" class="folder-modal-overlay">
+        <div class="folder-modal">
+            <!-- 頭部 -->
+            <div class="folder-header">
+                <div class="folder-title">
+                    <span id="modalTitle">📂 資料夾</span>
+                </div>
+                <button class="folder-close-btn" onclick="window.closeFolderModal()">×</button>
+            </div>
+
+            <!-- 內容區 (不使用分頁，直接顯示所有子按鈕) -->
+            <div class="folder-content" id="modalContent">
+                <div class="modal-grid" id="modalGrid">
+                    <!-- JS 動態生成子按鈕 -->
+                </div>
+            </div>
         </div>
     </div>
 </body>

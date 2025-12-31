@@ -439,16 +439,31 @@ $(document).ready(function () {
             }
 
             const bgColor = getRandomLightColor();
-            const targetUrl = button.url || button.linkUrl;
+            const isFolder = button.type === 'folder' && button.content && Array.isArray(button.content);
 
-            const buttonElement = `
-                        <a href="${targetUrl}" class="common-button" target="_blank" data-name="${button.name}">
-                            <img class="common-image" src="${button.image || button.imageUrl}" alt="${button.name}" loading="lazy">
-                            <div class="common-label">
-                                ${button.name}
-                            </div>
-                        </a>
-                    `;
+            let buttonElement;
+            if (isFolder) {
+                // 資料夾按鈕：不使用 <a>，改用 <div> + onclick
+                buttonElement = `
+                    <div class="common-button folder-type-btn" data-name="${button.name}" onclick="window.openFolderModal('${button.name}', ${JSON.stringify(button.content).replace(/"/g, '&quot;')})">
+                        <img class="common-image" src="${button.image || button.imageUrl}" alt="${button.name}" loading="lazy">
+                        <div class="common-label">
+                            ${button.name}
+                        </div>
+                    </div>
+                `;
+            } else {
+                // 一般連結按鈕
+                const targetUrl = button.url || button.linkUrl;
+                buttonElement = `
+                    <a href="${targetUrl}" class="common-button" target="_blank" data-name="${button.name}">
+                        <img class="common-image" src="${button.image || button.imageUrl}" alt="${button.name}" loading="lazy">
+                        <div class="common-label">
+                            ${button.name}
+                        </div>
+                    </a>
+                `;
+            }
             commonButtonsContainer.append(buttonElement);
         });
     }
@@ -500,26 +515,43 @@ $(document).ready(function () {
             const link = button.url || button.linkUrl;
             const img = button.image || button.imageUrl;
             const desc = button.desc || button.description || '';
+            const isFolder = button.type === 'folder' && button.content && Array.isArray(button.content);
 
             if (typeof button.active !== 'undefined' && !button.active) return;
 
-            const buttonElement = `
-                        <a href="${link}" class="image-button" target="_blank" style="animation-delay: ${index * 0.1}s" data-name="${name}" data-description="${desc}">
-                            <div class="image-container">
-                                <img src="${img}" alt="${name}" loading="lazy">
+            let buttonElement;
+            if (isFolder) {
+                // 資料夾按鈕
+                buttonElement = `
+                    <div class="image-button folder-type-btn" style="animation-delay: ${index * 0.1}s" data-name="${name}" onclick="window.openFolderModal('${name}', ${JSON.stringify(button.content).replace(/"/g, '&quot;')})">
+                        <div class="image-container">
+                            <img src="${img}" alt="${name}" loading="lazy">
+                        </div>
+                        <div class="button-label">
+                            ${name}
+                        </div>
+                    </div>
+                `;
+            } else {
+                // 一般連結按鈕
+                buttonElement = `
+                    <a href="${link}" class="image-button" target="_blank" style="animation-delay: ${index * 0.1}s" data-name="${name}" data-description="${desc}">
+                        <div class="image-container">
+                            <img src="${img}" alt="${name}" loading="lazy">
+                        </div>
+                        <div class="button-label">
+                            ${name}
+                            ${desc ? `<button class="description-toggle">i</button>` : ''}
+                        </div>
+                        ${desc ? `
+                            <div class="description-tooltip-box">
+                                <p><strong>說明:</strong> ${desc}</p>
+                                <button class="close-tooltip-box">關閉</button>
                             </div>
-                            <div class="button-label">
-                                ${name}
-                                ${desc ? `<button class="description-toggle">i</button>` : ''}
-                            </div>
-                            ${desc ? `
-                                <div class="description-tooltip-box">
-                                    <p><strong>說明:</strong> ${desc}</p>
-                                    <button class="close-tooltip-box">關閉</button>
-                                </div>
-                            ` : ''}
-                        </a>
-                    `;
+                        ` : ''}
+                    </a>
+                `;
+            }
             buttonGridContainer.append(buttonElement);
         });
     }
@@ -627,6 +659,62 @@ $(document).ready(function () {
         if (!$(event.target).closest('.image-button').length && !$(event.target).closest('.description-tooltip-box.active').length) {
             $('.description-tooltip-box.active').removeClass('active');
         }
+    });
+
+    // ========================================
+    // == 資料夾彈窗控制函數 ==
+    // ========================================
+    window.openFolderModal = function (folderName, subButtons) {
+        const modalOverlay = document.getElementById('folderModalOverlay');
+        const modalTitle = document.getElementById('modalTitle');
+        const modalGrid = document.getElementById('modalGrid');
+
+        // 設定標題
+        modalTitle.textContent = `📂 ${folderName}`;
+
+        // 清空舊內容
+        modalGrid.innerHTML = '';
+
+        // 填充子按鈕
+        if (subButtons && Array.isArray(subButtons)) {
+            subButtons.forEach(btn => {
+                const btnHTML = `
+                    <a href="${btn.url}" class="image-button" target="_blank">
+                        <div class="image-container">
+                            <img src="${btn.img || 'https://via.placeholder.com/160'}" alt="${btn.name}" loading="lazy">
+                        </div>
+                        <div class="button-label">${btn.name}</div>
+                    </a>
+                `;
+                modalGrid.insertAdjacentHTML('beforeend', btnHTML);
+            });
+        }
+
+        // 顯示 Modal
+        modalOverlay.style.display = 'flex';
+        setTimeout(() => {
+            modalOverlay.classList.add('active');
+        }, 10);
+    };
+
+    window.closeFolderModal = function () {
+        const modalOverlay = document.getElementById('folderModalOverlay');
+        modalOverlay.classList.remove('active');
+        setTimeout(() => {
+            modalOverlay.style.display = 'none';
+        }, 300);
+    };
+
+    // 點擊遮罩關閉
+    document.getElementById('folderModalOverlay').addEventListener('click', (e) => {
+        if (e.target.id === 'folderModalOverlay') {
+            window.closeFolderModal();
+        }
+    });
+
+    // ESC 鍵關閉
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') window.closeFolderModal();
     });
 
 });
