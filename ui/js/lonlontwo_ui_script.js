@@ -37,6 +37,58 @@ $(document).ready(function () {
     });
 
     // ===================================== */
+    // == Firebase 初始化 & 動態設定 == */
+    // ===================================== */
+    const firebaseConfig = {
+        apiKey: "AIzaSyDMfZOGJWN-dWBl-Ium_Ism_SQfA_rPA-HMUI",
+        authDomain: "lonlontwo-1d9de.firebaseapp.com",
+        projectId: "lonlontwo-1d9de",
+        storageBucket: "lonlontwo-1d9de.firebasestorage.app",
+        messagingSenderId: "268283503569",
+        appId: "1:268283503569:web:a9c0a8f7b0e0a3c8e8a0a0"
+    };
+
+    // 初始化 Firebase (如果尚未初始化)
+    if (!firebase.apps.length) {
+        firebase.initializeApp(firebaseConfig);
+    }
+    const db = firebase.firestore();
+
+    // 讀取設定函數
+    function applySettings(data) {
+        console.log('套用設定:', data);
+        if (data.marquee) {
+            $('.marquee').text(data.marquee);
+        }
+        if (data.logo) {
+            $('.header-logo').attr('src', data.logo);
+        }
+    }
+
+    // 1. 先載入本地靜態設定 (為了快速顯示，避免等待 Firebase)
+    if (typeof marqueeSettings !== 'undefined' && marqueeSettings.text) {
+        $('.marquee').text(marqueeSettings.text);
+    }
+    if (typeof indexLogo !== 'undefined' && indexLogo.url) {
+        $('.header-logo').attr('src', indexLogo.url);
+        if (indexLogo.alt) {
+            $('.header-logo').attr('alt', indexLogo.alt);
+        }
+    }
+
+    // 2. 接著從 Firebase 讀取最新設定 (會覆蓋本地設定)
+    db.collection('settings').doc('site_config').get().then((doc) => {
+        if (doc.exists) {
+            const data = doc.data();
+            applySettings(data);
+        } else {
+            console.log("Firebase 無設定檔，使用預設值");
+        }
+    }).catch((error) => {
+        console.error("讀取 Firebase 設定失敗 (可能離線或權限問題):", error);
+    });
+
+    // ===================================== */
     // == 頁面內容數據與邏輯 == */
     // ===================================== */
     const commonButtonData = [
@@ -486,17 +538,4 @@ $(document).ready(function () {
         }
     });
 
-    // ===================================== */
-    // == 動態讀取設定 (跑馬燈 & LOGO) == */
-    // ===================================== */
-    if (typeof marqueeSettings !== 'undefined' && marqueeSettings.text) {
-        $('.marquee').text(marqueeSettings.text);
-    }
-
-    if (typeof indexLogo !== 'undefined' && indexLogo.url) {
-        $('.header-logo').attr('src', indexLogo.url);
-        if (indexLogo.alt) {
-            $('.header-logo').attr('alt', indexLogo.alt);
-        }
-    }
 });

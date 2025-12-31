@@ -216,30 +216,107 @@ function loadButtonList(type) {
 // ===================================
 // == 設定資料載入 ==
 // ===================================
-function loadSettingsData() {
+// ===================================
+// == 設定資料載入 (優先從 Firebase) ==
+// ===================================
+async function loadSettingsData() {
     console.log('載入系統設定...');
+    const marqueeInput = document.getElementById('marqueeInput');
+    const logoLinkInput = document.getElementById('logoLinkInput');
+    const marqueeHint = marqueeInput.nextElementSibling;
+    const logoHint = logoLinkInput.nextElementSibling;
 
-    // 檢查 uiConfig 是否存在
-    if (typeof uiConfig !== 'undefined') {
-        const marqueeInput = document.getElementById('marqueeInput');
-        const logoLinkInput = document.getElementById('logoLinkInput');
+    try {
+        // 1. 嘗試從 Firebase 讀取
+        const doc = await db.collection('settings').doc('site_config').get();
 
-        // 填入跑馬燈文字
-        if (uiConfig.marquee && uiConfig.marquee.text) {
-            marqueeInput.value = uiConfig.marquee.text;
-            // 更新提示文字
-            const marqueeHint = marqueeInput.nextElementSibling;
-            if (marqueeHint) marqueeHint.textContent = `目前設置：${uiConfig.marquee.text.substring(0, 30)}...`;
+        if (doc.exists) {
+            const data = doc.data();
+            console.log('從 Firebase 讀取到設定:', data);
+
+            // 跑馬燈
+            if (data.marquee) {
+                marqueeInput.value = data.marquee;
+                if (marqueeHint) marqueeHint.textContent = `目前設置 (Firebase)：${data.marquee.substring(0, 30)}...`;
+            }
+
+            // LOGO
+            if (data.logo) {
+                logoLinkInput.value = data.logo;
+                if (logoHint) logoHint.textContent = `目前設置 (Firebase)：${data.logo}`;
+            }
+            return; // 成功讀取後就結束，不需 fallback
         }
+    } catch (error) {
+        console.error("讀取 Firebase 設定失敗:", error);
+    }
 
-        // 填入 LOGO 圖片網址 (作為暫時的 LOGO 連結欄位)
-        if (uiConfig.logo && uiConfig.logo.imageUrl) {
-            logoLinkInput.value = uiConfig.logo.imageUrl;
-            const logoHint = logoLinkInput.nextElementSibling;
-            if (logoHint) logoHint.textContent = `目前設置：${uiConfig.logo.imageUrl}`;
-        }
-    } else {
-        console.warn('uiConfig 未定義');
+    // 2. Fallback: 如果 Firebase 沒資料或失敗，讀取靜態 JS
+    console.log('使用靜態 JS 設定作為備用');
+
+    // 跑馬燈
+    if (typeof marqueeSettings !== 'undefined' && marqueeSettings.text) {
+        marqueeInput.value = marqueeSettings.text;
+        if (marqueeHint) marqueeHint.textContent = `目前設置 (靜態 JS)：${marqueeSettings.text.substring(0, 30)}...`;
+    }
+
+    // LOGO
+    if (typeof indexLogo !== 'undefined' && indexLogo.url) {
+        logoLinkInput.value = indexLogo.url;
+        if (logoHint) logoHint.textContent = `目前設置 (靜態 JS)：${indexLogo.url}`;
+    }
+}
+
+// ===================================
+// == 儲存設定到 Firebase ==
+// ===================================
+async function saveSettingsData() {
+    const marqueeInput = document.getElementById('marqueeInput');
+    const logoLinkInput = document.getElementById('logoLinkInput');
+    const submitBtn = document.querySelector('#settingsView .submit-btn');
+
+    const newMarquee = marqueeInput.value.trim();
+    const newLogo = logoLinkInput.value.trim();
+
+    if (!newMarquee && !newLogo) {
+        alert('內容不能全空');
+        return;
+    }
+
+    // UI 狀態更新
+    const originalBtnText = submitBtn.textContent;
+    submitBtn.textContent = '儲存中...';
+    submitBtn.disabled = true;
+
+    try {
+        await db.collection('settings').doc('site_config').set({
+            marquee: newMarquee,
+            logo: newLogo,
+            updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+        }, { merge: true });
+
+        // 成功提示 (直接顯示在按鈕上，不彈出視窗)
+        submitBtn.textContent = '✅ 設定完成';
+        submitBtn.style.backgroundColor = '#4CAF50'; // 綠色表示成功
+
+        // 更新 Hint 文字
+        const marqueeHint = marqueeInput.nextElementSibling;
+        const logoHint = logoLinkInput.nextElementSibling;
+        if (marqueeHint) marqueeHint.textContent = `目前設置 (Firebase)：${newMarquee.substring(0, 30)}...`;
+        if (logoHint) logoHint.textContent = `目前設置 (Firebase)：${newLogo}`;
+
+        // 2秒後自動恢復按鈕原狀
+        setTimeout(() => {
+            submitBtn.textContent = originalBtnText;
+            submitBtn.style.backgroundColor = '';
+            submitBtn.disabled = false;
+        }, 2000);
+
+    } catch (error) {
+        console.error("儲存失敗:", error);
+        alert('儲存失敗：' + error.message);
+        submitBtn.textContent = originalBtnText;
+        submitBtn.disabled = false;
     }
 }
 
