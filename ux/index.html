@@ -59,28 +59,30 @@
             <!-- 按鈕管理視圖 (常用/工具共用結構) -->
             <div id="buttonManagementView" class="view-section active">
                 <!-- 新增/編輯 表單 -->
+                <!-- 新增/編輯 表單 -->
                 <div class="edit-form-card">
                     <div class="form-group">
                         <label>名稱</label>
-                        <input type="text" class="admin-input" placeholder="按鈕名稱">
+                        <input type="text" id="btnNameInput" class="admin-input" placeholder="按鈕名稱">
                     </div>
                     <div class="form-group">
                         <label>圖片網址 (Image URL)</label>
-                        <input type="text" class="admin-input" placeholder="https://...">
+                        <input type="text" id="btnImgInput" class="admin-input" placeholder="https://...">
                     </div>
                     <div class="form-group">
                         <label>真實目標網址 (Target URL) <span class="secure-label">🔒 將加密儲存</span></label>
-                        <input type="text" class="admin-input" placeholder="https://...">
+                        <input type="text" id="btnUrlInput" class="admin-input" placeholder="https://...">
                     </div>
                     <div class="form-group">
                         <label>說明文字 (Tooltip)</label>
-                        <input type="text" class="admin-input" placeholder="滑鼠懸停時顯示的說明...">
+                        <input type="text" id="btnDescInput" class="admin-input" placeholder="滑鼠懸停時顯示的說明...">
                     </div>
                     <div class="form-group">
                         <label>密碼鎖 (Lock Password) <span class="warning-label">🔒 選填，設定後需密碼才能訪問</span></label>
-                        <input type="text" class="admin-input" placeholder="留空則不鎖定">
+                        <input type="text" id="btnPwdInput" class="admin-input" placeholder="留空則不鎖定">
                     </div>
-                    <button class="submit-btn">新增按鈕</button>
+                    <button class="submit-btn" id="btnSubmitBtn" onclick="handleButtonSubmit()">新增按鈕</button>
+                    <input type="hidden" id="editingBtnId">
                 </div>
 
                 <!-- 列表區域 -->
