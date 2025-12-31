@@ -859,7 +859,7 @@ function addSubButton() {
 
     // 清空輸入
     nameInput.value = '';
-    urlInput.value = '';
+    urlInput.value = 'https://';
     imgInput.value = '';
 }
 
