@@ -446,7 +446,7 @@ $(document).ready(function () {
             }
 
             const bgColor = getRandomLightColor();
-            const isLocked = button.locked && button.lockPassword;
+            const isLocked = button.locked && button.password;
             const targetUrl = button.url || button.linkUrl;
 
             const buttonElement = `
@@ -455,7 +455,7 @@ $(document).ready(function () {
                            ${isLocked ? '' : 'target="_blank"'}
                            data-name="${button.name}"
                            data-locked="${isLocked ? 'true' : 'false'}"
-                           data-password="${isLocked ? button.lockPassword : ''}"
+                           data-password="${isLocked ? button.password : ''}"
                            data-url="${targetUrl}">
                             <img class="common-image" src="${button.image || button.imageUrl}" alt="${button.name}" loading="lazy">
                             <div class="common-label">
@@ -518,7 +518,7 @@ $(document).ready(function () {
             // 是否啟用檢查
             if (typeof button.active !== 'undefined' && !button.active) return;
 
-            const isLocked = button.locked && button.lockPassword;
+            const isLocked = button.locked && button.password;
 
             const buttonElement = `
                         <a href="${isLocked ? '#' : link}" 
@@ -528,7 +528,7 @@ $(document).ready(function () {
                            data-name="${name}" 
                            data-description="${desc}"
                            data-locked="${isLocked ? 'true' : 'false'}"
-                           data-password="${isLocked ? button.lockPassword : ''}"
+                           data-password="${isLocked ? button.password : ''}"
                            data-url="${link}">
                             <div class="image-container">
                                 <img src="${img}" alt="${name}" loading="lazy">

@@ -329,7 +329,7 @@ async function handleButtonSubmit() {
         url: urlInput.value.trim() || 'javascript:void(0)', // 預設無效連結
         desc: descInput.value.trim(),
         locked: pwdInput.value.trim() !== '', // 若有密碼則視為鎖定
-        lockPassword: pwdInput.value.trim(), // 實務上建議加密，此處示範直接儲存
+        password: pwdInput.value.trim(), // 改用 password 欄位名稱
         updatedAt: firebase.firestore.FieldValue.serverTimestamp()
     };
 
@@ -354,6 +354,11 @@ async function handleButtonSubmit() {
             data.active = true; // 預設啟用
             data.order = 0; // 新按鈕排第一
             data.createdAt = firebase.firestore.FieldValue.serverTimestamp();
+
+            console.log('即將寫入 Firebase 的完整資料:', JSON.stringify(data, null, 2));
+            console.log('password 值:', data.password);
+            console.log('password 型別:', typeof data.password);
+
             await db.collection(collectionName).add(data);
             showButtonFeedback(submitBtn, '✓ 已新增', 'success');
             // 清空表單以便繼續新增
@@ -386,7 +391,7 @@ async function editButton(collectionName, id) {
         document.getElementById('btnImgInput').value = data.image || '';
         document.getElementById('btnUrlInput').value = data.url || '';
         document.getElementById('btnDescInput').value = data.desc || '';
-        document.getElementById('btnPwdInput').value = data.lockPassword || '';
+        document.getElementById('btnPwdInput').value = data.password || '';
 
         // 設定編輯模式
         document.getElementById('editingBtnId').value = id;
