@@ -111,7 +111,7 @@ function initTabs() {
 }
 
 // ===================================
-// == 列表渲染 (模擬資料) ==
+// == 列表渲染 ==
 // ===================================
 function loadButtonList(type) {
     console.log(`載入列表: ${type}`);
@@ -120,29 +120,61 @@ function loadButtonList(type) {
 
     container.innerHTML = ''; // 清空
 
-    // 模擬資料
-    const mockData = [
-        {
-            name: "chatgpt",
-            image: "https://i.ibb.co/6Jv2qS2p/chatgpt.jpg",
-            url: "https://chat.openai.com/chat",
-            active: true,
-            locked: true
-        },
-        {
-            name: "claude",
-            image: "https://i.ibb.co/P2hQFNQ/claude.jpg",
-            url: "https://claude.ai/chat/",
-            active: true,
-            locked: false
-        }
-    ];
+    let data = [];
 
-    mockData.forEach(item => {
+    // 根據類型選擇資料來源
+    if (type === 'common') {
+        // 檢查 commonButtonData 是否存在
+        if (typeof commonButtonData !== 'undefined') {
+            data = commonButtonData.map(item => ({
+                name: item.name,
+                image: item.imageUrl,
+                url: item.linkUrl,
+                active: true, // 常用按鈕預設無此欄位，設為啟用
+                locked: false // 常用按鈕預設無此欄位，設為未上鎖
+            }));
+
+            // 更新計數
+            const badge = document.querySelector(`.tab-btn[data-tab="common"] .badge`);
+            if (badge) badge.textContent = data.length;
+        } else {
+            console.error('找不到 commonButtonData，請確認檔案是否正確引入');
+            container.innerHTML = '<div class="empty-state">無法讀取常用按鈕資料</div>';
+            return;
+        }
+    } else {
+        // 其他類型暫時維持模擬或空
+        console.log('尚未實作此類型的資料讀取');
+        // 模擬資料作為佔位符
+        if (type === 'tools') {
+            const mockData = [
+                {
+                    name: "chatgpt",
+                    image: "https://i.ibb.co/6Jv2qS2p/chatgpt.jpg",
+                    url: "https://chat.openai.com/chat",
+                    active: true,
+                    locked: true
+                }
+            ];
+            data = mockData;
+
+            // 更新計數
+            const count = document.querySelector(`.tab-btn[data-tab="tools"] .count`);
+            if (count) count.textContent = "待實作";
+        }
+    }
+
+    if (data.length === 0) {
+        container.innerHTML = '<div class="empty-state">暫無資料</div>';
+        return;
+    }
+
+    // 渲染列表
+    data.forEach((item, index) => {
         const itemHTML = `
             <div class="list-item">
                 <div class="item-img-box">
-                    <img src="${item.image}" alt="${item.name}">
+                    <img src="${item.image}" alt="${item.name}" onerror="this.src='https://via.placeholder.com/60?text=No+Img'">
                 </div>
                 <div class="item-info">
                     <div class="info-row start">
@@ -152,16 +184,16 @@ function loadButtonList(type) {
                     </div>
                     <div class="info-row link">
                         <span class="link-icon">🔗</span>
-                        <span class="item-link">${item.url}</span>
+                        <span class="item-link"><a href="${item.url}" target="_blank" style="color: inherit; text-decoration: none;">${item.url}</a></span>
                     </div>
                 </div>
                 <div class="item-actions">
                     <div class="action-buttons">
-                        <button class="action-btn edit">編輯</button>
-                        <button class="action-btn delete">刪除</button>
+                        <button class="action-btn edit" onclick="alert('編輯功能開發中: ${item.name}')">編輯</button>
+                        <button class="action-btn delete" onclick="alert('刪除功能開發中')">刪除</button>
                     </div>
                     <label class="toggle-switch">
-                        <input type="checkbox" ${item.active ? 'checked' : ''}>
+                        <input type="checkbox" ${item.active ? 'checked' : ''} onchange="console.log('切換狀態: ${item.name}')">
                         <span class="slider round"></span>
                     </label>
                 </div>
@@ -227,7 +259,6 @@ function showNotification(message, type = 'info') {
 // == 匯出函數供外部使用 ==
 // ===================================
 window.uxAdmin = {
-    switchView,
-    loadViewData,
+    loadButtonList,
     showNotification
 };
