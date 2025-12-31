@@ -264,6 +264,7 @@ function loadButtonList(type) {
                             ${item.locked ? '<span class="lock-icon">🔒</span>' : ''}
                             <span class="item-name">${item.name}</span>
                             <span class="status-badge ${activeClass}">${activeText}</span>
+                            <button class="icon-btn delete" onclick="deleteButton('${collectionName}', '${id}', '${item.name}')" title="刪除">🗑️</button>
                         </div>
                         ${descHtml}
                         <div class="info-row link">
@@ -274,7 +275,6 @@ function loadButtonList(type) {
                     <div class="item-actions">
                         <div class="action-buttons">
                             <button class="action-btn edit" onclick="editButton('${collectionName}', '${id}')">編輯</button>
-                            <button class="action-btn delete" onclick="deleteButton('${collectionName}', '${id}', '${item.name}')">刪除</button>
                         </div>
                         <label class="toggle-switch">
                             <input type="checkbox" ${item.active ? 'checked' : ''} onchange="toggleButtonStatus('${collectionName}', '${id}', this.checked)">

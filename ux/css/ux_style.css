@@ -494,10 +494,38 @@ body {
 
 .action-btn.edit {
     background: #4caf50;
+    width: 60px;
+    /* 維持編輯按鈕寬度 */
 }
 
-.action-btn.delete {
-    background: #f44336;
+/* 移除舊的 delete 樣式，改用圖示按鈕 */
+
+/* 新增圖示按鈕樣式 */
+.icon-btn {
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    font-size: 1.1rem;
+    padding: 4px;
+    border-radius: 4px;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-left: 10px;
+    /* 與左側元素保持距離 */
+    opacity: 0.6;
+}
+
+.icon-btn:hover {
+    opacity: 1;
+    background: rgba(255, 255, 255, 0.1);
+    transform: scale(1.1);
+}
+
+.icon-btn.delete:hover {
+    background: rgba(244, 67, 54, 0.2);
+    /* 紅色背景 */
 }
 
 /* Toggle Switch */

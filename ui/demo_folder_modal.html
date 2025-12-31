@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>兔兔網 - 分頁浮框功能演示</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/lonlontwo_ui_style.css">
+    <style>
+        /* 演示頁面專用樣式 */
+        body {
+            overflow: auto;
+            /* 允許滾動 */
+            padding: 50px;
+        }
+
+        .demo-container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .demo-header {
+            text-align: center;
+            margin-bottom: 50px;
+        }
+
+        .demo-note {
+            background: rgba(255, 123, 37, 0.1);
+            border: 1px solid var(--primary-color);
+            color: var(--primary-color);
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        /* ------------------------------------- */
+        /* == 分頁浮框 (Folder Modal) 樣式 == */
+        /* ------------------------------------- */
+
+        /* 浮框遮罩 */
+        .folder-modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.85);
+            backdrop-filter: blur(8px);
+            z-index: 1000;
+            display: none;
+            /* 預設隱藏 */
+            justify-content: center;
+            align-items: center;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .folder-modal-overlay.active {
+            display: flex;
+            opacity: 1;
+        }
+
+        /* 浮框本體 */
+        .folder-modal {
+            background: var(--bg-light);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            width: 90%;
+            max-width: 1000px;
+            height: 80vh;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+            transform: scale(0.9);
+            transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+            overflow: hidden;
+        }
+
+        .folder-modal-overlay.active .folder-modal {
+            transform: scale(1);
+        }
+
+        /* 浮框頭部 */
+        .folder-header {
+            padding: 20px 30px;
+            background: linear-gradient(to right, var(--bg-darker), var(--bg-light));
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .folder-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--primary-color);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .folder-close-btn {
+            background: rgba(255, 255, 255, 0.1);
+            border: none;
+            color: var(--text-tertiary);
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 1.2rem;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .folder-close-btn:hover {
+            background: var(--error-color);
+            color: white;
+            transform: rotate(90deg);
+        }
+
+        /* 分頁標籤列 (Tabs) */
+        .folder-tabs {
+            display: flex;
+            padding: 0 30px;
+            background: var(--bg-darker);
+            overflow-x: auto;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .folder-tab-btn {
+            padding: 15px 25px;
+            background: transparent;
+            border: none;
+            color: var(--text-secondary);
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            position: relative;
+            transition: all 0.2s;
+            white-space: nowrap;
+        }
+
+        .folder-tab-btn:hover {
+            color: var(--text-primary);
+            background: rgba(255, 255, 255, 0.02);
+        }
+
+        .folder-tab-btn.active {
+            color: var(--primary-color);
+            font-weight: 700;
+        }
+
+        /* 底部指示條 */
+        .folder-tab-btn.active::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background: var(--primary-color);
+        }
+
+        /* 浮框內容區 */
+        .folder-content {
+            flex: 1;
+            padding: 30px;
+            overflow-y: auto;
+            background: var(--bg-dark);
+        }
+
+        /* 分頁內容 */
+        .tab-pane {
+            display: none;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .tab-pane.active {
+            display: block;
+        }
+
+        /* 浮框內的按鈕網格 (稍微調整以適應浮框) */
+        .modal-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+            /* 比主畫面稍微小一點 */
+            gap: 20px;
+        }
+
+        .modal-grid .image-button {
+            /* 覆蓋原本的高度設定，讓它適應網格 */
+            height: auto;
+            aspect-ratio: 1/1.2;
+        }
+
+        .modal-grid .image-container {
+            height: 70%;
+        }
+
+        .modal-grid .button-label {
+            height: 30%;
+            font-size: 0.9rem;
+            padding: 5px;
+        }
+
+        /* 資料夾類型按鈕的特殊樣式 (在前台網格顯示時) */
+        .folder-type-btn {
+            border: 2px solid rgba(255, 123, 37, 0.3) !important;
+        }
+
+        .folder-type-btn::after {
+            content: '📂';
+            /* 資料夾 icon */
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            font-size: 1.2rem;
+            background: rgba(0, 0, 0, 0.5);
+            padding: 4px;
+            border-radius: 4px;
+            z-index: 5;
+        }
+
+        .folder-indicator {
+            position: absolute;
+            bottom: 75px;
+            /* image 上方 */
+            right: 10px;
+            background: var(--primary-color);
+            color: white;
+            font-size: 0.7rem;
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-weight: bold;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+            z-index: 5;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="demo-container">
+        <header class="demo-header">
+            <h1 class="main-title">分頁浮框功能演示</h1>
+            <p style="color: #888; margin-top: 10px;">點擊下方帶有 📂 圖示的按鈕，體驗「按鈕資料夾」效果</p>
+        </header>
+
+        <div class="demo-note">
+            ⚠️ 這是一個獨立的演示頁面，不會影響您現有的網站結構。
+        </div>
+
+        <!-- 模擬主畫面的網格 -->
+        <div class="button-grid">
+
+            <!-- 普通按鈕 (對照組) -->
+            <div class="image-button">
+                <div class="image-container">
+                    <img src="https://i.ibb.co/6Jv2qS2p/chatgpt.jpg" alt="ChatGPT">
+                </div>
+                <div class="button-label">ChatGPT</div>
+            </div>
+
+            <!-- ★ 資料夾按鈕：AI 繪圖包 ★ -->
+            <div class="image-button folder-type-btn" onclick="openFolderModal('ai_art')">
+                <!-- 資料夾標示 -->
+                <div class="folder-indicator">內含 12 個工具</div>
+
+                <div class="image-container">
+                    <img src="https://i.ibb.co/6193jnK/Stable-Diffusion.jpg" alt="AI 繪圖工具包">
+                </div>
+                <div class="button-label">[群組] AI 繪圖大全</div>
+            </div>
+
+            <!-- 普通按鈕 -->
+            <div class="image-button">
+                <div class="image-container">
+                    <img src="https://i.ibb.co/vQp5dmG/Gemini.jpg" alt="Gemini">
+                </div>
+                <div class="button-label">Gemini</div>
+            </div>
+
+            <!-- ★ 資料夾按鈕：影音剪輯包 ★ -->
+            <div class="image-button folder-type-btn" onclick="openFolderModal('video_tools')">
+                <div class="folder-indicator">內含 8 個工具</div>
+                <div class="image-container">
+                    <img src="https://i.ibb.co/QKnNRgB/DaVinci.jpg" alt="影音剪輯包">
+                </div>
+                <div class="button-label">[群組] 影音剪輯包</div>
+            </div>
+
+            <!-- 普通按鈕 -->
+            <div class="image-button">
+                <div class="image-container">
+                    <img src="https://i.ibb.co/XtgwDF4/pixabay.jpg" alt="Pixabay">
+                </div>
+                <div class="button-label">Pixabay</div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- ========================================== -->
+    <!-- == 浮動視窗結構 (Template) == -->
+    <!-- ========================================== -->
+    <div id="folderModalOverlay" class="folder-modal-overlay">
+        <div class="folder-modal">
+            <!-- 頭部 -->
+            <div class="folder-header">
+                <div class="folder-title">
+                    <span id="modalTitle">資料夾標題</span>
+                </div>
+                <button class="folder-close-btn" onclick="closeFolderModal()">×</button>
+            </div>
+
+            <!-- 分頁標籤 -->
+            <div class="folder-tabs" id="modalTabs">
+                <!-- JS 動態生成 -->
+                <button class="folder-tab-btn active">分頁 1</button>
+                <button class="folder-tab-btn">分頁 2</button>
+            </div>
+
+            <!-- 內容區 -->
+            <div class="folder-content" id="modalContent">
+                <!-- JS 動態生成 -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ===========================================
+        // == 模擬資料 (未來這些會存在 Firebase) ==
+        // ===========================================
+        const folderData = {
+            'ai_art': {
+                title: '🎨 AI 繪圖大全',
+                tabs: [
+                    {
+                        name: '生成工具',
+                        buttons: [
+                            { name: 'Midjourney', img: 'https://i.ibb.co/C7XX97w/midjourney.jpg', url: '#' },
+                            { name: 'Stable Diffusion', img: 'https://i.ibb.co/6193jnK/Stable-Diffusion.jpg', url: '#' },
+                            { name: 'DALL-E 3', img: 'https://i.ibb.co/MnTPqqV/bing-image-creator.jpg', url: '#' },
+                            { name: 'Leonardo.ai', img: 'https://i.ibb.co/DzHVn2T/leonardo-ai.jpg', url: '#' },
+                            { name: 'Adobe Firefly', img: 'https://i.ibb.co/r3RC2SC/firefly.jpg', url: '#' }
+                        ]
+                    },
+                    {
+                        name: '修圖/去背',
+                        buttons: [
+                            { name: 'Remove.bg', img: 'https://i.ibb.co/JC7c9hy/remove.jpg', url: '#' },
+                            { name: 'ClipDrop', img: 'https://i.ibb.co/TKCGNsf/clipdrop.jpg', url: '#' },
+                            { name: 'PhotoPea', img: 'https://i.ibb.co/GM7LcpL/photopea.jpg', url: '#' }
+                        ]
+                    },
+                    {
+                        name: '風格轉換',
+                        buttons: [
+                            { name: 'Style.ai', img: 'https://i.ibb.co/fb028yz/styleai.jpg', url: '#' },
+                            { name: 'Dzine', img: 'https://i.ibb.co/mrfLLNQM/dzine-ai.jpg', url: '#' }
+                        ]
+                    }
+                ]
+            },
+            'video_tools': {
+                title: '🎬 影音剪輯與處理',
+                tabs: [
+                    {
+                        name: '剪輯軟體',
+                        buttons: [
+                            { name: 'DaVinci Resolve', img: 'https://i.ibb.co/QKnNRgB/DaVinci.jpg', url: '#' },
+                            { name: 'CapCut', img: 'https://i.ibb.co/0KMsD9t/jianying.jpg', url: '#' },
+                            { name: 'Premiere Pro', img: 'https://i.ibb.co/VYvmMyV/openshot.jpg', url: '#' }
+                        ]
+                    },
+                    {
+                        name: '轉檔壓縮',
+                        buttons: [
+                            { name: 'Online Convert', img: 'https://i.ibb.co/mHfhTr8/online-convert.jpg', url: '#' },
+                            { name: 'VidCompress', img: 'https://i.ibb.co/p2wVWbP/compressjpeg.jpg', url: '#' }
+                        ]
+                    }
+                ]
+            }
+        };
+
+        // ===========================================
+        // == 邏輯控制 ==
+        // ===========================================
+        const modalOverlay = document.getElementById('folderModalOverlay');
+        const modalTitle = document.getElementById('modalTitle');
+        const modalTabs = document.getElementById('modalTabs');
+        const modalContent = document.getElementById('modalContent');
+
+        // 開啟浮框
+        function openFolderModal(folderId) {
+            const data = folderData[folderId];
+            if (!data) return;
+
+            // 設定標題
+            modalTitle.textContent = data.title;
+
+            // 清空舊內容
+            modalTabs.innerHTML = '';
+            modalContent.innerHTML = '';
+
+            // 生成 Tab 和 Content
+            data.tabs.forEach((tab, index) => {
+                // 1. 建立 Tab 按鈕
+                const tabBtn = document.createElement('button');
+                tabBtn.className = `folder-tab-btn ${index === 0 ? 'active' : ''}`;
+                tabBtn.textContent = tab.name;
+                tabBtn.onclick = () => switchTab(index);
+                modalTabs.appendChild(tabBtn);
+
+                // 2. 建立內容區塊 (Grid)
+                const contentDiv = document.createElement('div');
+                contentDiv.className = `tab-pane ${index === 0 ? 'active' : ''}`;
+                contentDiv.id = `tab-pane-${index}`;
+
+                // 建立 Grid
+                const gridDiv = document.createElement('div');
+                gridDiv.className = 'modal-grid';
+
+                // 填充按鈕
+                tab.buttons.forEach(btn => {
+                    const btnHTML = `
+                        <a href="${btn.url}" class="image-button" target="_blank">
+                            <div class="image-container">
+                                <img src="${btn.img}" alt="${btn.name}">
+                            </div>
+                            <div class="button-label">${btn.name}</div>
+                        </a>
+                    `;
+                    gridDiv.insertAdjacentHTML('beforeend', btnHTML);
+                });
+
+                contentDiv.appendChild(gridDiv);
+                modalContent.appendChild(contentDiv);
+            });
+
+            // 顯示 Modal
+            modalOverlay.style.display = 'flex';
+            // 延遲一點點加 active class 以觸發 fade in 動畫
+            setTimeout(() => {
+                modalOverlay.classList.add('active');
+            }, 10);
+        }
+
+        // 關閉浮框
+        function closeFolderModal() {
+            modalOverlay.classList.remove('active');
+            setTimeout(() => {
+                modalOverlay.style.display = 'none';
+            }, 300); // 等待動畫結束
+        }
+
+        // 切換分頁
+        function switchTab(activeIndex) {
+            // 更新 Tab 按鈕狀態
+            const tabs = modalTabs.querySelectorAll('.folder-tab-btn');
+            tabs.forEach((tab, index) => {
+                if (index === activeIndex) tab.classList.add('active');
+                else tab.classList.remove('active');
+            });
+
+            // 更新內容顯示
+            const panes = modalContent.querySelectorAll('.tab-pane');
+            panes.forEach((pane, index) => {
+                if (index === activeIndex) pane.classList.add('active');
+                else pane.classList.remove('active');
+            });
+        }
+
+        // 點擊遮罩關閉
+        modalOverlay.addEventListener('click', (e) => {
+            if (e.target === modalOverlay) {
+                closeFolderModal();
+            }
+        });
+
+        // ESC 鍵關閉
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') closeFolderModal();
+        });
+
+    </script>
+</body>
+
+</html>
