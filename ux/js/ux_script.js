@@ -178,33 +178,48 @@ function loadButtonList(type) {
 
     // 建立監聽
     currentUnsubscribe = collectionRef.orderBy('createdAt', 'desc').onSnapshot(async (snapshot) => {
-        // == 自動遷移邏輯 (僅針對 Common) ==
-        if (snapshot.empty && type === 'common' && staticData.length > 0) {
-            console.log('Firebase 無資料，開始執行自動遷移...');
+        // == 自動遷移邏輯 (通用: Common & Tools) ==
+        if (snapshot.empty && staticData.length > 0) {
+            console.log(`Firebase (${collectionName}) 無資料，開始執行自動遷移...`);
             container.innerHTML = '<div class="loading">正在初始化資料庫 (單次遷移)...</div>';
 
-            const batch = db.batch();
-            staticData.forEach((item) => {
+            // 由於 Firestore batch 限制 500 筆，需分批處理
+            const BATCH_SIZE = 400;
+            let batch = db.batch();
+            let count = 0;
+            let totalBatches = 0;
+
+            for (let i = 0; i < staticData.length; i++) {
+                const item = staticData[i];
                 const newDocRef = collectionRef.doc();
+
                 batch.set(newDocRef, {
                     name: item.name,
-                    image: item.imageUrl,
-                    url: item.linkUrl,
-                    desc: '',
+                    image: item.imageUrl || item.image, // 相容不同命名
+                    url: item.linkUrl || item.url,      // 相容不同命名
+                    desc: item.description || item.desc || '',
                     active: true,
                     locked: false,
                     createdAt: firebase.firestore.FieldValue.serverTimestamp()
                 });
-            });
 
-            try {
-                await batch.commit();
-                console.log('自動遷移完成！');
-                // 遷移後會自動觸發 onSnapshot 更新介面
-            } catch (err) {
-                console.error('遷移失敗:', err);
-                container.innerHTML = `<div class="error">資料初始化失敗: ${err.message}</div>`;
+                count++;
+                if (count >= BATCH_SIZE) {
+                    await batch.commit();
+                    console.log(`已寫入批次 ${++totalBatches}`);
+                    batch = db.batch();
+                    count = 0;
+                }
             }
+
+            // 提交剩下的
+            if (count > 0) {
+                await batch.commit();
+                console.log(`已寫入最後批次 ${++totalBatches}`);
+            }
+
+            console.log('自動遷移完成！');
+            // 遷移後會自動觸發 onSnapshot 更新介面
             return;
         }
 

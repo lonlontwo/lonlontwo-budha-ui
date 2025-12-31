@@ -482,23 +482,35 @@ $(document).ready(function () {
             });
     }
 
-    function generateButtonGrid() {
+    // 渲染工具按鈕 (下方網格)
+    function renderToolButtons(data) {
         const buttonGridContainer = $('#buttonGrid');
         buttonGridContainer.empty();
 
-        mainButtonData.forEach(function (button, index) {
+        if (!data || data.length === 0) return;
+
+        data.forEach(function (button, index) {
+            // 處理欄位名稱相容 (Firebase vs Static)
+            const name = button.name;
+            const link = button.url || button.linkUrl;
+            const img = button.image || button.imageUrl;
+            const desc = button.desc || button.description || '';
+
+            // 是否啟用檢查
+            if (typeof button.active !== 'undefined' && !button.active) return;
+
             const buttonElement = `
-                        <a href="${button.linkUrl}" class="image-button" target="_blank" style="animation-delay: ${index * 0.1}s" data-name="${button.name}" data-description="${button.description || ''}">
+                        <a href="${link}" class="image-button" target="_blank" style="animation-delay: ${index * 0.1}s" data-name="${name}" data-description="${desc}">
                             <div class="image-container">
-                                <img src="${button.imageUrl}" alt="${button.name}" loading="lazy">
+                                <img src="${img}" alt="${name}" loading="lazy">
                             </div>
                             <div class="button-label">
-                                ${button.name}
-                                ${button.description ? `<button class="description-toggle">i</button>` : ''}
+                                ${name}
+                                ${desc ? `<button class="description-toggle">i</button>` : ''}
                             </div>
-                            ${button.description ? `
+                            ${desc ? `
                                 <div class="description-tooltip-box">
-                                    <p><strong>說明:</strong> ${button.description}</p>
+                                    <p><strong>說明:</strong> ${desc}</p>
                                     <button class="close-tooltip-box">關閉</button>
                                 </div>
                             ` : ''}
@@ -506,6 +518,34 @@ $(document).ready(function () {
                     `;
             buttonGridContainer.append(buttonElement);
         });
+    }
+
+    // 主載入函式：工具按鈕 (靜態 + Firebase)
+    function loadToolButtons() {
+        // 1. 先渲染靜態資料
+        console.log('載入靜態工具按鈕...');
+        renderToolButtons(mainButtonData);
+
+        // 2. 讀取 Firebase
+        db.collection('tool_buttons')
+            .where('active', '==', true)
+            .orderBy('createdAt', 'desc')
+            .get()
+            .then((querySnapshot) => {
+                if (!querySnapshot.empty) {
+                    console.log(`從 Firebase 載入 ${querySnapshot.size} 筆工具按鈕`);
+                    const dynamicData = [];
+                    querySnapshot.forEach((doc) => {
+                        dynamicData.push(doc.data());
+                    });
+                    renderToolButtons(dynamicData);
+                } else {
+                    console.log('Firebase 無工具按鈕，維持靜態顯示');
+                }
+            })
+            .catch((error) => {
+                console.error("讀取 Firebase 工具按鈕失敗:", error);
+            });
     }
 
     function adjustScrollAreaHeight() {
@@ -549,7 +589,7 @@ $(document).ready(function () {
     }
 
     loadCommonButtons();
-    generateButtonGrid();
+    loadToolButtons();
     adjustScrollAreaHeight();
     $(window).on('resize', adjustScrollAreaHeight);
 
