@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+
+<head>
+    <meta charset="UTF-8">
+    <title>重置 Firebase 資料</title>
+</head>
+
+<body>
+    <h1>重置 Firebase 按鈕資料</h1>
+    <button onclick="resetData()"
+        style="padding: 20px; font-size: 18px; background: #f44336; color: white; border: none; cursor: pointer;">
+        清空所有按鈕資料（重置）
+    </button>
+    <div id="status" style="margin-top: 20px; font-size: 16px;"></div>
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+
+    <script>
+        // Firebase 配置
+        const firebaseConfig = {
+            apiKey: "AIzaSyDMfZOGJWN-dWBl-Ium_Ism_SQfA_rPA-HMUI",
+            authDomain: "lonlontwo-1d9de.firebaseapp.com",
+            projectId: "lonlontwo-1d9de",
+            storageBucket: "lonlontwo-1d9de.firebasestorage.app",
+            messagingSenderId: "268283503569",
+            appId: "1:268283503569:web:a9c0a8f7b0e0a3c8e8a0a0"
+        };
+
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+
+        async function resetData() {
+            const status = document.getElementById('status');
+            status.innerHTML = '正在刪除資料...';
+
+            try {
+                // 刪除 common_buttons
+                const commonSnapshot = await db.collection('common_buttons').get();
+                const commonBatch = db.batch();
+                commonSnapshot.forEach(doc => {
+                    commonBatch.delete(doc.ref);
+                });
+                await commonBatch.commit();
+                status.innerHTML += '<br>✓ 已刪除 common_buttons (' + commonSnapshot.size + ' 筆)';
+
+                // 刪除 tool_buttons
+                const toolSnapshot = await db.collection('tool_buttons').get();
+                const toolBatch = db.batch();
+                toolSnapshot.forEach(doc => {
+                    toolBatch.delete(doc.ref);
+                });
+                await toolBatch.commit();
+                status.innerHTML += '<br>✓ 已刪除 tool_buttons (' + toolSnapshot.size + ' 筆)';
+
+                status.innerHTML += '<br><br><strong style="color: green;">✓ 重置完成！請重新整理後台頁面，系統會自動重新遷移原始資料。</strong>';
+            } catch (error) {
+                console.error('重置失敗:', error);
+                status.innerHTML = '<span style="color: red;">✗ 重置失敗: ' + error.message + '</span>';
+            }
+        }
+    </script>
+</body>
+
+</html>

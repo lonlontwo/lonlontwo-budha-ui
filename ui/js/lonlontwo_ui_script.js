@@ -461,7 +461,6 @@ $(document).ready(function () {
 
         // 2. 讀取 Firebase 資料 (覆蓋更新)
         db.collection('common_buttons')
-            .where('active', '==', true)
             .orderBy('order', 'asc')
             .get()
             .then((querySnapshot) => {
@@ -469,9 +468,15 @@ $(document).ready(function () {
                     console.log(`從 Firebase 載入 ${querySnapshot.size} 筆按鈕資料`);
                     const dynamicData = [];
                     querySnapshot.forEach((doc) => {
-                        dynamicData.push(doc.data());
+                        const data = doc.data();
+                        // 只顯示啟用的按鈕
+                        if (data.active !== false) {
+                            dynamicData.push(data);
+                        }
                     });
-                    renderCommonButtons(dynamicData);
+                    if (dynamicData.length > 0) {
+                        renderCommonButtons(dynamicData);
+                    }
                 } else {
                     console.log('Firebase 無按鈕資料，維持靜態顯示');
                 }
@@ -528,7 +533,6 @@ $(document).ready(function () {
 
         // 2. 讀取 Firebase
         db.collection('tool_buttons')
-            .where('active', '==', true)
             .orderBy('order', 'asc')
             .get()
             .then((querySnapshot) => {
@@ -536,9 +540,15 @@ $(document).ready(function () {
                     console.log(`從 Firebase 載入 ${querySnapshot.size} 筆工具按鈕`);
                     const dynamicData = [];
                     querySnapshot.forEach((doc) => {
-                        dynamicData.push(doc.data());
+                        const data = doc.data();
+                        // 只顯示啟用的按鈕
+                        if (data.active !== false) {
+                            dynamicData.push(data);
+                        }
                     });
-                    renderToolButtons(dynamicData);
+                    if (dynamicData.length > 0) {
+                        renderToolButtons(dynamicData);
+                    }
                 } else {
                     console.log('Firebase 無工具按鈕，維持靜態顯示');
                 }
