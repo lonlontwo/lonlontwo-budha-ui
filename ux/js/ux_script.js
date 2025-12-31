@@ -282,8 +282,10 @@ function loadButtonList(type) {
         // 更新計數
         updateCount(type, count);
 
-        // 初始化拖曳排序
-        initSortable(container, collectionName);
+        // 只為常用按鈕啟用拖曳排序（主工具按鈕資料尚未完全遷移到 Firebase）
+        if (collectionName === 'common_buttons') {
+            initSortable(container, collectionName);
+        }
 
     }, (error) => {
         console.error("讀取失敗:", error);
