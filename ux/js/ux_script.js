@@ -333,6 +333,8 @@ async function handleButtonSubmit() {
         updatedAt: firebase.firestore.FieldValue.serverTimestamp()
     };
 
+    console.log('準備儲存的資料:', data);
+
     if (!data.name) {
         alert('名稱為必填欄位！');
         return;
