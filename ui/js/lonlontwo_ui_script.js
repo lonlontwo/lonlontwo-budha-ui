@@ -441,11 +441,20 @@ $(document).ready(function () {
             }
 
             const bgColor = getRandomLightColor();
+            const isLocked = button.locked && button.lockPassword;
+            const targetUrl = button.url || button.linkUrl;
+
             const buttonElement = `
-                        <a href="${button.url || button.linkUrl}" class="common-button" target="_blank" data-name="${button.name}">
+                        <a href="${isLocked ? '#' : targetUrl}" 
+                           class="common-button ${isLocked ? 'locked-button' : ''}" 
+                           ${isLocked ? '' : 'target="_blank"'}
+                           data-name="${button.name}"
+                           data-locked="${isLocked ? 'true' : 'false'}"
+                           data-password="${isLocked ? button.lockPassword : ''}"
+                           data-url="${targetUrl}">
                             <img class="common-image" src="${button.image || button.imageUrl}" alt="${button.name}" loading="lazy">
                             <div class="common-label">
-                                ${button.name}
+                                ${isLocked ? '🔒 ' : ''}${button.name}
                             </div>
                         </a>
                     `;
@@ -504,13 +513,23 @@ $(document).ready(function () {
             // 是否啟用檢查
             if (typeof button.active !== 'undefined' && !button.active) return;
 
+            const isLocked = button.locked && button.lockPassword;
+
             const buttonElement = `
-                        <a href="${link}" class="image-button" target="_blank" style="animation-delay: ${index * 0.1}s" data-name="${name}" data-description="${desc}">
+                        <a href="${isLocked ? '#' : link}" 
+                           class="image-button ${isLocked ? 'locked-button' : ''}" 
+                           ${isLocked ? '' : 'target="_blank"'}
+                           style="animation-delay: ${index * 0.1}s" 
+                           data-name="${name}" 
+                           data-description="${desc}"
+                           data-locked="${isLocked ? 'true' : 'false'}"
+                           data-password="${isLocked ? button.lockPassword : ''}"
+                           data-url="${link}">
                             <div class="image-container">
                                 <img src="${img}" alt="${name}" loading="lazy">
                             </div>
                             <div class="button-label">
-                                ${name}
+                                ${isLocked ? '🔒 ' : ''}${name}
                                 ${desc ? `<button class="description-toggle">i</button>` : ''}
                             </div>
                             ${desc ? `
@@ -602,6 +621,22 @@ $(document).ready(function () {
     loadToolButtons();
     adjustScrollAreaHeight();
     $(window).on('resize', adjustScrollAreaHeight);
+
+    // 密碼鎖按鈕點擊處理
+    $(document).on('click', '.locked-button', function (e) {
+        e.preventDefault();
+        const password = $(this).data('password');
+        const url = $(this).data('url');
+        const name = $(this).data('name');
+
+        const userInput = prompt(`🔒 「${name}」需要密碼才能訪問\n\n請輸入密碼：`);
+
+        if (userInput === password) {
+            window.open(url, '_blank');
+        } else if (userInput !== null) {
+            alert('❌ 密碼錯誤');
+        }
+    });
 
     // 初始化拖動功能
     initDragScroll();
