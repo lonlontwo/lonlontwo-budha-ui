@@ -118,8 +118,34 @@
             <!-- 後台設置視圖 -->
             <div id="settingsView" class="view-section">
                 <div class="edit-form-card">
-                    <h3>系統設置</h3>
-                    <p>功能開發中...</p>
+                    <!-- 跑馬燈 -->
+                    <div class="form-group">
+                        <label>📣 跑馬燈公告</label>
+                        <input type="text" id="marqueeInput" class="admin-input" placeholder="輸入跑馬燈文字...">
+                        <div class="field-hint" style="color: #666; font-size: 0.8rem; margin-top: 5px;">目前設置：[跑馬燈狀態]
+                        </div>
+                    </div>
+
+                    <!-- LOGO 連結 -->
+                    <div class="form-group">
+                        <label>🐰 LOGO 圖片連結</label>
+                        <input type="text" id="logoLinkInput" class="admin-input" placeholder="https://...">
+                        <div class="field-hint" style="color: #666; font-size: 0.8rem; margin-top: 5px;">目前設置：[LOGO狀態]
+                        </div>
+                    </div>
+
+                    <hr style="border: 0; border-top: 1px solid #333; margin: 30px 0;">
+
+                    <!-- 密碼 -->
+                    <div class="form-group">
+                        <label>🔒 後台登入問題</label>
+                        <input type="password" class="admin-input" placeholder="輸入舊有密碼 (Old PW)"
+                            style="margin-bottom: 10px;">
+                        <input type="password" class="admin-input" placeholder="輸入新密碼" style="margin-bottom: 10px;">
+                        <input type="password" class="admin-input" placeholder="確認新密碼">
+                    </div>
+
+                    <button class="submit-btn" onclick="alert('設定儲存功能開發中')">儲存設定</button>
                 </div>
             </div>
         </main>
@@ -133,6 +159,7 @@
     <!-- 引入前台資料 -->
     <script src="../ui/js/lonlontwo_common_buttons.js"></script>
     <script src="../ui/js/lonlontwo_main_buttons.js"></script>
+    <script src="../ui/js/lonlontwo_ui_config.js"></script>
 
     <!-- UX 腳本 -->
     <script src="js/ux_script.js"></script>

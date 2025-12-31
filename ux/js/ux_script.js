@@ -102,6 +102,7 @@ function initTabs() {
 
             if (tabName === 'settings') {
                 document.getElementById('settingsView').classList.add('active');
+                loadSettingsData();
             } else {
                 document.getElementById('buttonManagementView').classList.add('active');
                 loadButtonList(tabName);
@@ -213,6 +214,36 @@ function loadButtonList(type) {
 }
 
 // ===================================
+// == 設定資料載入 ==
+// ===================================
+function loadSettingsData() {
+    console.log('載入系統設定...');
+
+    // 檢查 uiConfig 是否存在
+    if (typeof uiConfig !== 'undefined') {
+        const marqueeInput = document.getElementById('marqueeInput');
+        const logoLinkInput = document.getElementById('logoLinkInput');
+
+        // 填入跑馬燈文字
+        if (uiConfig.marquee && uiConfig.marquee.text) {
+            marqueeInput.value = uiConfig.marquee.text;
+            // 更新提示文字
+            const marqueeHint = marqueeInput.nextElementSibling;
+            if (marqueeHint) marqueeHint.textContent = `目前設置：${uiConfig.marquee.text.substring(0, 30)}...`;
+        }
+
+        // 填入 LOGO 圖片網址 (作為暫時的 LOGO 連結欄位)
+        if (uiConfig.logo && uiConfig.logo.imageUrl) {
+            logoLinkInput.value = uiConfig.logo.imageUrl;
+            const logoHint = logoLinkInput.nextElementSibling;
+            if (logoHint) logoHint.textContent = `目前設置：${uiConfig.logo.imageUrl}`;
+        }
+    } else {
+        console.warn('uiConfig 未定義');
+    }
+}
+
+// ===================================
 // == 事件監聽器 ==
 // ===================================
 document.addEventListener('DOMContentLoaded', function () {
@@ -269,5 +300,6 @@ function showNotification(message, type = 'info') {
 // ===================================
 window.uxAdmin = {
     loadButtonList,
+    loadSettingsData,
     showNotification
 };
