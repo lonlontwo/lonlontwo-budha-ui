@@ -645,5 +645,7 @@ window.uxAdmin = {
     handleButtonSubmit,
     editButton,
     deleteButton,
-    toggleButtonStatus
+    toggleButtonStatus,
+    resetButtonForm,
+    handleLogout
 };
