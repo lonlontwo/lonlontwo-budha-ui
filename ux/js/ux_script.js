@@ -131,6 +131,10 @@ function initTabs() {
                 loadSettingsData();
             } else {
                 document.getElementById('buttonManagementView').classList.add('active');
+                // 切換分頁時重置表單
+                if (window.uxAdmin && window.uxAdmin.resetButtonForm) {
+                    window.uxAdmin.resetButtonForm();
+                }
                 loadButtonList(tabName);
             }
         });
@@ -162,9 +166,6 @@ function loadButtonList(type) {
         currentSortable.destroy();
         currentSortable = null;
     }
-
-    // 重置編輯表單（確保切換分頁時表單狀態正確）
-    resetButtonForm();
 
     container.innerHTML = '<div class="loading">載入資料中...</div>';
 
