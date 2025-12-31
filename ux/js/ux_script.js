@@ -317,6 +317,8 @@ function initSortable(container, collectionName) {
                 }
             });
 
+            console.log('準備更新順序:', updates);
+
             // 批次更新 Firebase
             try {
                 const batch = db.batch();
@@ -328,7 +330,10 @@ function initSortable(container, collectionName) {
                 console.log('✓ 順序已更新');
             } catch (error) {
                 console.error('更新順序失敗:', error);
-                alert('更新順序失敗，請重試');
+                console.error('錯誤詳情:', error.message);
+                console.error('Collection:', collectionName);
+                console.error('Updates:', updates);
+                alert(`更新順序失敗：${error.message}\n請查看 Console 了解詳情`);
                 // 重新載入以恢復原始順序
                 renderButtons(collectionName, collectionName === 'common_buttons' ? 'common' : 'tool');
             }
