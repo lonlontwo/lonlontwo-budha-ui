@@ -248,7 +248,7 @@ function loadButtonList(type) {
             const itemClass = item.active ? '' : 'opacity: 0.6;';
 
             const itemHTML = `
-                <div class="list-item" style="${itemClass}" id="item-${id}">
+                <div class="list-item" style="${itemClass}" id="item-${id}" data-id="${id}">
                     <div class="item-img-box">
                         <img src="${item.image}" alt="${item.name}" onerror="this.src='https://via.placeholder.com/60?text=No+Img'">
                     </div>
@@ -282,9 +282,57 @@ function loadButtonList(type) {
         // 更新計數
         updateCount(type, count);
 
+        // 初始化拖曳排序
+        initSortable(container, collectionName);
+
     }, (error) => {
         console.error("讀取失敗:", error);
         container.innerHTML = `<div class="error">載入失敗: ${error.message}</div>`;
+    });
+}
+
+// 初始化拖曳排序
+function initSortable(container, collectionName) {
+    if (!container || !window.Sortable) return;
+
+    new Sortable(container, {
+        animation: 150,
+        handle: '.list-item',
+        ghostClass: 'sortable-ghost',
+        chosenClass: 'sortable-chosen',
+        dragClass: 'sortable-drag',
+        onEnd: async function (evt) {
+            // 獲取所有項目的 ID（按新順序）
+            const items = Array.from(container.querySelectorAll('.list-item'));
+            const updates = [];
+
+            // 為每個項目設定新的 order 值
+            items.forEach((item, index) => {
+                const id = item.dataset.id;
+                if (id) {
+                    updates.push({
+                        id: id,
+                        order: index + 1
+                    });
+                }
+            });
+
+            // 批次更新 Firebase
+            try {
+                const batch = db.batch();
+                updates.forEach(update => {
+                    const docRef = db.collection(collectionName).doc(update.id);
+                    batch.update(docRef, { order: update.order });
+                });
+                await batch.commit();
+                console.log('✓ 順序已更新');
+            } catch (error) {
+                console.error('更新順序失敗:', error);
+                alert('更新順序失敗，請重試');
+                // 重新載入以恢復原始順序
+                renderButtons(collectionName, collectionName === 'common_buttons' ? 'common' : 'tool');
+            }
+        }
     });
 }
 

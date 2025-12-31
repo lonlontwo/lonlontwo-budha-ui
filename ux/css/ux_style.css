@@ -559,3 +559,30 @@ input:checked+.slider:before {
 .view-section.active {
     display: block;
 }
+
+/* ===================================== */
+/* == 拖曳排序樣式 == */
+/* ===================================== */
+.list-item {
+    cursor: move;
+    cursor: grab;
+    transition: all 0.2s ease;
+}
+
+.list-item:active {
+    cursor: grabbing;
+}
+
+.sortable-ghost {
+    opacity: 0.4;
+    background: var(--bg-lighter);
+}
+
+.sortable-chosen {
+    box-shadow: 0 0 0 2px var(--primary-color);
+}
+
+.sortable-drag {
+    opacity: 0.8;
+    transform: rotate(2deg);
+}
