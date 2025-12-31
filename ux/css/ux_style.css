@@ -547,8 +547,9 @@ body {
 }
 
 .action-btn.edit {
-    background: #4caf50;
+    background: #4caf50 !important;
     width: 60px;
+    display: inline-block;
     /* 維持編輯按鈕寬度 */
 }
 
