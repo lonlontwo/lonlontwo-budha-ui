@@ -61,17 +61,53 @@
                 <!-- 新增/編輯 表單 -->
                 <!-- 新增/編輯 表單 -->
                 <div class="edit-form-card">
+                    <!-- 類型選擇 -->
+                    <div class="form-group">
+                        <label>按鈕類型</label>
+                        <div class="type-selector">
+                            <div class="type-option active" data-type="link"
+                                onclick="window.uxAdmin.switchButtonType('link')">
+                                <span class="type-icon">🔗</span>
+                                <span class="type-label">一般連結</span>
+                            </div>
+                            <div class="type-option" data-type="folder"
+                                onclick="window.uxAdmin.switchButtonType('folder')">
+                                <span class="type-icon folder-icon">📂</span>
+                                <span class="type-label">收納資料夾</span>
+                            </div>
+                        </div>
+                        <input type="hidden" id="btnTypeInput" value="link">
+                    </div>
+
                     <div class="form-group">
                         <label>名稱</label>
-                        <input type="text" id="btnNameInput" class="admin-input" placeholder="按鈕名稱">
+                        <input type="text" id="btnNameInput" class="admin-input" placeholder="按鈕名稱 / 資料夾名稱">
                     </div>
                     <div class="form-group">
                         <label>圖片網址 (Image URL)</label>
                         <input type="text" id="btnImgInput" class="admin-input" placeholder="https://...">
                     </div>
-                    <div class="form-group">
-                        <label>真實目標網址 (Target URL) <span class="secure-label">🔒 將加密儲存</span></label>
-                        <input type="text" id="btnUrlInput" class="admin-input" placeholder="https://...">
+
+                    <!-- 連結欄位 (一般連結模式顯示) -->
+                    <div id="urlFieldGroup">
+                        <div class="form-group">
+                            <label>真實目標網址 (Target URL) <span class="secure-label">🔒 將加密儲存</span></label>
+                            <input type="text" id="btnUrlInput" class="admin-input" placeholder="https://...">
+                        </div>
+                    </div>
+
+                    <!-- 資料夾內容欄位 (資料夾模式顯示) -->
+                    <div id="folderContentGroup" style="display: none;">
+                        <div class="form-group">
+                            <label>📂 資料夾內容管理 (JSON)</label>
+                            <textarea id="btnFolderJsonInput" class="admin-input" rows="6" placeholder='[
+    { "name": "子按鈕1", "url": "...", "img": "..." },
+    { "name": "子按鈕2", "url": "...", "img": "..." }
+]'></textarea>
+                            <div class="field-hint" style="color: #888; font-size: 0.8rem; margin-top: 5px;">
+                                暫時使用 JSON 格式輸入，未來將升級為視覺化編輯。
+                            </div>
+                        </div>
                     </div>
                     <div class="form-group">
                         <label>說明文字 (Tooltip)</label>
