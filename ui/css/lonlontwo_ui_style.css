@@ -256,7 +256,9 @@ a:active {
 .common-buttons-container {
     width: 100%;
     overflow-x: auto;
+    overflow-y: visible;
     -webkit-overflow-scrolling: touch;
+    padding-top: 10px;
     padding-bottom: 15px;
     margin-bottom: 10px;
     scrollbar-width: thin;
