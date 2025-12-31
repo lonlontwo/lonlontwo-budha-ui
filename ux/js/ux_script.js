@@ -177,7 +177,7 @@ function loadButtonList(type) {
     const collectionRef = db.collection(collectionName);
 
     // 建立監聽
-    currentUnsubscribe = collectionRef.orderBy('createdAt', 'desc').onSnapshot(async (snapshot) => {
+    currentUnsubscribe = collectionRef.orderBy('order', 'asc').onSnapshot(async (snapshot) => {
         // == 自動遷移邏輯 (通用: Common & Tools) ==
         if (snapshot.empty && staticData.length > 0) {
             console.log(`Firebase (${collectionName}) 無資料，開始執行自動遷移...`);
@@ -200,6 +200,7 @@ function loadButtonList(type) {
                     desc: item.description || item.desc || '',
                     active: true,
                     locked: false,
+                    order: i + 1, // 保持原始順序，從 1 開始
                     createdAt: firebase.firestore.FieldValue.serverTimestamp()
                 });
 
@@ -349,6 +350,7 @@ async function handleButtonSubmit() {
         } else {
             // 新增
             data.active = true; // 預設啟用
+            data.order = 0; // 新按鈕排第一
             data.createdAt = firebase.firestore.FieldValue.serverTimestamp();
             await db.collection(collectionName).add(data);
             showButtonFeedback(submitBtn, '✓ 已新增', 'success');

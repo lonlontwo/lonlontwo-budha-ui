@@ -462,7 +462,7 @@ $(document).ready(function () {
         // 2. 讀取 Firebase 資料 (覆蓋更新)
         db.collection('common_buttons')
             .where('active', '==', true)
-            .orderBy('createdAt', 'desc')
+            .orderBy('order', 'asc')
             .get()
             .then((querySnapshot) => {
                 if (!querySnapshot.empty) {
@@ -529,7 +529,7 @@ $(document).ready(function () {
         // 2. 讀取 Firebase
         db.collection('tool_buttons')
             .where('active', '==', true)
-            .orderBy('createdAt', 'desc')
+            .orderBy('order', 'asc')
             .get()
             .then((querySnapshot) => {
                 if (!querySnapshot.empty) {
