@@ -47,7 +47,7 @@ function handleLogin() {
     if (password === ADMIN_PASSWORD) {
         // 登入成功
         isLoggedIn = true;
-        sessionStorage.setItem('ux_logged_in', 'true');
+        // sessionStorage.setItem('ux_logged_in', 'true'); // 移除記憶功能
         showDashboard();
         loginError.textContent = '';
         passwordInput.value = '';
@@ -327,7 +327,7 @@ document.addEventListener('DOMContentLoaded', function () {
     console.log('UX 後台系統已載入');
 
     // 檢查登入狀態並顯示介面
-    const savedLoginState = sessionStorage.getItem('ux_logged_in');
+    // const savedLoginState = sessionStorage.getItem('ux_logged_in'); // 移除記憶功能
 
     // 初始化返回按鈕事件 (如果有)
     const backBtn = document.getElementById('backToFrontendBtn');
@@ -337,12 +337,8 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 
-    if (savedLoginState === 'true') {
-        isLoggedIn = true;
-        showDashboard();
-    } else {
-        showLogin();
-    }
+    // 總是顯示登入畫面 (不記憶狀態)
+    showLogin();
 
     // 登入按鈕事件
     if (loginButton) {

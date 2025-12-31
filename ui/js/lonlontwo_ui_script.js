@@ -57,11 +57,15 @@ $(document).ready(function () {
     // 讀取設定函數
     function applySettings(data) {
         console.log('套用設定:', data);
-        if (data.marquee) {
+
+        // 只要欄位存在 (即使是空字串) 都進行更新
+        if (typeof data.marquee !== 'undefined') {
             $('.marquee').text(data.marquee);
         }
-        if (data.logo) {
+
+        if (typeof data.logo !== 'undefined') {
             $('.header-logo').attr('src', data.logo);
+            // 如果是空字串，可以選擇隱藏或顯示替代圖 (目前維持顯示空src)
         }
     }
 
