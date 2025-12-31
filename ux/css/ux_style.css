@@ -233,10 +233,8 @@ body {
 /* ===================================== */
 .admin-main {
     flex: 1;
-    padding: 30px;
+    padding: 30px 50px;
     overflow-y: auto;
-    max-width: 1200px;
-    margin: 0 auto;
     width: 100%;
     /* 隱藏捲軸但保留捲動功能 */
     scrollbar-width: none;

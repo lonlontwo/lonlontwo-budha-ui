@@ -296,6 +296,17 @@ function updateCount(type, count) {
 // == 按鈕管理功能 (新增/編輯/刪除) ==
 // ===================================
 
+// 按鈕回饋提示
+function showButtonFeedback(button, message, type) {
+    const originalText = button.textContent;
+    button.textContent = message;
+    button.style.background = type === 'success' ? '#4CAF50' : '#F44336';
+    setTimeout(() => {
+        button.textContent = originalText;
+        button.style.background = '';
+    }, 2000);
+}
+
 // 提交按鈕表單
 async function handleButtonSubmit() {
     const nameInput = document.getElementById('btnNameInput');
@@ -333,14 +344,14 @@ async function handleButtonSubmit() {
         if (isEdit) {
             // 更新
             await db.collection(collectionName).doc(editIdInput.value).update(data);
-            alert('更新成功！');
+            showButtonFeedback(submitBtn, '✓ 已更新', 'success');
             resetButtonForm(); // 退出編輯模式
         } else {
             // 新增
             data.active = true; // 預設啟用
             data.createdAt = firebase.firestore.FieldValue.serverTimestamp();
             await db.collection(collectionName).add(data);
-            alert('新增成功！');
+            showButtonFeedback(submitBtn, '✓ 已新增', 'success');
             // 清空表單以便繼續新增
             nameInput.value = '';
             imgInput.value = '';
@@ -350,7 +361,7 @@ async function handleButtonSubmit() {
         }
     } catch (error) {
         console.error('儲存失敗:', error);
-        alert('儲存失敗: ' + error.message);
+        showButtonFeedback(submitBtn, '✗ 儲存失敗', 'error');
     } finally {
         submitBtn.disabled = false;
     }
