@@ -15,14 +15,16 @@
     <div id="loginContainer" class="login-container">
         <div class="login-box">
             <div class="login-header">
-                <img src="https://i.ibb.co/KxTkk34/Lonely-Rabbit-logo.jpg" alt="兔兔網LOGO" class="login-logo">
-                <h1>後台管理系統</h1>
-                <p>請輸入密碼登入</p>
+                <div class="login-icon">🐰</div>
+                <h1><span class="logo-text">兔兔網</span> <span class="ui-text">UI</span></h1>
+                <p class="subtitle">進階後台管理系統</p>
             </div>
             <div class="login-form">
-                <input type="password" id="passwordInput" class="password-input" placeholder="請輸入密碼">
+                <label class="form-label">管理密碼</label>
+                <input type="password" id="passwordInput" class="password-input" placeholder="請輸入管理密碼">
                 <button id="loginButton" class="login-button">登入</button>
                 <div id="loginError" class="login-error"></div>
+                <a href="../ui/index.html" class="back-link">← 返回前台</a>
             </div>
         </div>
     </div>
