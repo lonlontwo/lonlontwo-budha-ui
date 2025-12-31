@@ -121,6 +121,7 @@
     border: 2px solid rgba(255, 123, 37, 0.3) !important;
 }
 
+/* 移除資料夾圖示 - 用戶不想要符號
 .folder-type-btn::after {
     content: '📂';
     position: absolute;
@@ -132,6 +133,7 @@
     border-radius: 4px;
     z-index: 5;
 }
+*/
 
 /* 響應式調整 */
 @media (max-width: 768px) {
