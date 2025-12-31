@@ -11,9 +11,165 @@
 </head>
 
 <body>
-    <div class="container">
-        <h1>兔兔網後台管理系統</h1>
-        <p>UX 後台開發中...</p>
+    <!-- 登入介面 -->
+    <div id="loginContainer" class="login-container">
+        <div class="login-box">
+            <div class="login-header">
+                <img src="https://i.ibb.co/KxTkk34/Lonely-Rabbit-logo.jpg" alt="兔兔網LOGO" class="login-logo">
+                <h1>後台管理系統</h1>
+                <p>請輸入密碼登入</p>
+            </div>
+            <div class="login-form">
+                <input type="password" id="passwordInput" class="password-input" placeholder="請輸入密碼">
+                <button id="loginButton" class="login-button">登入</button>
+                <div id="loginError" class="login-error"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 管理介面 -->
+    <div id="dashboardContainer" class="dashboard-container" style="display: none;">
+        <!-- 頂部導航 -->
+        <nav class="top-nav">
+            <div class="nav-left">
+                <img src="https://i.ibb.co/KxTkk34/Lonely-Rabbit-logo.jpg" alt="Logo" class="nav-logo">
+                <h2>兔兔網後台</h2>
+            </div>
+            <div class="nav-right">
+                <span class="user-info">管理員</span>
+                <button id="logoutButton" class="logout-button">登出</button>
+            </div>
+        </nav>
+
+        <!-- 側邊欄 -->
+        <div class="sidebar">
+            <div class="sidebar-menu">
+                <button class="menu-item active" data-view="overview">
+                    <span class="menu-icon">📊</span>
+                    <span class="menu-text">總覽</span>
+                </button>
+                <button class="menu-item" data-view="buttons">
+                    <span class="menu-icon">🔘</span>
+                    <span class="menu-text">按鈕管理</span>
+                </button>
+                <button class="menu-item" data-view="records">
+                    <span class="menu-icon">📝</span>
+                    <span class="menu-text">操作記錄</span>
+                </button>
+                <button class="menu-item" data-view="settings">
+                    <span class="menu-icon">⚙️</span>
+                    <span class="menu-text">系統設定</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- 主要內容區 -->
+        <main class="main-content">
+            <!-- 總覽頁面 -->
+            <div id="overviewView" class="view-content active">
+                <h2 class="view-title">系統總覽</h2>
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-icon">🔘</div>
+                        <div class="stat-info">
+                            <div class="stat-value">240</div>
+                            <div class="stat-label">總按鈕數</div>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">👥</div>
+                        <div class="stat-info">
+                            <div class="stat-value">64</div>
+                            <div class="stat-label">常用按鈕</div>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">📊</div>
+                        <div class="stat-info">
+                            <div class="stat-value">1,234</div>
+                            <div class="stat-label">總點擊次數</div>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">🔥</div>
+                        <div class="stat-info">
+                            <div class="stat-value">活躍</div>
+                            <div class="stat-label">系統狀態</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 按鈕管理頁面 -->
+            <div id="buttonsView" class="view-content">
+                <h2 class="view-title">按鈕管理</h2>
+                <div class="toolbar">
+                    <button class="btn-primary">新增按鈕</button>
+                    <input type="text" class="search-box" placeholder="搜尋按鈕...">
+                </div>
+                <div class="data-table">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>名稱</th>
+                                <th>類型</th>
+                                <th>連結</th>
+                                <th>說明</th>
+                                <th>操作</th>
+                            </tr>
+                        </thead>
+                        <tbody id="buttonTableBody">
+                            <tr>
+                                <td colspan="5" class="empty-state">資料載入中...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- 操作記錄頁面 -->
+            <div id="recordsView" class="view-content">
+                <h2 class="view-title">操作記錄</h2>
+                <div class="data-table">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>時間</th>
+                                <th>操作類型</th>
+                                <th>操作內容</th>
+                                <th>操作者</th>
+                            </tr>
+                        </thead>
+                        <tbody id="recordTableBody">
+                            <tr>
+                                <td colspan="4" class="empty-state">暫無記錄</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- 系統設定頁面 -->
+            <div id="settingsView" class="view-content">
+                <h2 class="view-title">系統設定</h2>
+                <div class="settings-panel">
+                    <div class="setting-group">
+                        <h3>密碼管理</h3>
+                        <button class="btn-secondary">修改密碼</button>
+                    </div>
+                    <div class="setting-group">
+                        <h3>資料備份</h3>
+                        <button class="btn-secondary">匯出資料</button>
+                        <button class="btn-secondary">匯入資料</button>
+                    </div>
+                    <div class="setting-group">
+                        <h3>系統資訊</h3>
+                        <p>版本: 1.0.0</p>
+                        <p>最後更新: 2025-12-31</p>
+                    </div>
+                </div>
+            </div>
+        </main>
     </div>
 
     <!-- Firebase SDK -->
