@@ -485,4 +485,18 @@ $(document).ready(function () {
             $('.description-tooltip-box.active').removeClass('active');
         }
     });
+
+    // ===================================== */
+    // == 動態讀取設定 (跑馬燈 & LOGO) == */
+    // ===================================== */
+    if (typeof marqueeSettings !== 'undefined' && marqueeSettings.text) {
+        $('.marquee').text(marqueeSettings.text);
+    }
+
+    if (typeof indexLogo !== 'undefined' && indexLogo.url) {
+        $('.header-logo').attr('src', indexLogo.url);
+        if (indexLogo.alt) {
+            $('.header-logo').attr('alt', indexLogo.alt);
+        }
+    }
 });
