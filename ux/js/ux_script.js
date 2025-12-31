@@ -390,7 +390,9 @@ async function handleButtonSubmit() {
     const imgInput = document.getElementById('btnImgInput');
     const urlInput = document.getElementById('btnUrlInput');
     const descInput = document.getElementById('btnDescInput');
-    const pwdInput = document.getElementById('btnPwdInput');
+    const typeInput = document.getElementById('btnTypeInput'); // 新增：類型輸入
+    const folderJsonInput = document.getElementById('btnFolderJsonInput'); // 新增：資料夾內容
+
     const editIdInput = document.getElementById('editingBtnId');
     const submitBtn = document.getElementById('btnSubmitBtn');
 
@@ -399,13 +401,42 @@ async function handleButtonSubmit() {
     const type = activeTab ? activeTab.getAttribute('data-tab') : 'common';
     const collectionName = (type === 'tools') ? 'tool_buttons' : 'common_buttons';
 
+    // 基礎資料
     const data = {
         name: nameInput.value.trim(),
         image: imgInput.value.trim() || 'https://via.placeholder.com/100?text=No+Img',
-        url: urlInput.value.trim() || 'javascript:void(0)',
         desc: descInput.value.trim(),
         updatedAt: firebase.firestore.FieldValue.serverTimestamp()
     };
+
+    // 依據類型處理資料
+    const btnType = typeInput.value || 'link';
+    data.type = btnType;
+
+    if (btnType === 'folder') {
+        const jsonStr = folderJsonInput.value.trim();
+        if (!jsonStr) {
+            alert('請輸入資料夾內容 (JSON 格式)！');
+            return;
+        }
+        try {
+            // 驗證並格式化 JSON
+            const content = JSON.parse(jsonStr);
+            if (!Array.isArray(content)) {
+                alert('資料夾內容必須是陣列格式 [...]');
+                return;
+            }
+            data.content = content; // 儲存結構化資料
+            data.url = ''; // 清空 URL
+        } catch (e) {
+            alert('JSON 格式錯誤，請檢查！\n' + e.message);
+            return;
+        }
+    } else {
+        // 一般連結模式
+        data.url = urlInput.value.trim() || 'javascript:void(0)';
+        data.content = null; // 清空資料夾內容
+    }
 
     console.log('準備儲存的資料:', data);
 
@@ -433,10 +464,8 @@ async function handleButtonSubmit() {
 
             await db.collection(collectionName).add(data);
             showButtonFeedback(submitBtn, '✓ 已新增', 'success');
-            nameInput.value = '';
-            imgInput.value = '';
-            urlInput.value = '';
-            descInput.value = '';
+            // 清空所有欄位
+            resetButtonForm();
         }
     } catch (error) {
         console.error('儲存失敗:', error);
@@ -458,21 +487,37 @@ async function editButton(collectionName, id) {
 
         document.getElementById('btnNameInput').value = data.name || '';
         document.getElementById('btnImgInput').value = data.image || '';
-        document.getElementById('btnUrlInput').value = data.url || '';
         document.getElementById('btnDescInput').value = data.desc || '';
+
+        // 判斷並切換類型
+        if (data.type === 'folder' || (data.content && Array.isArray(data.content))) {
+            // 是資料夾
+            if (window.uxAdmin && window.uxAdmin.switchButtonType) {
+                window.uxAdmin.switchButtonType('folder');
+            }
+            // 填入 JSON 內容
+            const jsonStr = data.content ? JSON.stringify(data.content, null, 4) : '[]';
+            document.getElementById('btnFolderJsonInput').value = jsonStr;
+            // 清空 URL 欄位避免混淆
+            document.getElementById('btnUrlInput').value = '';
+        } else {
+            // 是連結 (預設)
+            if (window.uxAdmin && window.uxAdmin.switchButtonType) {
+                window.uxAdmin.switchButtonType('link');
+            }
+            document.getElementById('btnUrlInput').value = data.url || '';
+            // 清空 JSON 欄位
+            document.getElementById('btnFolderJsonInput').value = '';
+        }
 
         // 設定編輯模式
         document.getElementById('editingBtnId').value = id;
-        document.getElementById('btnSubmitBtn').textContent = '確認更新';
-        document.getElementById('btnSubmitBtn').classList.add('warning'); // 換個顏色提示
+        const submitBtn = document.getElementById('btnSubmitBtn');
+        submitBtn.textContent = '確認更新';
+        submitBtn.classList.add('warning'); // 換個顏色提示
 
         // 滾動到頂部
         document.querySelector('.edit-form-card').scrollIntoView({ behavior: 'smooth' });
-
-        // 顯示取消按鈕 (如果還沒建立的話，可以動態建立，這裡簡單用 alert 提示)
-        // 為了 UX，我們加上一個取消機制：點擊其他分頁或按鈕時重置，或者在按鈕旁加一個取消鍵
-        // 這裡簡單做：修改標題提示
-        // alert('已進入編輯模式，修改完請按「確認更新」');
 
     } catch (error) {
         console.error('讀取資料失敗:', error);
@@ -486,7 +531,14 @@ function resetButtonForm() {
     document.getElementById('btnImgInput').value = '';
     document.getElementById('btnUrlInput').value = '';
     document.getElementById('btnDescInput').value = '';
+    document.getElementById('btnFolderJsonInput').value = ''; // 新增：清空 JSON 欄位
+
     document.getElementById('editingBtnId').value = '';
+
+    // 重置為一般連結模式
+    if (window.uxAdmin && window.uxAdmin.switchButtonType) {
+        window.uxAdmin.switchButtonType('link');
+    }
 
     const submitBtn = document.getElementById('btnSubmitBtn');
     submitBtn.textContent = '新增按鈕';
