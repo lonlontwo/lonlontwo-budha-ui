@@ -426,15 +426,24 @@ $(document).ready(function () {
         return `hsl(${hue}, ${saturation}%, ${lightness}%)`;
     }
 
-    function generateCommonButtons() {
+    // 渲染按鈕的函式 (共用)
+    function renderCommonButtons(data) {
         const commonButtonsContainer = $('#commonButtons');
         commonButtonsContainer.empty();
 
-        commonButtonData.forEach(function (button) {
+        if (!data || data.length === 0) return;
+
+        data.forEach(function (button) {
+            // 只顯示啟用的按鈕 (如果是從 Firebase 來的資料會有 active 欄位)
+            // 如果是靜態資料 (沒有 active 欄位) 則預設顯示
+            if (typeof button.active !== 'undefined' && !button.active) {
+                return;
+            }
+
             const bgColor = getRandomLightColor();
             const buttonElement = `
-                        <a href="${button.linkUrl}" class="common-button" target="_blank" data-name="${button.name}">
-                            <img class="common-image" src="${button.imageUrl}" alt="${button.name}" loading="lazy">
+                        <a href="${button.url || button.linkUrl}" class="common-button" target="_blank" data-name="${button.name}">
+                            <img class="common-image" src="${button.image || button.imageUrl}" alt="${button.name}" loading="lazy">
                             <div class="common-label">
                                 ${button.name}
                             </div>
@@ -442,6 +451,35 @@ $(document).ready(function () {
                     `;
             commonButtonsContainer.append(buttonElement);
         });
+    }
+
+    // 主載入函式：先顯示靜態，再讀取 Firebase
+    function loadCommonButtons() {
+        // 1. 先渲染靜態資料 (秒開)
+        console.log('載入靜態按鈕資料...');
+        renderCommonButtons(commonButtonData);
+
+        // 2. 讀取 Firebase 資料 (覆蓋更新)
+        db.collection('common_buttons')
+            .where('active', '==', true)
+            .orderBy('createdAt', 'desc')
+            .get()
+            .then((querySnapshot) => {
+                if (!querySnapshot.empty) {
+                    console.log(`從 Firebase 載入 ${querySnapshot.size} 筆按鈕資料`);
+                    const dynamicData = [];
+                    querySnapshot.forEach((doc) => {
+                        dynamicData.push(doc.data());
+                    });
+                    renderCommonButtons(dynamicData);
+                } else {
+                    console.log('Firebase 無按鈕資料，維持靜態顯示');
+                }
+            })
+            .catch((error) => {
+                console.error("讀取 Firebase 按鈕失敗:", error);
+                // 失敗時不做任何事，維持靜態資料顯示
+            });
     }
 
     function generateButtonGrid() {
@@ -510,7 +548,7 @@ $(document).ready(function () {
         });
     }
 
-    generateCommonButtons();
+    loadCommonButtons();
     generateButtonGrid();
     adjustScrollAreaHeight();
     $(window).on('resize', adjustScrollAreaHeight);

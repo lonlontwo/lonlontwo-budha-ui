@@ -140,103 +140,282 @@ function initTabs() {
 // ===================================
 // == 列表渲染 ==
 // ===================================
+// ===================================
+// == 列表渲染 (改為 Firebase 即時監聽) ==
+// ===================================
+let currentUnsubscribe = null; // 用於儲存 Firebase 監聽器，切換分頁時取消
+
 function loadButtonList(type) {
     console.log(`載入列表: ${type}`);
     const container = document.getElementById('listContainer');
     if (!container) return;
 
-    container.innerHTML = ''; // 清空
+    // 清除舊的監聽器
+    if (currentUnsubscribe) {
+        currentUnsubscribe();
+        currentUnsubscribe = null;
+    }
 
-    let data = [];
+    container.innerHTML = '<div class="loading">載入資料中...</div>';
 
-    // 根據類型選擇資料來源
+    // 定義集合名稱
+    let collectionName = '';
+    let staticData = [];
+
     if (type === 'common') {
-        // 檢查 commonButtonData 是否存在
-        if (typeof commonButtonData !== 'undefined') {
-            data = commonButtonData.map(item => ({
-                name: item.name,
-                image: item.imageUrl,
-                url: item.linkUrl,
-                desc: '', // 常用按鈕無說明
-                active: true,
-                locked: false
-            }));
-
-            // 更新計數
-            const badge = document.querySelector(`.tab-btn[data-tab="common"] .badge`);
-            if (badge) badge.textContent = data.length;
-        } else {
-            console.error('找不到 commonButtonData');
-            container.innerHTML = '<div class="empty-state">無法讀取常用按鈕資料</div>';
-            return;
-        }
+        collectionName = 'common_buttons';
+        staticData = (typeof commonButtonData !== 'undefined') ? commonButtonData : [];
     } else if (type === 'tools') {
-        // 檢查 mainButtonData 是否存在
-        if (typeof mainButtonData !== 'undefined') {
-            data = mainButtonData.map(item => ({
-                name: item.name,
-                image: item.imageUrl,
-                url: item.linkUrl,
-                desc: item.description || '', // 工具按鈕有說明
-                active: true,
-                locked: false
-            }));
-
-            // 更新計數
-            const count = document.querySelector(`.tab-btn[data-tab="tools"] .count`);
-            if (count) count.textContent = data.length;
-        } else {
-            console.error('找不到 mainButtonData');
-            container.innerHTML = '<div class="empty-state">無法讀取工具按鈕資料</div>';
-            return;
-        }
+        // 先專注處理常用按鈕，工具按鈕暫時維持原樣或之後接續開發
+        collectionName = 'tool_buttons';
+        staticData = (typeof mainButtonData !== 'undefined') ? mainButtonData : [];
     } else {
-        console.log('尚未實作此類型的資料讀取');
         container.innerHTML = '<div class="empty-state">此分類暫無資料</div>';
         return;
     }
 
-    if (data.length === 0) {
-        container.innerHTML = '<div class="empty-state">暫無資料</div>';
+    const collectionRef = db.collection(collectionName);
+
+    // 建立監聽
+    currentUnsubscribe = collectionRef.orderBy('createdAt', 'desc').onSnapshot(async (snapshot) => {
+        // == 自動遷移邏輯 (僅針對 Common) ==
+        if (snapshot.empty && type === 'common' && staticData.length > 0) {
+            console.log('Firebase 無資料，開始執行自動遷移...');
+            container.innerHTML = '<div class="loading">正在初始化資料庫 (單次遷移)...</div>';
+
+            const batch = db.batch();
+            staticData.forEach((item) => {
+                const newDocRef = collectionRef.doc();
+                batch.set(newDocRef, {
+                    name: item.name,
+                    image: item.imageUrl,
+                    url: item.linkUrl,
+                    desc: '',
+                    active: true,
+                    locked: false,
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                });
+            });
+
+            try {
+                await batch.commit();
+                console.log('自動遷移完成！');
+                // 遷移後會自動觸發 onSnapshot 更新介面
+            } catch (err) {
+                console.error('遷移失敗:', err);
+                container.innerHTML = `<div class="error">資料初始化失敗: ${err.message}</div>`;
+            }
+            return;
+        }
+
+        if (snapshot.empty) {
+            container.innerHTML = '<div class="empty-state">暫無資料，請新增按鈕</div>';
+            // 更新計數
+            updateCount(type, 0);
+            return;
+        }
+
+        container.innerHTML = ''; // 清空準備渲染
+        let count = 0;
+
+        snapshot.forEach(doc => {
+            count++;
+            const item = doc.data();
+            const id = doc.id;
+
+            // 將說明文字加入顯示 (如果有)
+            const descHtml = item.desc ? `<div class="info-row desc" style="font-size: 0.8rem; color: #888; margin-top: 4px;">📝 ${item.desc}</div>` : '';
+
+            // 判斷按鈕狀態樣式
+            const activeClass = item.active ? 'active' : 'inactive';
+            const activeText = item.active ? '啟用' : '停用';
+            const itemClass = item.active ? '' : 'opacity: 0.6;';
+
+            const itemHTML = `
+                <div class="list-item" style="${itemClass}" id="item-${id}">
+                    <div class="item-img-box">
+                        <img src="${item.image}" alt="${item.name}" onerror="this.src='https://via.placeholder.com/60?text=No+Img'">
+                    </div>
+                    <div class="item-info">
+                        <div class="info-row start">
+                            ${item.locked ? '<span class="lock-icon">🔒</span>' : ''}
+                            <span class="item-name">${item.name}</span>
+                            <span class="status-badge ${activeClass}">${activeText}</span>
+                        </div>
+                        ${descHtml}
+                        <div class="info-row link">
+                            <span class="link-icon">🔗</span>
+                            <span class="item-link"><a href="${item.url}" target="_blank" style="color: inherit; text-decoration: none;">${item.url}</a></span>
+                        </div>
+                    </div>
+                    <div class="item-actions">
+                        <div class="action-buttons">
+                            <button class="action-btn edit" onclick="editButton('${collectionName}', '${id}')">編輯</button>
+                            <button class="action-btn delete" onclick="deleteButton('${collectionName}', '${id}', '${item.name}')">刪除</button>
+                        </div>
+                        <label class="toggle-switch">
+                            <input type="checkbox" ${item.active ? 'checked' : ''} onchange="toggleButtonStatus('${collectionName}', '${id}', this.checked)">
+                            <span class="slider round"></span>
+                        </label>
+                    </div>
+                </div>
+            `;
+            container.insertAdjacentHTML('beforeend', itemHTML);
+        });
+
+        // 更新計數
+        updateCount(type, count);
+
+    }, (error) => {
+        console.error("讀取失敗:", error);
+        container.innerHTML = `<div class="error">載入失敗: ${error.message}</div>`;
+    });
+}
+
+function updateCount(type, count) {
+    const badge = document.querySelector(`.tab-btn[data-tab="${type}"] .badge`) || document.querySelector(`.tab-btn[data-tab="${type}"] .count`);
+    if (badge) badge.textContent = count;
+}
+
+// ===================================
+// == 按鈕管理功能 (新增/編輯/刪除) ==
+// ===================================
+
+// 提交按鈕表單
+async function handleButtonSubmit() {
+    const nameInput = document.getElementById('btnNameInput');
+    const imgInput = document.getElementById('btnImgInput');
+    const urlInput = document.getElementById('btnUrlInput');
+    const descInput = document.getElementById('btnDescInput');
+    const pwdInput = document.getElementById('btnPwdInput');
+    const editIdInput = document.getElementById('editingBtnId');
+    const submitBtn = document.getElementById('btnSubmitBtn');
+
+    // 取得當前激活的 Tab 來決定寫入哪個集合
+    const activeTab = document.querySelector('.tab-btn.active');
+    const type = activeTab ? activeTab.getAttribute('data-tab') : 'common';
+    const collectionName = (type === 'tools') ? 'tool_buttons' : 'common_buttons';
+
+    const data = {
+        name: nameInput.value.trim(),
+        image: imgInput.value.trim(),
+        url: urlInput.value.trim(),
+        desc: descInput.value.trim(),
+        locked: pwdInput.value.trim() !== '', // 若有密碼則視為鎖定
+        lockPassword: pwdInput.value.trim(), // 實務上建議加密，此處示範直接儲存
+        updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+    };
+
+    if (!data.name || !data.url) {
+        alert('名稱與目標網址為必填欄位！');
         return;
     }
 
-    // 渲染列表
-    data.forEach((item, index) => {
-        // 將說明文字加入顯示 (如果有)
-        const descHtml = item.desc ? `<div class="info-row desc" style="font-size: 0.8rem; color: #888; margin-top: 4px;">📝 ${item.desc}</div>` : '';
+    submitBtn.disabled = true;
+    const isEdit = editIdInput.value !== '';
 
-        const itemHTML = `
-            <div class="list-item">
-                <div class="item-img-box">
-                    <img src="${item.image}" alt="${item.name}" onerror="this.src='https://via.placeholder.com/60?text=No+Img'">
-                </div>
-                <div class="item-info">
-                    <div class="info-row start">
-                        ${item.locked ? '<span class="lock-icon">🔒</span>' : ''}
-                        <span class="item-name">${item.name}</span>
-                        <span class="status-badge ${item.active ? 'active' : ''}">${item.active ? '啟用' : '停用'}</span>
-                    </div>
-                    ${descHtml}
-                    <div class="info-row link">
-                        <span class="link-icon">🔗</span>
-                        <span class="item-link"><a href="${item.url}" target="_blank" style="color: inherit; text-decoration: none;">${item.url}</a></span>
-                    </div>
-                </div>
-                <div class="item-actions">
-                    <div class="action-buttons">
-                        <button class="action-btn edit" onclick="alert('編輯功能開發中: ${item.name}')">編輯</button>
-                        <button class="action-btn delete" onclick="alert('刪除功能開發中')">刪除</button>
-                    </div>
-                    <label class="toggle-switch">
-                        <input type="checkbox" ${item.active ? 'checked' : ''} onchange="console.log('切換狀態: ${item.name}')">
-                        <span class="slider round"></span>
-                    </label>
-                </div>
-            </div>
-        `;
-        container.insertAdjacentHTML('beforeend', itemHTML);
-    });
+    try {
+        if (isEdit) {
+            // 更新
+            await db.collection(collectionName).doc(editIdInput.value).update(data);
+            alert('更新成功！');
+            resetButtonForm(); // 退出編輯模式
+        } else {
+            // 新增
+            data.active = true; // 預設啟用
+            data.createdAt = firebase.firestore.FieldValue.serverTimestamp();
+            await db.collection(collectionName).add(data);
+            alert('新增成功！');
+            // 清空表單以便繼續新增
+            nameInput.value = '';
+            imgInput.value = '';
+            urlInput.value = '';
+            descInput.value = '';
+            pwdInput.value = '';
+        }
+    } catch (error) {
+        console.error('儲存失敗:', error);
+        alert('儲存失敗: ' + error.message);
+    } finally {
+        submitBtn.disabled = false;
+    }
+}
+
+// 編輯按鈕
+async function editButton(collectionName, id) {
+    try {
+        const doc = await db.collection(collectionName).doc(id).get();
+        if (!doc.exists) {
+            alert('找不到該按鈕資料');
+            return;
+        }
+        const data = doc.data();
+
+        // 填入表單
+        document.getElementById('btnNameInput').value = data.name || '';
+        document.getElementById('btnImgInput').value = data.image || '';
+        document.getElementById('btnUrlInput').value = data.url || '';
+        document.getElementById('btnDescInput').value = data.desc || '';
+        document.getElementById('btnPwdInput').value = data.lockPassword || '';
+
+        // 設定編輯模式
+        document.getElementById('editingBtnId').value = id;
+        document.getElementById('btnSubmitBtn').textContent = '確認更新';
+        document.getElementById('btnSubmitBtn').classList.add('warning'); // 換個顏色提示
+
+        // 滾動到頂部
+        document.querySelector('.edit-form-card').scrollIntoView({ behavior: 'smooth' });
+
+        // 顯示取消按鈕 (如果還沒建立的話，可以動態建立，這裡簡單用 alert 提示)
+        // 為了 UX，我們加上一個取消機制：點擊其他分頁或按鈕時重置，或者在按鈕旁加一個取消鍵
+        // 這裡簡單做：修改標題提示
+        // alert('已進入編輯模式，修改完請按「確認更新」');
+
+    } catch (error) {
+        console.error('讀取資料失敗:', error);
+        alert('讀取失敗');
+    }
+}
+
+// 重置表單
+function resetButtonForm() {
+    document.getElementById('btnNameInput').value = '';
+    document.getElementById('btnImgInput').value = '';
+    document.getElementById('btnUrlInput').value = '';
+    document.getElementById('btnDescInput').value = '';
+    document.getElementById('btnPwdInput').value = '';
+    document.getElementById('editingBtnId').value = '';
+
+    const submitBtn = document.getElementById('btnSubmitBtn');
+    submitBtn.textContent = '新增按鈕';
+    submitBtn.classList.remove('warning');
+}
+
+// 刪除按鈕
+async function deleteButton(collectionName, id, name) {
+    if (confirm(`確定要刪除「${name}」嗎？此動作無法復原。`)) {
+        try {
+            await db.collection(collectionName).doc(id).delete();
+            // 不需手動 refresh，onSnapshot 會處理
+        } catch (error) {
+            console.error('刪除失敗:', error);
+            alert('刪除失敗');
+        }
+    }
+}
+
+// 切換狀態
+async function toggleButtonStatus(collectionName, id, isActive) {
+    try {
+        await db.collection(collectionName).doc(id).update({
+            active: isActive
+        });
+        console.log(`狀態更新為: ${isActive}`);
+    } catch (error) {
+        console.error('狀態更新失敗:', error);
+        // 如果失敗，最好把 checkbox 狀態改回來 (這裡省略 UI rollback)
+        alert('切換狀態失敗');
+    }
 }
 
 // ===================================
@@ -447,5 +626,9 @@ function showNotification(message, type = 'info') {
 window.uxAdmin = {
     loadButtonList,
     loadSettingsData,
-    showNotification
+    showNotification,
+    handleButtonSubmit,
+    editButton,
+    deleteButton,
+    toggleButtonStatus
 };
