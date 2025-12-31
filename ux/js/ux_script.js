@@ -144,6 +144,7 @@ function initTabs() {
 // == 列表渲染 (改為 Firebase 即時監聽) ==
 // ===================================
 let currentUnsubscribe = null; // 用於儲存 Firebase 監聽器，切換分頁時取消
+let currentSortable = null;    // 用於儲存 Sortable 實例
 
 function loadButtonList(type) {
     console.log(`載入列表: ${type}`);
@@ -154,6 +155,12 @@ function loadButtonList(type) {
     if (currentUnsubscribe) {
         currentUnsubscribe();
         currentUnsubscribe = null;
+    }
+
+    // 清除舊的 Sortable 實例
+    if (currentSortable) {
+        currentSortable.destroy();
+        currentSortable = null;
     }
 
     container.innerHTML = '<div class="loading">載入資料中...</div>';
@@ -297,7 +304,7 @@ function loadButtonList(type) {
 function initSortable(container, collectionName) {
     if (!container || !window.Sortable) return;
 
-    new Sortable(container, {
+    currentSortable = new Sortable(container, {
         animation: 150,
         handle: '.list-item',
         ghostClass: 'sortable-ghost',
