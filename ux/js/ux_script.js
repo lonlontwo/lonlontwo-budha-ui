@@ -510,6 +510,10 @@ async function editButton(collectionName, id) {
             document.getElementById('btnFolderJsonInput').value = '';
         }
 
+        // 顯示類型選擇器 (只有編輯時顯示)
+        const selector = document.querySelector('.type-selector');
+        if (selector) selector.style.display = 'flex';
+
         // 設定編輯模式
         document.getElementById('editingBtnId').value = id;
         const submitBtn = document.getElementById('btnSubmitBtn');
@@ -539,6 +543,10 @@ function resetButtonForm() {
     if (window.uxAdmin && window.uxAdmin.switchButtonType) {
         window.uxAdmin.switchButtonType('link');
     }
+
+    // 隱藏類型選擇器 (回到預設狀態)
+    const selector = document.querySelector('.type-selector');
+    if (selector) selector.style.display = 'none';
 
     const submitBtn = document.getElementById('btnSubmitBtn');
     submitBtn.textContent = '新增按鈕';
