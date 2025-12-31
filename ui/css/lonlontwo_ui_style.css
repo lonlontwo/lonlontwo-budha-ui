@@ -174,7 +174,7 @@ a:active {
 .search-input {
     flex: 1;
     height: 45px;
-    padding: 0 50px 0 20px;
+    padding: 0 20px;
     background: rgba(255, 255, 255, 0.08);
     border: 1px solid rgba(255, 255, 255, 0.15);
     border-radius: var(--border-radius-md);
@@ -193,37 +193,6 @@ a:active {
     background: rgba(255, 255, 255, 0.12);
     border-color: var(--primary-color);
     box-shadow: 0 0 0 3px rgba(255, 123, 37, 0.1);
-}
-
-.search-button {
-    position: absolute;
-    right: 5px;
-    width: 36px;
-    height: 36px;
-    background: var(--primary-color);
-    border: none;
-    border-radius: var(--border-radius-sm);
-    color: white;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: all var(--transition-fast);
-    padding: 0;
-}
-
-.search-button:hover {
-    background: var(--primary-dark);
-    transform: scale(1.05);
-}
-
-.search-button:active {
-    transform: scale(0.95);
-}
-
-.search-button svg {
-    width: 18px;
-    height: 18px;
 }
 
 /* ===================================== */
@@ -786,12 +755,7 @@ a:active {
     .search-input {
         height: 40px;
         font-size: 0.85rem;
-        padding: 0 45px 0 15px;
-    }
-
-    .search-button {
-        width: 32px;
-        height: 32px;
+        padding: 0 15px;
     }
 }
 
@@ -867,17 +831,7 @@ a:active {
     .search-input {
         height: 38px;
         font-size: 0.8rem;
-        padding: 0 42px 0 12px;
-    }
-
-    .search-button {
-        width: 30px;
-        height: 30px;
-    }
-
-    .search-button svg {
-        width: 16px;
-        height: 16px;
+        padding: 0 12px;
     }
 }
 
