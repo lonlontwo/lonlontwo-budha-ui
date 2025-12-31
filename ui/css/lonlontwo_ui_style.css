@@ -176,8 +176,8 @@ a:active {
     height: 45px;
     padding: 0 20px;
     background: rgba(255, 255, 255, 0.08);
-    border: 1px solid rgba(255, 255, 255, 0.15);
-    border-radius: var(--border-radius-md);
+    border: none;
+    border-radius: 25px;
     color: var(--text-primary);
     font-size: 0.95rem;
     font-family: 'Inter', 'Noto Sans TC', sans-serif;
@@ -191,7 +191,6 @@ a:active {
 
 .search-input:focus {
     background: rgba(255, 255, 255, 0.12);
-    border-color: var(--primary-color);
     box-shadow: 0 0 0 3px rgba(255, 123, 37, 0.1);
 }
 
