@@ -665,6 +665,12 @@ a:active {
 /* ===================================== */
 /* == 響應式設計 == */
 /* ===================================== */
+@media (min-width: 2001px) {
+    .button-grid {
+        grid-template-columns: repeat(10, 1fr);
+    }
+}
+
 @media (max-width: 2000px) {
     .button-grid {
         grid-template-columns: repeat(10, 1fr);
