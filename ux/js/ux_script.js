@@ -31,7 +31,7 @@ const dashboardContainer = document.getElementById('dashboardContainer');
 const passwordInput = document.getElementById('passwordInput');
 const loginButton = document.getElementById('loginButton');
 const loginError = document.getElementById('loginError');
-const logoutButton = document.getElementById('logoutButton');
+const backToFrontendBtn = document.getElementById('backToFrontendBtn');
 
 // ===================================
 // == 登入功能 ==
@@ -68,9 +68,8 @@ function showLoginError(message) {
 }
 
 function handleLogout() {
-    isLoggedIn = false;
-    sessionStorage.removeItem('ux_logged_in');
-    showLogin();
+    // 導向回前台
+    window.location.href = '../ui/index.html';
 }
 
 function showLogin() {
@@ -80,87 +79,96 @@ function showLogin() {
 
 function showDashboard() {
     loginContainer.style.display = 'none';
-    dashboardContainer.style.display = 'grid';
-    loadDashboardData();
+    dashboardContainer.style.display = 'flex';
+    initTabs();
+    // 預設載入常用按鈕
+    loadButtonList('common');
 }
 
 // ===================================
-// == 頁面切換功能 ==
+// == 標籤切換功能 ==
 // ===================================
-function switchView(viewName) {
-    // 隱藏所有視圖
-    const allViews = document.querySelectorAll('.view-content');
-    allViews.forEach(view => view.classList.remove('active'));
+function initTabs() {
+    const tabs = document.querySelectorAll('.tab-btn');
+    tabs.forEach(tab => {
+        tab.addEventListener('click', () => {
+            // 移除所有 active
+            tabs.forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.view-section').forEach(v => v.classList.remove('active'));
 
-    // 移除所有選單項目的 active 狀態
-    const allMenuItems = document.querySelectorAll('.menu-item');
-    allMenuItems.forEach(item => item.classList.remove('active'));
+            // 啟用當前
+            tab.classList.add('active');
+            const tabName = tab.getAttribute('data-tab');
 
-    // 顯示選中的視圖
-    const targetView = document.getElementById(`${viewName}View`);
-    if (targetView) {
-        targetView.classList.add('active');
-    }
-
-    // 設定選中的選單項目
-    const targetMenuItem = document.querySelector(`[data-view="${viewName}"]`);
-    if (targetMenuItem) {
-        targetMenuItem.classList.add('active');
-    }
-
-    // 載入對應頁面的資料
-    loadViewData(viewName);
+            if (tabName === 'settings') {
+                document.getElementById('settingsView').classList.add('active');
+            } else {
+                document.getElementById('buttonManagementView').classList.add('active');
+                loadButtonList(tabName);
+            }
+        });
+    });
 }
 
 // ===================================
-// == 資料載入功能 (預留) ==
+// == 列表渲染 (模擬資料) ==
 // ===================================
-function loadDashboardData() {
-    console.log('載入儀表板資料...');
-    // 這裡預留給您後續實作
-}
+function loadButtonList(type) {
+    console.log(`載入列表: ${type}`);
+    const container = document.getElementById('listContainer');
+    if (!container) return;
 
-function loadViewData(viewName) {
-    console.log(`載入 ${viewName} 頁面資料...`);
+    container.innerHTML = ''; // 清空
 
-    switch (viewName) {
-        case 'overview':
-            loadOverviewData();
-            break;
-        case 'buttons':
-            loadButtonsData();
-            break;
-        case 'records':
-            loadRecordsData();
-            break;
-        case 'settings':
-            loadSettingsData();
-            break;
-    }
-}
+    // 模擬資料
+    const mockData = [
+        {
+            name: "chatgpt",
+            image: "https://i.ibb.co/6Jv2qS2p/chatgpt.jpg",
+            url: "https://chat.openai.com/chat",
+            active: true,
+            locked: true
+        },
+        {
+            name: "claude",
+            image: "https://i.ibb.co/P2hQFNQ/claude.jpg",
+            url: "https://claude.ai/chat/",
+            active: true,
+            locked: false
+        }
+    ];
 
-function loadOverviewData() {
-    console.log('載入總覽資料...');
-    // 預留功能
-}
-
-function loadButtonsData() {
-    console.log('載入按鈕資料...');
-    // 預留功能
-    const tableBody = document.getElementById('buttonTableBody');
-    if (tableBody) {
-        tableBody.innerHTML = '<tr><td colspan="5" class="empty-state">按鈕資料載入功能待實作</td></tr>';
-    }
-}
-
-function loadRecordsData() {
-    console.log('載入操作記錄...');
-    // 預留功能
-}
-
-function loadSettingsData() {
-    console.log('載入系統設定...');
-    // 預留功能
+    mockData.forEach(item => {
+        const itemHTML = `
+            <div class="list-item">
+                <div class="item-img-box">
+                    <img src="${item.image}" alt="${item.name}">
+                </div>
+                <div class="item-info">
+                    <div class="info-row start">
+                        ${item.locked ? '<span class="lock-icon">🔒</span>' : ''}
+                        <span class="item-name">${item.name}</span>
+                        <span class="status-badge ${item.active ? 'active' : ''}">${item.active ? '啟用' : '停用'}</span>
+                    </div>
+                    <div class="info-row link">
+                        <span class="link-icon">🔗</span>
+                        <span class="item-link">${item.url}</span>
+                    </div>
+                </div>
+                <div class="item-actions">
+                    <div class="action-buttons">
+                        <button class="action-btn edit">編輯</button>
+                        <button class="action-btn delete">刪除</button>
+                    </div>
+                    <label class="toggle-switch">
+                        <input type="checkbox" ${item.active ? 'checked' : ''}>
+                        <span class="slider round"></span>
+                    </label>
+                </div>
+            </div>
+        `;
+        container.insertAdjacentHTML('beforeend', itemHTML);
+    });
 }
 
 // ===================================
@@ -168,10 +176,18 @@ function loadSettingsData() {
 // ===================================
 document.addEventListener('DOMContentLoaded', function () {
     console.log('UX 後台系統已載入');
-    console.log('Firebase 已初始化');
 
-    // 檢查登入狀態
+    // 檢查登入狀態並顯示介面
     const savedLoginState = sessionStorage.getItem('ux_logged_in');
+
+    // 初始化返回按鈕事件 (如果有)
+    const backBtn = document.getElementById('backToFrontendBtn');
+    if (backBtn) {
+        backBtn.addEventListener('click', () => {
+            window.location.href = '../ui/index.html';
+        });
+    }
+
     if (savedLoginState === 'true') {
         isLoggedIn = true;
         showDashboard();
@@ -192,20 +208,6 @@ document.addEventListener('DOMContentLoaded', function () {
             }
         });
     }
-
-    // 登出按鈕事件
-    if (logoutButton) {
-        logoutButton.addEventListener('click', handleLogout);
-    }
-
-    // 選單切換事件
-    const menuItems = document.querySelectorAll('.menu-item');
-    menuItems.forEach(item => {
-        item.addEventListener('click', function () {
-            const viewName = this.getAttribute('data-view');
-            switchView(viewName);
-        });
-    });
 });
 
 // ===================================
