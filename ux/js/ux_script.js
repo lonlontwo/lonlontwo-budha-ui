@@ -163,6 +163,9 @@ function loadButtonList(type) {
         currentSortable = null;
     }
 
+    // 重置編輯表單（確保切換分頁時表單狀態正確）
+    resetButtonForm();
+
     container.innerHTML = '<div class="loading">載入資料中...</div>';
 
     // 定義集合名稱
