@@ -403,22 +403,47 @@ body {
     flex: 1;
     display: flex;
     flex-direction: column;
-    gap: 8px;
+    gap: 4px;
+    min-width: 0;
+    /* 關鍵：防止內容撐開 flex 容器 */
 }
 
 .info-row {
     display: flex;
     align-items: center;
+    max-width: 100%;
 }
 
 .info-row.start {
     gap: 10px;
 }
 
+.info-row.desc {
+    font-size: 0.85rem;
+    color: #888;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
 .info-row.link {
     gap: 8px;
     color: #666;
-    font-size: 0.9rem;
+    font-size: 0.85rem;
+}
+
+.item-link {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: block;
+    max-width: 100%;
+}
+
+.item-link a {
+    display: block;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .lock-icon {
