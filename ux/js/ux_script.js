@@ -289,8 +289,8 @@ function loadButtonList(type) {
         // 更新計數
         updateCount(type, count);
 
-        // 只為常用按鈕啟用拖曳排序（主工具按鈕資料尚未完全遷移到 Firebase）
-        if (collectionName === 'common_buttons') {
+        // 啟用拖曳排序 (Common 與 Tools 皆啟用)
+        if (collectionName === 'common_buttons' || collectionName === 'tool_buttons') {
             initSortable(container, collectionName);
         }
 
@@ -303,6 +303,12 @@ function loadButtonList(type) {
 // 初始化拖曳排序
 function initSortable(container, collectionName) {
     if (!container || !window.Sortable) return;
+
+    // 防止重複綁定：如果有舊實例，先銷毀
+    if (currentSortable) {
+        currentSortable.destroy();
+        currentSortable = null;
+    }
 
     currentSortable = new Sortable(container, {
         animation: 150,
@@ -318,13 +324,21 @@ function initSortable(container, collectionName) {
             // 為每個項目設定新的 order 值
             items.forEach((item, index) => {
                 const id = item.dataset.id;
-                if (id) {
+                // 確保 ID 有效且不為 "undefined" 字串
+                if (id && id !== 'undefined') {
                     updates.push({
                         id: id,
                         order: index + 1
                     });
+                } else {
+                    console.warn(`發現無效 ID 的項目 (Index: ${index})`, item);
                 }
             });
+
+            if (updates.length === 0) {
+                console.warn('沒有有效的項目需要更新順序');
+                return;
+            }
 
             console.log('準備更新順序:', updates);
 
