@@ -731,6 +731,12 @@ input:checked+.slider:before {
     border: 1px solid #3a3a3a;
     transition: all 0.3s ease;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    cursor: move;
+    cursor: grab;
+}
+
+.sub-btn-item:active {
+    cursor: grabbing;
 }
 
 .sub-btn-item:hover {

@@ -904,7 +904,7 @@ function renderSubButtonList() {
     let html = '';
     currentList.forEach((item, index) => {
         html += `
-            <div class="sub-btn-item">
+            <div class="sub-btn-item" data-index="${index}">
                 <img src="${item.img || 'https://via.placeholder.com/32'}" class="sub-btn-img" onerror="this.src='https://via.placeholder.com/32'">
                 <div class="sub-btn-info">
                     <span class="sub-name">${item.name}</span>
@@ -915,6 +915,71 @@ function renderSubButtonList() {
         `;
     });
     listContainer.innerHTML = html;
+
+    // 初始化拖曳排序功能
+    initSubButtonSortable();
+}
+
+// ===================================
+// == 子按鈕拖曳排序功能 ==
+// ===================================
+let subButtonSortable = null; // 儲存 Sortable 實例
+
+function initSubButtonSortable() {
+    const listContainer = document.getElementById('subBtnList');
+    if (!listContainer || !window.Sortable) return;
+
+    // 如果已有實例，先銷毀
+    if (subButtonSortable) {
+        subButtonSortable.destroy();
+        subButtonSortable = null;
+    }
+
+    // 建立新的 Sortable 實例
+    subButtonSortable = new Sortable(listContainer, {
+        animation: 150,
+        handle: '.sub-btn-item', // 整個項目都可以拖曳
+        ghostClass: 'sortable-ghost',
+        chosenClass: 'sortable-chosen',
+        dragClass: 'sortable-drag',
+        onEnd: function (evt) {
+            // 拖曳結束後，重新排序 JSON 資料
+            updateSubButtonOrder();
+        }
+    });
+}
+
+function updateSubButtonOrder() {
+    const listContainer = document.getElementById('subBtnList');
+    const jsonInput = document.getElementById('btnFolderJsonInput');
+
+    if (!listContainer || !jsonInput) return;
+
+    // 讀取目前的 JSON 資料
+    let currentList = [];
+    try {
+        currentList = JSON.parse(jsonInput.value || '[]');
+    } catch (e) {
+        console.error('JSON 解析失敗:', e);
+        return;
+    }
+
+    // 根據 DOM 的新順序重新排列資料
+    const items = Array.from(listContainer.querySelectorAll('.sub-btn-item'));
+    const newList = [];
+
+    items.forEach(item => {
+        const oldIndex = parseInt(item.dataset.index);
+        if (!isNaN(oldIndex) && currentList[oldIndex]) {
+            newList.push(currentList[oldIndex]);
+        }
+    });
+
+    // 更新 JSON 並重新渲染
+    jsonInput.value = JSON.stringify(newList, null, 4);
+    renderSubButtonList();
+
+    console.log('✓ 子按鈕順序已更新');
 }
 
 // ===================================
