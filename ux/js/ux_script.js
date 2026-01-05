@@ -430,6 +430,12 @@ async function handleButtonSubmit() {
                 alert('資料夾內容必須是陣列格式 [...]');
                 return;
             }
+            // 自動為資料夾內容中的 URL 補上協議
+            content.forEach(item => {
+                if (item.url && !item.url.startsWith('http://') && !item.url.startsWith('https://') && !item.url.startsWith('javascript:')) {
+                    item.url = 'https://' + item.url;
+                }
+            });
             data.content = content; // 儲存結構化資料
             data.url = ''; // 清空 URL
         } catch (e) {
@@ -438,7 +444,12 @@ async function handleButtonSubmit() {
         }
     } else {
         // 一般連結模式
-        data.url = urlInput.value.trim() || 'javascript:void(0)';
+        let url = urlInput.value.trim() || 'javascript:void(0)';
+        // 自動為沒有協議的 URL 補上 https://
+        if (url && !url.startsWith('http://') && !url.startsWith('https://') && !url.startsWith('javascript:')) {
+            url = 'https://' + url;
+        }
+        data.url = url;
         data.content = null; // 清空資料夾內容
     }
 
