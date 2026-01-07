@@ -37,6 +37,7 @@
             <!-- 搜尋框 -->
             <div class="search-container">
                 <input type="text" class="search-input" placeholder="🐰 搜尋..." id="searchInput">
+                <button class="ai-robot-btn" id="aiRobotBtn" onclick="window.openAiModal()">🥕</button>
             </div>
 
             <div class="marquee-container">
@@ -76,6 +77,24 @@
                     <!-- JS 動態生成子按鈕 -->
                 </div>
             </div>
+        </div>
+    </div>
+
+    <!-- AI 浮框彈窗 (AI Modal) -->
+    <div id="aiModalOverlay" class="ai-modal-overlay">
+        <div class="ai-modal">
+            <div class="ai-header">
+                <div class="ai-title">🤖 智能助手</div>
+                <button class="ai-close-btn" onclick="window.closeAiModal()">×</button>
+            </div>
+            <div class="ai-content">
+                <div class="ai-drag-shield"></div>
+                <iframe id="aiFrame" src="" frameborder="0"></iframe>
+            </div>
+            <!-- 視窗拉伸縮放控制點 -->
+            <div class="ai-resizer resizer-r"></div>
+            <div class="ai-resizer resizer-b"></div>
+            <div class="ai-resizer resizer-rb"></div>
         </div>
     </div>
 </body>

@@ -717,4 +717,116 @@ $(document).ready(function () {
         if (e.key === 'Escape') window.closeFolderModal();
     });
 
+    // ========================================
+    // == AI 浮框彈窗控制與拖曳/縮放功能 (進階版) ==
+    // ========================================
+    const aiModal = document.querySelector('.ai-modal');
+    const aiHeader = document.querySelector('.ai-header');
+    const aiShield = document.querySelector('.ai-drag-shield');
+    const resizers = document.querySelectorAll('.ai-resizer');
+
+    let isDragging = false;
+    let isResizing = false;
+    let currentResizer = null;
+    let startX, startY, initialLeft, initialTop, initialWidth, initialHeight;
+
+    window.openAiModal = function () {
+        const modalOverlay = document.getElementById('aiModalOverlay');
+        const aiFrame = document.getElementById('aiFrame');
+        const targetUrl = 'https://lonlontwo-gpt.pages.dev/';
+
+        // 重置位置與大小到預設 (符合綠色框選位置)
+        aiModal.style.width = '400px';
+        aiModal.style.height = '70vh';
+        aiModal.style.left = (window.innerWidth - 420) + 'px';
+        aiModal.style.top = '30vh';
+        aiModal.style.transform = 'scale(1)';
+
+        aiFrame.src = targetUrl;
+        modalOverlay.style.display = 'flex';
+        setTimeout(() => modalOverlay.classList.add('active'), 10);
+    };
+
+    window.closeAiModal = function () {
+        const modalOverlay = document.getElementById('aiModalOverlay');
+        const aiFrame = document.getElementById('aiFrame');
+        modalOverlay.classList.remove('active');
+        setTimeout(() => {
+            modalOverlay.style.display = 'none';
+            aiFrame.src = '';
+        }, 300);
+    };
+
+    // --- 拖曳邏輯 ---
+    aiHeader.addEventListener('mousedown', (e) => {
+        isDragging = true;
+        aiShield.style.display = 'block';
+
+        const rect = aiModal.getBoundingClientRect();
+        startX = e.clientX;
+        startY = e.clientY;
+        initialLeft = rect.left;
+        initialTop = rect.top;
+
+        aiModal.style.transform = 'none';
+        aiModal.style.left = initialLeft + 'px';
+        aiModal.style.top = initialTop + 'px';
+        aiModal.style.transition = 'none';
+    });
+
+    // --- 縮放邏輯 (多向拉伸) ---
+    resizers.forEach(resizer => {
+        resizer.addEventListener('mousedown', (e) => {
+            e.preventDefault();
+            isResizing = true;
+            currentResizer = e.target;
+            aiShield.style.display = 'block';
+
+            startX = e.clientX;
+            startY = e.clientY;
+            initialWidth = aiModal.offsetWidth;
+            initialHeight = aiModal.offsetHeight;
+
+            aiModal.style.transition = 'none';
+        });
+    });
+
+    document.addEventListener('mousemove', (e) => {
+        if (isDragging) {
+            const dx = e.clientX - startX;
+            const dy = e.clientY - startY;
+            aiModal.style.left = (initialLeft + dx) + 'px';
+            aiModal.style.top = (initialTop + dy) + 'px';
+        } else if (isResizing) {
+            const dx = e.clientX - startX;
+            const dy = e.clientY - startY;
+
+            if (currentResizer.classList.contains('resizer-r')) {
+                aiModal.style.width = (initialWidth + dx) + 'px';
+            } else if (currentResizer.classList.contains('resizer-b')) {
+                aiModal.style.height = (initialHeight + dy) + 'px';
+            } else if (currentResizer.classList.contains('resizer-rb')) {
+                aiModal.style.width = (initialWidth + dx) + 'px';
+                aiModal.style.height = (initialHeight + dy) + 'px';
+            }
+        }
+    });
+
+    document.addEventListener('mouseup', () => {
+        if (isDragging || isResizing) {
+            isDragging = false;
+            isResizing = false;
+            currentResizer = null;
+            aiShield.style.display = 'none';
+            aiModal.style.transition = 'transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.3s ease';
+        }
+    });
+
+    // 點擊遮罩關閉 AI Modal
+    document.getElementById('aiModalOverlay').addEventListener('click', (e) => {
+        if (e.target.id === 'aiModalOverlay') {
+            window.closeAiModal();
+        }
+    });
+
 });

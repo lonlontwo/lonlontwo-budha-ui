@@ -194,6 +194,34 @@ a:active {
     box-shadow: 0 0 0 3px rgba(255, 123, 37, 0.1);
 }
 
+.ai-robot-btn {
+    width: 45px;
+    height: 45px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.08);
+    border: none;
+    color: var(--text-primary);
+    font-size: 1.2rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all var(--transition-normal);
+    margin-left: 10px;
+    backdrop-filter: blur(5px);
+    box-shadow: var(--shadow-sm);
+}
+
+.ai-robot-btn:hover {
+    background: rgba(255, 255, 255, 0.15);
+    transform: scale(1.1);
+    box-shadow: 0 0 15px rgba(255, 255, 255, 0.1);
+}
+
+.ai-robot-btn:active {
+    transform: scale(0.95);
+}
+
 /* ===================================== */
 /* == 跑馬燈樣式 == */
 /* ===================================== */
@@ -711,6 +739,12 @@ a:active {
         height: 42px;
         font-size: 0.9rem;
     }
+
+    .ai-robot-btn {
+        width: 42px;
+        height: 42px;
+        font-size: 1.1rem;
+    }
 }
 
 @media (max-width: 900px) {
@@ -763,6 +797,12 @@ a:active {
         height: 40px;
         font-size: 0.85rem;
         padding: 0 15px;
+    }
+
+    .ai-robot-btn {
+        width: 40px;
+        height: 40px;
+        font-size: 1rem;
     }
 }
 
@@ -840,6 +880,13 @@ a:active {
         font-size: 0.8rem;
         padding: 0 12px;
     }
+
+    .ai-robot-btn {
+        width: 38px;
+        height: 38px;
+        font-size: 0.9rem;
+        margin-left: 8px;
+    }
 }
 
 @media (max-width: 400px) {
@@ -861,5 +908,179 @@ a:active {
     .header-logo {
         height: 60px;
         /* 響應式調整 */
+    }
+}
+
+/* ===================================== */
+/* == AI 浮框彈窗樣式 == */
+/* ===================================== */
+.ai-modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: transparent;
+    /* 移除透明黑背景 */
+    backdrop-filter: none;
+    /* 移除模糊效果 */
+    display: none;
+    /* justify-content: center; */
+    /* align-items: flex-start; */
+    /* 改為靠上，方便拖動 */
+    padding-top: 5vh;
+    z-index: 1000;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    pointer-events: none;
+    /* 讓點擊可以穿過遮罩層 */
+}
+
+.ai-modal-overlay.active {
+    display: block;
+    /* 改為 block 或是保持 flex 但不擋住點擊 */
+    opacity: 1;
+}
+
+.ai-modal {
+    pointer-events: auto;
+    /* 確保浮框本身還是可以點擊的 */
+    width: 400px;
+    height: 70vh;
+    background: #1a1a1a;
+    border-radius: 20px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.6);
+    /* 強化陰影以便在清晰背景下區分 */
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    position: absolute;
+    /* 改為絕對定位 */
+    top: 30vh;
+    left: calc(100% - 420px);
+    /* 靠右顯示，保留 20px 間距 */
+    transform: scale(0.9);
+    transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.3s ease;
+}
+
+.ai-modal-overlay.active .ai-modal {
+    transform: scale(1);
+}
+
+.ai-header {
+    padding: 15px 25px;
+    background: #252525;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    cursor: grab;
+    /* 使用抓取手勢 */
+    user-select: none;
+    z-index: 10;
+}
+
+.ai-header:active {
+    cursor: grabbing;
+}
+
+/* 拖曳屏障：防止 iframe 攔截滑鼠事件 */
+.ai-drag-shield {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 5;
+    display: none;
+    background: transparent;
+}
+
+.ai-title {
+    font-weight: 600;
+    color: var(--primary-color);
+    letter-spacing: 1px;
+}
+
+.ai-close-btn {
+    background: rgba(255, 255, 255, 0.05);
+    border: none;
+    color: #fff;
+    font-size: 20px;
+    width: 35px;
+    height: 35px;
+    border-radius: 50%;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.ai-close-btn:hover {
+    background: #ff4d4d;
+    transform: rotate(90deg);
+}
+
+.ai-content {
+    flex: 1;
+    width: 100%;
+    position: relative;
+    background: #fff;
+    /* 內部通常是白色背景的網頁 */
+}
+
+#aiFrame {
+    width: 100%;
+    height: 100%;
+    border: none;
+}
+
+.ai-resizer {
+    position: absolute;
+    z-index: 15;
+    background: transparent;
+}
+
+/* 右側拉伸 */
+.resizer-r {
+    width: 10px;
+    height: 100%;
+    right: 0;
+    top: 0;
+    cursor: e-resize;
+}
+
+/* 底部拉伸 */
+.resizer-b {
+    width: 100%;
+    height: 10px;
+    left: 0;
+    bottom: 0;
+    cursor: s-resize;
+}
+
+/* 右下角同步拉伸 */
+.resizer-rb {
+    width: 20px;
+    height: 20px;
+    right: 0;
+    bottom: 0;
+    cursor: nwse-resize;
+}
+
+.resizer-rb::after {
+    content: "";
+    position: absolute;
+    right: 4px;
+    bottom: 4px;
+    width: 12px;
+    height: 12px;
+    border-right: 2px solid rgba(255, 255, 255, 0.2);
+    border-bottom: 2px solid rgba(255, 255, 255, 0.2);
+}
+
+@media (max-width: 768px) {
+    .ai-modal {
+        width: 95%;
+        height: 90%;
     }
 }
