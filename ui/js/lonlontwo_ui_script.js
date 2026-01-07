@@ -735,13 +735,27 @@ $(document).ready(function () {
         const aiFrame = document.getElementById('aiFrame');
         const targetUrl = 'https://lonlontwo-gpt.pages.dev/';
 
-        // 重置位置與大小到預設 (符合綠色框選位置)
-        aiModal.style.width = '400px';
-        aiModal.style.height = '70vh';
-        aiModal.style.left = (window.innerWidth - 420) + 'px';
-        aiModal.style.top = '30vh';
-        aiModal.style.transform = 'scale(1)';
+        const isMobile = window.innerWidth <= 768;
 
+        if (isMobile) {
+            // 手機版：清理可能殘留的 PC inline style，讓 CSS 控制 Bottom Sheet 佈局
+            aiModal.style.width = '';
+            aiModal.style.height = '';
+            aiModal.style.left = '';
+            aiModal.style.top = '';
+            aiModal.style.bottom = '';
+            aiModal.style.transform = '';
+        } else {
+            // PC 版：原本的靠右預設位置
+            aiModal.style.width = '400px';
+            aiModal.style.height = '70vh';
+            aiModal.style.left = (window.innerWidth - 420) + 'px';
+            aiModal.style.top = '30vh';
+            aiModal.style.bottom = 'auto';
+            aiModal.style.transform = 'scale(1)';
+        }
+
+        aiModal.style.transition = 'transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.3s ease';
         aiFrame.src = targetUrl;
         modalOverlay.style.display = 'flex';
         setTimeout(() => modalOverlay.classList.add('active'), 10);

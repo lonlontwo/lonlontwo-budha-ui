@@ -1080,7 +1080,24 @@ a:active {
 
 @media (max-width: 768px) {
     .ai-modal {
-        width: 95%;
-        height: 90%;
+        width: 100% !important;
+        height: 80% !important;
+        left: 0 !important;
+        bottom: 0 !important;
+        top: auto !important;
+        border-radius: 20px 20px 0 0;
+    }
+
+    .ai-modal-overlay {
+        align-items: flex-end;
+        padding-top: 0;
+    }
+
+    .ai-resizer {
+        display: none !important;
+    }
+
+    .ai-header {
+        cursor: default;
     }
 }
