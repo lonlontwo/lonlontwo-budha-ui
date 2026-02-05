@@ -1113,3 +1113,22 @@ input:checked+.slider:before {
 #swfView .edit-form-card {
     overflow: hidden;
 }
+
+/* ===================================== */
+/* == 角色管理視圖 iframe 樣式 == */
+/* ===================================== */
+#knowledgeView iframe {
+    scrollbar-width: none;
+    /* Firefox */
+    -ms-overflow-style: none;
+    /* IE and Edge */
+}
+
+#knowledgeView iframe::-webkit-scrollbar {
+    display: none;
+    /* Chrome, Safari, Opera */
+}
+
+#knowledgeView .edit-form-card {
+    overflow: hidden;
+}

@@ -135,9 +135,9 @@ function initTabs() {
                 // 可以在這裡添加載入 SWF 設定的函數
                 // loadSwfSettings();
             } else if (tabName === 'knowledge') {
-                // 新增：知識外掛視圖
+                // 新增：角色管理視圖
                 document.getElementById('knowledgeView').classList.add('active');
-                // 可以在這裡添加載入知識外掛設定的函數
+                // 可以在這裡添加載入角色管理設定的函數
                 // loadKnowledgeSettings();
             } else {
                 document.getElementById('buttonManagementView').classList.add('active');
