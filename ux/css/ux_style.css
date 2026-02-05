@@ -977,17 +977,17 @@ input:checked+.slider:before {
         transform: translateX(20px);
     }
 
-    /* 分頁標籤優化 - 改為網格佈局 */
+    /* 分頁標籤優化 - 改為 3x2 網格佈局 (6個按鈕) */
     .tabs-container {
         display: grid;
-        grid-template-columns: repeat(2, 1fr);
-        gap: 8px;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 6px;
         margin-bottom: 15px;
     }
 
     .tab-btn {
-        font-size: 0.8rem;
-        padding: 10px 8px;
+        font-size: 0.75rem;
+        padding: 10px 6px;
         text-align: center;
         justify-content: center;
         white-space: nowrap;
@@ -995,8 +995,8 @@ input:checked+.slider:before {
 
     .badge,
     .count {
-        font-size: 0.7rem;
-        padding: 1px 5px;
+        font-size: 0.65rem;
+        padding: 1px 4px;
     }
 
     /* 編輯表單優化 */
