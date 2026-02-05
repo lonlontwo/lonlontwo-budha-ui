@@ -250,6 +250,30 @@ body {
     display: none;
 }
 
+/* 隱藏所有可能的 scrollbar */
+* {
+    scrollbar-width: none;
+    /* Firefox */
+    -ms-overflow-style: none;
+    /* IE and Edge */
+}
+
+*::-webkit-scrollbar {
+    display: none;
+    /* Chrome, Safari, Opera */
+}
+
+/* 確保視圖區域也隱藏 scrollbar */
+.view-section {
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+}
+
+.view-section::-webkit-scrollbar {
+    display: none;
+}
+
+
 /* ===================================== */
 /* == 分頁標籤 == */
 /* ===================================== */
@@ -1064,4 +1088,23 @@ input:checked+.slider:before {
         font-size: 0.95rem;
         padding: 12px;
     }
+}
+
+/* ===================================== */
+/* == SWF 視圖 iframe 樣式 == */
+/* ===================================== */
+#swfView iframe {
+    scrollbar-width: none;
+    /* Firefox */
+    -ms-overflow-style: none;
+    /* IE and Edge */
+}
+
+#swfView iframe::-webkit-scrollbar {
+    display: none;
+    /* Chrome, Safari, Opera */
+}
+
+#swfView .edit-form-card {
+    overflow: hidden;
 }

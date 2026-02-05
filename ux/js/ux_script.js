@@ -129,6 +129,11 @@ function initTabs() {
             if (tabName === 'settings') {
                 document.getElementById('settingsView').classList.add('active');
                 loadSettingsData();
+            } else if (tabName === 'swf') {
+                // 新增：SWF 設置視圖
+                document.getElementById('swfView').classList.add('active');
+                // 可以在這裡添加載入 SWF 設定的函數
+                // loadSwfSettings();
             } else {
                 document.getElementById('buttonManagementView').classList.add('active');
                 // 切換分頁時重置表單

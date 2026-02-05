@@ -54,6 +54,9 @@
                 <button class="tab-btn" data-tab="settings">
                     後台設置
                 </button>
+                <button class="tab-btn" data-tab="swf">
+                    SWF 設置
+                </button>
                 <button class="tab-btn" data-tab="smart"
                     onclick="window.open('https://lonlontwo-gpt.pages.dev/admin.html', '_blank')">
                     智能設置
@@ -200,6 +203,16 @@
                     </div>
 
                     <button class="submit-btn" onclick="saveSettingsData()">儲存設定</button>
+                </div>
+            </div>
+
+            <!-- SWF 設置視圖 -->
+            <div id="swfView" class="view-section">
+                <div class="edit-form-card" style="padding: 0; height: calc(100vh - 150px);">
+                    <iframe src="https://swf-box.pages.dev/lonlontwo_swf_key"
+                        style="width: 100%; height: 100%; border: none; border-radius: 12px;" frameborder="0"
+                        allowfullscreen>
+                    </iframe>
                 </div>
             </div>
 
