@@ -134,6 +134,11 @@ function initTabs() {
                 document.getElementById('swfView').classList.add('active');
                 // 可以在這裡添加載入 SWF 設定的函數
                 // loadSwfSettings();
+            } else if (tabName === 'smart') {
+                // 新增：智能設置視圖
+                document.getElementById('smartView').classList.add('active');
+                // 可以在這裡添加載入智能設置的函數
+                // loadSmartSettings();
             } else if (tabName === 'knowledge') {
                 // 新增：角色管理視圖
                 document.getElementById('knowledgeView').classList.add('active');

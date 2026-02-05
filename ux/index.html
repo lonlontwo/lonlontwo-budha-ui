@@ -57,8 +57,7 @@
                 <button class="tab-btn" data-tab="swf">
                     SWF 設置
                 </button>
-                <button class="tab-btn" data-tab="smart"
-                    onclick="window.open('https://lonlontwo-gpt.pages.dev/admin.html', '_blank')">
+                <button class="tab-btn" data-tab="smart">
                     智能設置
                 </button>
                 <button class="tab-btn" data-tab="knowledge">
@@ -219,15 +218,13 @@
                 </div>
             </div>
 
-            <!-- 智能設置視圖 (預留) -->
+            <!-- 智能設置視圖 -->
             <div id="smartView" class="view-section">
-                <div class="edit-form-card">
-                    <div class="form-group">
-                        <label>🤖 智能設置</label>
-                        <div class="field-hint" style="color: #666; font-size: 0.9rem; margin-top: 10px;">
-                            功能模組開發中，敬請期待...
-                        </div>
-                    </div>
+                <div class="edit-form-card" style="padding: 0; height: calc(100vh - 150px);">
+                    <iframe src="https://lonlontwo-gpt.pages.dev/admin.html"
+                        style="width: 100%; height: 100%; border: none; border-radius: 12px;" frameborder="0"
+                        allowfullscreen>
+                    </iframe>
                 </div>
             </div>
 
