@@ -977,21 +977,26 @@ input:checked+.slider:before {
         transform: translateX(20px);
     }
 
-    /* 分頁標籤優化 */
+    /* 分頁標籤優化 - 改為網格佈局 */
     .tabs-container {
-        flex-wrap: wrap;
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
         gap: 8px;
+        margin-bottom: 15px;
     }
 
     .tab-btn {
-        font-size: 0.85rem;
-        padding: 8px 15px;
+        font-size: 0.8rem;
+        padding: 10px 8px;
+        text-align: center;
+        justify-content: center;
+        white-space: nowrap;
     }
 
     .badge,
     .count {
-        font-size: 0.75rem;
-        padding: 2px 6px;
+        font-size: 0.7rem;
+        padding: 1px 5px;
     }
 
     /* 編輯表單優化 */
