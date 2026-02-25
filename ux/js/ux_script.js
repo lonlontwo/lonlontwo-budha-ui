@@ -926,12 +926,35 @@ function addSubButton() {
     jsonInput.value = JSON.stringify(currentList, null, 4);
     renderSubButtonList();
 
+    // === 新增：如果正在編輯中，直接同步到 Firebase ===
+    syncFolderToFirebase(currentList);
+
     // 清空輸入，恢復新增模式
     nameInput.value = '';
     urlInput.value = 'https://';
     imgInput.value = '';
     _editingSubIndex = -1;
     if (addBtn) addBtn.textContent = '➕';
+}
+
+// 內部工具：將子按鈕變動同步到雲端
+async function syncFolderToFirebase(newList) {
+    const editId = document.getElementById('editingBtnId').value;
+    if (!editId) return; // 不在編輯模式就不自動同步
+
+    const activeTab = document.querySelector('.tab-btn.active');
+    const type = activeTab ? activeTab.getAttribute('data-tab') : 'common';
+    const collectionName = (type === 'tools') ? 'tool_buttons' : 'common_buttons';
+
+    try {
+        await db.collection(collectionName).doc(editId).update({
+            content: newList,
+            updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+        });
+        console.log('☁️ 子按鈕變更已即時同步至雲端');
+    } catch (e) {
+        console.error('即時同步失敗:', e);
+    }
 }
 
 function removeSubButton(index) {
@@ -951,6 +974,9 @@ function removeSubButton(index) {
     // 寫回 JSON 並重繪
     jsonInput.value = JSON.stringify(currentList, null, 4);
     renderSubButtonList();
+
+    // === 新增：即時同步 ===
+    syncFolderToFirebase(currentList);
 }
 
 function renderSubButtonList() {
@@ -975,8 +1001,10 @@ function renderSubButtonList() {
     let html = '';
     currentList.forEach((item, index) => {
         const isActive = item.active !== false; // 預設為啟用
+        const opacityStyle = isActive ? '' : 'opacity: 0.5; filter: grayscale(0.8);';
+
         html += `
-            <div class="sub-btn-item" data-index="${index}">
+            <div class="sub-btn-item" data-index="${index}" style="${opacityStyle}">
                 <img src="${item.img || 'https://via.placeholder.com/32'}" class="sub-btn-img" onerror="this.src='https://via.placeholder.com/32'">
                 <button type="button" class="icon-btn delete sub-delete-btn" onclick="window.uxAdmin.removeSubButton(${index})" title="刪除">🗑️</button>
                 <div class="sub-btn-info">
@@ -1041,8 +1069,12 @@ function toggleSubButtonStatus(index, isActive) {
 
     currentList[index].active = isActive;
 
-    // 寫回 JSON（不重新渲染，避免 toggle 閃爍）
+    // 寫回 JSON 並重新渲染以套用視覺效果
     jsonInput.value = JSON.stringify(currentList, null, 4);
+    renderSubButtonList();
+
+    // === 新增：即時同步 ===
+    syncFolderToFirebase(currentList);
 }
 
 // ===================================
