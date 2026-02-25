@@ -678,15 +678,18 @@ $(document).ready(function () {
         // 填充子按鈕
         if (subButtons && Array.isArray(subButtons)) {
             subButtons.forEach(btn => {
-                const btnHTML = `
-                    <a href="${btn.url}" class="image-button" target="_blank">
-                        <div class="image-container">
-                            <img src="${btn.img || 'https://via.placeholder.com/160'}" alt="${btn.name}" loading="lazy">
-                        </div>
-                        <div class="button-label">${btn.name}</div>
-                    </a>
-                `;
-                modalGrid.insertAdjacentHTML('beforeend', btnHTML);
+                // 過濾：只顯示啟用的按鈕 (active 不為 false)
+                if (btn.active !== false) {
+                    const btnHTML = `
+                        <a href="${btn.url}" class="image-button" target="_blank">
+                            <div class="image-container">
+                                <img src="${btn.img || 'https://via.placeholder.com/160'}" alt="${btn.name}" loading="lazy">
+                            </div>
+                            <div class="button-label">${btn.name}</div>
+                        </a>
+                    `;
+                    modalGrid.insertAdjacentHTML('beforeend', btnHTML);
+                }
             });
         }
 
