@@ -569,7 +569,8 @@ body {
 
 .action-buttons {
     display: flex;
-    flex-direction: column;
+    flex-direction: row;
+    align-items: center;
     gap: 8px;
 }
 
@@ -604,8 +605,6 @@ body {
     display: flex;
     align-items: center;
     justify-content: center;
-    margin-left: 10px;
-    /* 與左側元素保持距離 */
     opacity: 0.6;
 }
 
