@@ -569,9 +569,22 @@ body {
 
 .action-buttons {
     display: flex;
-    flex-direction: row;
-    align-items: center;
+    flex-direction: column;
     gap: 8px;
+}
+
+/* 左側刪除按鈕獨立定位 */
+.list-item>.icon-btn.delete {
+    flex-shrink: 0;
+    margin-right: 5px;
+    opacity: 0.4;
+    font-size: 1.2rem;
+    transition: all 0.2s ease;
+}
+
+.list-item>.icon-btn.delete:hover {
+    opacity: 1;
+    transform: scale(1.15);
 }
 
 .action-btn {

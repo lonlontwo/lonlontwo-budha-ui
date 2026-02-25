@@ -278,6 +278,7 @@ function loadButtonList(type) {
                     <div class="item-img-box">
                         <img src="${item.image}" alt="${item.name}" onerror="this.src='https://via.placeholder.com/60?text=No+Img'">
                     </div>
+                    <button class="icon-btn delete" onclick="deleteButton('${collectionName}', '${id}', '${item.name}')" title="刪除">🗑️</button>
                     <div class="item-info">
                         <div class="info-row start">
                             ${item.locked ? '<span class="lock-icon">🔒</span>' : ''}
@@ -296,7 +297,6 @@ function loadButtonList(type) {
                     <div class="item-actions">
                         <div class="action-buttons">
                             <button class="action-btn edit" onclick="editButton('${collectionName}', '${id}')">編輯</button>
-                            <button class="icon-btn delete" onclick="deleteButton('${collectionName}', '${id}', '${item.name}')" title="刪除">🗑️</button>
                         </div>
                         <label class="toggle-switch">
                             <input type="checkbox" ${item.active ? 'checked' : ''} onchange="toggleButtonStatus('${collectionName}', '${id}', this.checked)">
