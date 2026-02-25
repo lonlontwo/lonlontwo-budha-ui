@@ -565,6 +565,10 @@ body {
     display: flex;
     align-items: center;
     gap: 20px;
+    flex-shrink: 0;
+    margin-left: auto;
+    min-width: 120px;
+    justify-content: flex-end;
 }
 
 .action-buttons {
@@ -851,15 +855,18 @@ input:checked+.slider:before {
 .sub-btn-actions {
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 10px;
     flex-shrink: 0;
-    margin-left: 10px;
+    margin-left: auto;
+    min-width: 110px;
+    justify-content: flex-end;
 }
 
 .sub-edit-btn {
     padding: 5px 12px !important;
     font-size: 0.8rem !important;
-    width: auto !important;
+    width: 50px !important;
+    text-align: center;
     height: auto !important;
     background: #4caf50 !important;
     border-radius: 4px !important;
