@@ -414,6 +414,7 @@ async function handleButtonSubmit() {
     const descInput = document.getElementById('btnDescInput');
     const typeInput = document.getElementById('btnTypeInput'); // 新增：類型輸入
     const folderJsonInput = document.getElementById('btnFolderJsonInput'); // 新增：資料夾內容
+    const lockedInput = document.getElementById('btnLockedInput'); // 新增：鎖定狀態
 
     const editIdInput = document.getElementById('editingBtnId');
     const submitBtn = document.getElementById('btnSubmitBtn');
@@ -428,6 +429,7 @@ async function handleButtonSubmit() {
         name: nameInput.value.trim(),
         image: imgInput.value.trim() || 'https://via.placeholder.com/100?text=No+Img',
         desc: descInput.value.trim(),
+        locked: lockedInput.checked, // 儲存鎖定狀態
         updatedAt: firebase.firestore.FieldValue.serverTimestamp()
     };
 
@@ -521,6 +523,9 @@ async function editButton(collectionName, id) {
         document.getElementById('btnNameInput').value = data.name || '';
         document.getElementById('btnImgInput').value = data.image || '';
         document.getElementById('btnDescInput').value = data.desc || '';
+        if (document.getElementById('btnLockedInput')) {
+            document.getElementById('btnLockedInput').checked = data.locked || false;
+        }
 
         // 判斷並切換類型
         if (data.type === 'folder' || (data.content && Array.isArray(data.content))) {
@@ -572,6 +577,15 @@ function resetButtonForm() {
     document.getElementById('btnUrlInput').value = '';
     document.getElementById('btnDescInput').value = '';
     document.getElementById('btnFolderJsonInput').value = ''; // 新增：清空 JSON 欄位
+
+    if (document.getElementById('btnLockedInput')) {
+        document.getElementById('btnLockedInput').checked = false;
+    }
+
+    if (document.getElementById('btnSearchInput')) {
+        document.getElementById('btnSearchInput').value = ''; // 清空搜尋
+        filterButtonList(''); // 重置過濾
+    }
 
     document.getElementById('editingBtnId').value = '';
 
@@ -1091,6 +1105,32 @@ function updateSubButtonOrder() {
     renderSubButtonList();
 
     console.log('✓ 子按鈕順序已更新');
+}
+
+// ===================================
+// == 搜尋與過濾邏輯 ==
+// ===================================
+function filterButtonList(keyword) {
+    keyword = keyword.toLowerCase().trim();
+    const items = document.querySelectorAll('#listContainer .list-item');
+    const countHint = document.getElementById('searchCountHint');
+    let visibleCount = 0;
+
+    items.forEach(item => {
+        const name = item.querySelector('.item-name').textContent.toLowerCase();
+        const link = item.querySelector('.item-link').textContent.toLowerCase();
+
+        if (name.includes(keyword) || link.includes(keyword)) {
+            item.style.display = 'flex';
+            visibleCount++;
+        } else {
+            item.style.display = 'none';
+        }
+    });
+
+    if (countHint) {
+        countHint.textContent = keyword ? `找到 ${visibleCount} 個結果` : '';
+    }
 }
 
 // ===================================

@@ -137,8 +137,25 @@
                         <label>說明文字 (Tooltip)</label>
                         <input type="text" id="btnDescInput" class="admin-input" placeholder="滑鼠懸停時顯示的說明...">
                     </div>
+                    <div class="form-group" style="display: flex; align-items: center; gap: 10px; margin-bottom: 25px;">
+                        <label style="margin-bottom: 0; cursor: pointer; display: flex; align-items: center; gap: 8px;">
+                            <input type="checkbox" id="btnLockedInput"
+                                style="width: 18px; height: 18px; cursor: pointer;">
+                            🔒 鎖定此按鈕 (不給前端用戶輕易修改/顯示提示)
+                        </label>
+                    </div>
                     <button class="submit-btn" id="btnSubmitBtn" onclick="handleButtonSubmit()">新增按鈕</button>
                     <input type="hidden" id="editingBtnId">
+                </div>
+
+                <!-- 搜尋與過濾 -->
+                <div class="search-section" style="margin-bottom: 15px;">
+                    <div class="search-bar-wrapper" style="position: relative;">
+                        <input type="text" id="btnSearchInput" class="admin-input" placeholder="🔍 搜尋按鈕名稱或網址..."
+                            oninput="filterButtonList(this.value)">
+                        <span id="searchCountHint"
+                            style="position: absolute; right: 15px; top: 50%; transform: translateY(-50%); color: #666; font-size: 0.85rem;"></span>
+                    </div>
                 </div>
 
                 <!-- 列表區域 -->
