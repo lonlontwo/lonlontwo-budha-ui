@@ -281,14 +281,17 @@ function loadButtonList(type) {
                     <div class="item-info">
                         <div class="info-row start">
                             ${item.locked ? '<span class="lock-icon">🔒</span>' : ''}
+                            ${(item.type === 'folder' || (item.content && Array.isArray(item.content))) ? '<span class="folder-badge">📂</span>' : ''}
                             <span class="item-name">${item.name}</span>
                             <span class="status-badge ${activeClass}">${activeText}</span>
                             <button class="icon-btn delete" onclick="deleteButton('${collectionName}', '${id}', '${item.name}')" title="刪除">🗑️</button>
                         </div>
                         ${descHtml}
                         <div class="info-row link">
-                            <span class="link-icon">🔗</span>
-                            <span class="item-link"><a href="${item.url}" target="_blank" style="color: inherit; text-decoration: none;">${item.url}</a></span>
+                            ${(item.type === 'folder' || (item.content && Array.isArray(item.content)))
+                    ? `<span class="link-icon">📁</span><span class="item-link" style="color: #FFC107;">包含 ${(item.content || []).length} 個子按鈕</span>`
+                    : `<span class="link-icon">🔗</span><span class="item-link"><a href="${item.url}" target="_blank" style="color: inherit; text-decoration: none;">${item.url}</a></span>`
+                }
                         </div>
                     </div>
                     <div class="item-actions">
@@ -586,13 +589,19 @@ function resetButtonForm() {
     submitBtn.classList.remove('warning');
 }
 
-// 刪除按鈕
+// 刪除按鈕 (含確認對話框)
 async function deleteButton(collectionName, id, name) {
+    // 防止誤刪：彈出確認對話框
+    const confirmed = confirm(`確定要刪除「${name}」嗎？\n\n此操作無法復原！`);
+    if (!confirmed) return;
+
     try {
         await db.collection(collectionName).doc(id).delete();
+        console.log(`✓ 已刪除: ${name}`);
         // 不需手動 refresh，onSnapshot 會處理
     } catch (error) {
         console.error('刪除失敗:', error);
+        alert('刪除失敗：' + error.message);
     }
 }
 
@@ -853,11 +862,15 @@ function switchButtonType(type) {
 // ===================================
 // == 子按鈕管理 (Visual Editor) ==
 // ===================================
+// 記錄目前是否在編輯子按鈕模式（-1 代表新增模式，0以上代表編輯中的 index）
+let _editingSubIndex = -1;
+
 function addSubButton() {
     const nameInput = document.getElementById('subBtnName');
     const urlInput = document.getElementById('subBtnUrl');
     const imgInput = document.getElementById('subBtnImg');
     const jsonInput = document.getElementById('btnFolderJsonInput');
+    const addBtn = document.querySelector('.add-sub-btn');
 
     const name = nameInput.value.trim();
     const url = urlInput.value.trim();
@@ -876,21 +889,35 @@ function addSubButton() {
         currentList = [];
     }
 
-    // 新增項目
-    currentList.push({
-        name: name,
-        url: url,
-        img: img || 'https://via.placeholder.com/32' // 預設圖
-    });
+    if (_editingSubIndex >= 0 && _editingSubIndex < currentList.length) {
+        // === 更新模式：覆蓋指定項目 ===
+        currentList[_editingSubIndex].name = name;
+        currentList[_editingSubIndex].url = url;
+        currentList[_editingSubIndex].img = img || currentList[_editingSubIndex].img || 'https://via.placeholder.com/32';
+        // 保留原有的 active 狀態
+        if (currentList[_editingSubIndex].active === undefined) {
+            currentList[_editingSubIndex].active = true;
+        }
+    } else {
+        // === 新增模式：push 新項目 ===
+        currentList.push({
+            name: name,
+            url: url,
+            img: img || 'https://via.placeholder.com/32',
+            active: true
+        });
+    }
 
     // 寫回 JSON 並重繪
     jsonInput.value = JSON.stringify(currentList, null, 4);
     renderSubButtonList();
 
-    // 清空輸入
+    // 清空輸入，恢復新增模式
     nameInput.value = '';
     urlInput.value = 'https://';
     imgInput.value = '';
+    _editingSubIndex = -1;
+    if (addBtn) addBtn.textContent = '➕';
 }
 
 function removeSubButton(index) {
@@ -899,6 +926,10 @@ function removeSubButton(index) {
     try {
         currentList = JSON.parse(jsonInput.value || '[]');
     } catch (e) { return; }
+
+    // 確認刪除
+    const itemName = currentList[index] ? currentList[index].name : `#${index + 1}`;
+    if (!confirm(`確定要移除子按鈕「${itemName}」嗎？`)) return;
 
     // 刪除指定索引
     currentList.splice(index, 1);
@@ -929,6 +960,7 @@ function renderSubButtonList() {
 
     let html = '';
     currentList.forEach((item, index) => {
+        const isActive = item.active !== false; // 預設為啟用
         html += `
             <div class="sub-btn-item" data-index="${index}">
                 <img src="${item.img || 'https://via.placeholder.com/32'}" class="sub-btn-img" onerror="this.src='https://via.placeholder.com/32'">
@@ -936,7 +968,14 @@ function renderSubButtonList() {
                     <span class="sub-name">${item.name}</span>
                     <span class="sub-url">${item.url}</span>
                 </div>
-                <button type="button" class="remove-sub-btn" onclick="window.uxAdmin.removeSubButton(${index})">✖</button>
+                <div class="sub-btn-actions">
+                    <button type="button" class="action-btn edit sub-edit-btn" onclick="window.uxAdmin.editSubButton(${index})" title="編輯">編輯</button>
+                    <button type="button" class="icon-btn delete sub-delete-btn" onclick="window.uxAdmin.removeSubButton(${index})" title="刪除">🗑️</button>
+                    <label class="toggle-switch" title="啟用/停用">
+                        <input type="checkbox" ${isActive ? 'checked' : ''} onchange="window.uxAdmin.toggleSubButtonStatus(${index}, this.checked)">
+                        <span class="slider round"></span>
+                    </label>
+                </div>
             </div>
         `;
     });
@@ -944,6 +983,52 @@ function renderSubButtonList() {
 
     // 初始化拖曳排序功能
     initSubButtonSortable();
+}
+
+// === 新增：編輯子按鈕（填入欄位進入編輯模式）===
+function editSubButton(index) {
+    const jsonInput = document.getElementById('btnFolderJsonInput');
+    const nameInput = document.getElementById('subBtnName');
+    const urlInput = document.getElementById('subBtnUrl');
+    const imgInput = document.getElementById('subBtnImg');
+    const addBtn = document.querySelector('.add-sub-btn');
+
+    let currentList = [];
+    try {
+        currentList = JSON.parse(jsonInput.value || '[]');
+    } catch (e) { return; }
+
+    if (index < 0 || index >= currentList.length) return;
+
+    const item = currentList[index];
+    if (nameInput) nameInput.value = item.name || '';
+    if (urlInput) urlInput.value = item.url || '';
+    if (imgInput) imgInput.value = item.img || '';
+
+    // 切換為更新模式
+    _editingSubIndex = index;
+    if (addBtn) addBtn.textContent = '✔ 更新';
+
+    // 滾動到輸入區
+    const editor = document.querySelector('.sub-btn-editor');
+    if (editor) editor.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+
+// === 新增：切換子按鈕的啟用/停用狀態 ===
+function toggleSubButtonStatus(index, isActive) {
+    const jsonInput = document.getElementById('btnFolderJsonInput');
+
+    let currentList = [];
+    try {
+        currentList = JSON.parse(jsonInput.value || '[]');
+    } catch (e) { return; }
+
+    if (index < 0 || index >= currentList.length) return;
+
+    currentList[index].active = isActive;
+
+    // 寫回 JSON（不重新渲染，避免 toggle 閃爍）
+    jsonInput.value = JSON.stringify(currentList, null, 4);
 }
 
 // ===================================
@@ -1022,7 +1107,9 @@ window.uxAdmin = {
     resetButtonForm,
     handleLogout,
     switchButtonType,
-    addSubButton,      // 新增
-    removeSubButton,   // 新增
-    renderSubButtonList // 新增
+    addSubButton,
+    removeSubButton,
+    renderSubButtonList,
+    editSubButton,          // 新增：子按鈕編輯
+    toggleSubButtonStatus   // 新增：子按鈕隱匿開關
 };
