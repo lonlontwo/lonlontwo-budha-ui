@@ -964,13 +964,13 @@ function renderSubButtonList() {
         html += `
             <div class="sub-btn-item" data-index="${index}">
                 <img src="${item.img || 'https://via.placeholder.com/32'}" class="sub-btn-img" onerror="this.src='https://via.placeholder.com/32'">
+                <button type="button" class="icon-btn delete sub-delete-btn" onclick="window.uxAdmin.removeSubButton(${index})" title="刪除">🗑️</button>
                 <div class="sub-btn-info">
                     <span class="sub-name">${item.name}</span>
                     <span class="sub-url">${item.url}</span>
                 </div>
                 <div class="sub-btn-actions">
                     <button type="button" class="action-btn edit sub-edit-btn" onclick="window.uxAdmin.editSubButton(${index})" title="編輯">編輯</button>
-                    <button type="button" class="icon-btn delete sub-delete-btn" onclick="window.uxAdmin.removeSubButton(${index})" title="刪除">🗑️</button>
                     <label class="toggle-switch" title="啟用/停用">
                         <input type="checkbox" ${isActive ? 'checked' : ''} onchange="window.uxAdmin.toggleSubButtonStatus(${index}, this.checked)">
                         <span class="slider round"></span>
